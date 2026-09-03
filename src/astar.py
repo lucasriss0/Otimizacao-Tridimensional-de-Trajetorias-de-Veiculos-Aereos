@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from heapq import heappop, heappush
 from itertools import count
-from math import inf
+from math import inf, hypot, sqrt
 from typing import Optional
 
 import numpy as np
@@ -19,7 +19,12 @@ class PathResult:
     error: Optional[str] = None
 
 
-def heuristic(current: Position, goal: Position) -> float:
+def heuristic(
+    current: Position,
+    goal: Position,
+    cell_size_x_m: float = 1.0,
+    cell_size_y_m: float = 1.0,
+) -> float:
     """
     Distância de Manhattan.
     Como inicialmente permitimos apenas movimentos horizontais
@@ -28,7 +33,10 @@ def heuristic(current: Position, goal: Position) -> float:
     row_difference = abs(current[0] - goal[0])
     column_difference = abs(current[1] - goal[1])
 
-    return row_difference + column_difference
+    return (
+        row_difference * cell_size_y_m
+        + column_difference * cell_size_x_m
+    )
 
 
 def get_neighbors(position: Position, terrain: np.ndarray) -> list[Position]:
@@ -61,6 +69,8 @@ def movement_cost(
     current: Position,
     neighbor: Position,
     climb_weight: float,
+    cell_size_x_m: float = 1.0,
+    cell_size_y_m: float = 1.0,
 ) -> float:
     """
     Calcula o custo de um movimento.
@@ -74,7 +84,13 @@ def movement_cost(
 
     elevation_gain = max(0.0, neighbor_height - current_height)
 
-    distance_cost = 1.0
+    row_delta = neighbor[0] - current[0]
+    column_delta = neighbor[1] - current[1]
+    horizontal_distance = hypot(
+        column_delta * cell_size_x_m,
+        row_delta * cell_size_y_m,
+    )
+    distance_cost = sqrt(horizontal_distance**2 + (neighbor_height - current_height)**2)
     climb_cost = climb_weight * elevation_gain
 
     return distance_cost + climb_cost
@@ -101,6 +117,8 @@ def astar(
     start: Position,
     goal: Position,
     climb_weight: float = 3.0,
+    cell_size_x_m: float = 1.0,
+    cell_size_y_m: float = 1.0,
 ) -> PathResult:
     if terrain.ndim != 2:
         return PathResult(
@@ -133,13 +151,25 @@ def astar(
             expanded_nodes=0,
             error="O peso de subida não pode ser negativo.",
         )
+    if cell_size_x_m <= 0 or cell_size_y_m <= 0:
+        return PathResult(
+            success=False,
+            path=[],
+            total_cost=inf,
+            expanded_nodes=0,
+            error="O tamanho da célula precisa ser positivo.",
+        )
 
     insertion_order = count()
 
     frontier = []
     heappush(
         frontier,
-        (heuristic(start, goal), next(insertion_order), start),
+        (
+            heuristic(start, goal, cell_size_x_m, cell_size_y_m),
+            next(insertion_order),
+            start,
+        ),
     )
 
     came_from: dict[Position, Optional[Position]] = {
@@ -174,6 +204,8 @@ def astar(
                     current,
                     neighbor,
                     climb_weight,
+                    cell_size_x_m,
+                    cell_size_y_m,
                 )
             )
 
@@ -185,7 +217,10 @@ def astar(
                 came_from[neighbor] = current
 
                 estimated_total_cost = (
-                    new_cost + heuristic(neighbor, goal)
+                    new_cost
+                    + heuristic(
+                        neighbor, goal, cell_size_x_m, cell_size_y_m
+                    )
                 )
 
                 heappush(
