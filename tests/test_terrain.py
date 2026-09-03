@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 import rasterio
 from rasterio.transform import from_origin
+from rasterio.warp import transform
 
 from src.terrain import load_topodata
 
@@ -48,3 +49,33 @@ def test_load_topodata_rejects_invalid_size(tmp_path: Path):
 
     with pytest.raises(ValueError, match="pelo menos 2"):
         load_topodata(path, target_size=1)
+
+
+def test_load_topodata_crops_area_around_coordinate(tmp_path: Path):
+    source = np.arange(10000, dtype=np.float32).reshape(100, 100)
+    path = tmp_path / "terrain.tif"
+    write_geotiff(path, source)
+
+    longitude, latitude = transform(
+        "EPSG:31983", "EPSG:4326", [501500], [7498500]
+    )
+
+    result = load_topodata(
+        path,
+        target_size=20,
+        center_lat=latitude[0],
+        center_lon=longitude[0],
+        area_size_m=1000,
+    )
+
+    assert result.elevation.shape == (20, 20)
+    assert result.area_size_m == 1000
+
+
+def test_load_topodata_requires_complete_crop_parameters(tmp_path: Path):
+    source = np.ones((3, 3), dtype=np.float32)
+    path = tmp_path / "terrain.tif"
+    write_geotiff(path, source)
+
+    with pytest.raises(ValueError, match="informe"):
+        load_topodata(path, center_lat=-22.5)

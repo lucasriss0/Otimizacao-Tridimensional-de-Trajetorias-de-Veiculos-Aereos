@@ -36,6 +36,12 @@ def parse_args() -> argparse.Namespace:
         "--climb-weight", type=float, default=3.0,
         help="Peso aplicado ao ganho de altitude (padrão: 3).",
     )
+    parser.add_argument("--center-lat", type=float, help="Latitude central da fazenda.")
+    parser.add_argument("--center-lon", type=float, help="Longitude central da fazenda.")
+    parser.add_argument(
+        "--area-m", type=float, default=None,
+        help="Lado, em metros, da área quadrada recortada (ex.: 1500).",
+    )
     return parser.parse_args()
 
 
@@ -43,7 +49,13 @@ def main() -> None:
     args = parse_args()
 
     if args.topodata:
-        terrain_data = load_topodata(args.topodata, target_size=args.size)
+        terrain_data = load_topodata(
+            args.topodata,
+            target_size=args.size,
+            center_lat=args.center_lat,
+            center_lon=args.center_lon,
+            area_size_m=args.area_m,
+        )
         terrain = terrain_data.elevation
         output_prefix = "topodata"
         print("GeoTIFF TOPODATA carregado!")
@@ -51,6 +63,12 @@ def main() -> None:
         print(f"Dimensão original: {terrain_data.original_shape}")
         print(f"Dimensão utilizada: {terrain.shape}")
         print(f"CRS: {terrain_data.crs or 'não informado'}")
+        print(f"Limites utilizados: {terrain_data.bounds}")
+        if terrain_data.area_size_m:
+            print(
+                f"Área recortada: {terrain_data.area_size_m:.0f} m × "
+                f"{terrain_data.area_size_m:.0f} m"
+            )
         print(f"Altitude mínima: {terrain.min():.2f} m")
         print(f"Altitude máxima: {terrain.max():.2f} m")
     else:

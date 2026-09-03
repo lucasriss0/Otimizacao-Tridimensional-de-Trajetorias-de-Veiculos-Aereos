@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from math import cos, radians
 from pathlib import Path
 
 import numpy as np
@@ -12,9 +13,16 @@ class TerrainData:
     bounds: tuple[float, float, float, float]
     pixel_size: tuple[float, float]
     original_shape: tuple[int, int]
+    area_size_m: float | None = None
 
 
-def load_topodata(input_path: str | Path, target_size: int = 50) -> TerrainData:
+def load_topodata(
+    input_path: str | Path,
+    target_size: int = 50,
+    center_lat: float | None = None,
+    center_lon: float | None = None,
+    area_size_m: float | None = None,
+) -> TerrainData:
     """Lê e reduz um GeoTIFF TOPODATA para uma matriz quadrada."""
     try:
         import rasterio
@@ -30,13 +38,64 @@ def load_topodata(input_path: str | Path, target_size: int = 50) -> TerrainData:
     if target_size < 2:
         raise ValueError("target_size precisa ser pelo menos 2.")
 
+    crop_values = (center_lat, center_lon, area_size_m)
+    if any(value is not None for value in crop_values) and not all(
+        value is not None for value in crop_values
+    ):
+        raise ValueError(
+            "Para recortar, informe center_lat, center_lon e area_size_m juntos."
+        )
+    if area_size_m is not None and area_size_m <= 0:
+        raise ValueError("area_size_m precisa ser positivo.")
+
     with rasterio.open(path) as dataset:
         if dataset.count < 1:
             raise ValueError("O GeoTIFF não possui banda de elevação.")
 
         original_shape = (dataset.height, dataset.width)
+        window = None
+        selected_bounds = dataset.bounds
+
+        if center_lat is not None and center_lon is not None and area_size_m is not None:
+            from rasterio.warp import transform_bounds
+            from rasterio.windows import Window, bounds as window_bounds, from_bounds
+
+            half_size_m = area_size_m / 2.0
+            latitude_delta = half_size_m / 111_320.0
+            longitude_scale = 111_320.0 * cos(radians(center_lat))
+            if longitude_scale <= 0:
+                raise ValueError("Latitude inválida para o recorte.")
+            longitude_delta = half_size_m / longitude_scale
+
+            wgs84_bounds = (
+                center_lon - longitude_delta,
+                center_lat - latitude_delta,
+                center_lon + longitude_delta,
+                center_lat + latitude_delta,
+            )
+            raster_bounds = transform_bounds(
+                "EPSG:4326", dataset.crs, *wgs84_bounds, densify_pts=21
+            )
+
+            if (
+                raster_bounds[0] < dataset.bounds.left
+                or raster_bounds[1] < dataset.bounds.bottom
+                or raster_bounds[2] > dataset.bounds.right
+                or raster_bounds[3] > dataset.bounds.top
+            ):
+                raise ValueError(
+                    "A área solicitada ultrapassa os limites desta folha TOPODATA."
+                )
+
+            window = from_bounds(*raster_bounds, transform=dataset.transform)
+            window = window.round_offsets().round_lengths()
+            full_window = Window(0, 0, dataset.width, dataset.height)
+            window = window.intersection(full_window)
+            selected_bounds = window_bounds(window, dataset.transform)
+
         masked = dataset.read(
             1,
+            window=window,
             out_shape=(target_size, target_size),
             resampling=Resampling.bilinear,
             masked=True,
@@ -55,17 +114,13 @@ def load_topodata(input_path: str | Path, target_size: int = 50) -> TerrainData:
             elevation=elevation,
             source_path=path.resolve(),
             crs=dataset.crs.to_string() if dataset.crs else None,
-            bounds=(
-                float(dataset.bounds.left),
-                float(dataset.bounds.bottom),
-                float(dataset.bounds.right),
-                float(dataset.bounds.top),
-            ),
+            bounds=tuple(float(value) for value in selected_bounds),
             pixel_size=(
                 abs(float(dataset.transform.a)) * dataset.width / target_size,
                 abs(float(dataset.transform.e)) * dataset.height / target_size,
             ),
             original_shape=original_shape,
+            area_size_m=area_size_m,
         )
 
 
