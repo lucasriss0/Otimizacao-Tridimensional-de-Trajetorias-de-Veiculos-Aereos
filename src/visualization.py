@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -12,6 +14,7 @@ def save_path_figure(
     start: Position,
     goal: Position,
     output_path: str,
+    title: str = "Trajetória calculada pelo A*",
 ) -> None:
     destination = Path(output_path)
     destination.parent.mkdir(parents=True, exist_ok=True)
@@ -64,7 +67,7 @@ def save_path_figure(
         zorder=5,
     )
 
-    axis.set_title("Trajetória calculada pelo A*")
+    axis.set_title(title)
     axis.set_xlabel("Coluna")
     axis.set_ylabel("Linha")
     axis.legend()
