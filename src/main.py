@@ -96,8 +96,8 @@ def parse_args() -> argparse.Namespace:
         help="Largura de aplicação do drone em metros (padrão: 120).",
     )
     parser.add_argument(
-        "--clearance-m", type=float, default=20.0,
-        help="Altura de segurança acima do terreno em metros (padrão: 20).",
+        "--clearance-m", type=float, default=60.0,
+        help="Altura de segurança acima do terreno em metros (padrão: 60).",
     )
     return parser.parse_args()
 

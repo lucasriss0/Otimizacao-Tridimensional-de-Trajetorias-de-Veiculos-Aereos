@@ -14,3 +14,15 @@
    `python -m src.coppeliasim --object /target --scale 0.01 --speed 0.05 --warmup-s 3`
 
 O valor `0.01` converte 1 metro real em 1 centímetro/unidade visual da cena. O terreno importado no CoppeliaSim deve usar exatamente a mesma escala. O programa primeiro mantém o alvo parado para o drone estabilizar e depois o leva progressivamente ao primeiro waypoint. A simulação é sincronizada e sempre encerrada mesmo se ocorrer uma falha durante o voo.
+
+## Criar automaticamente o relevo
+
+Com a cena aberta e a simulação parada:
+
+`python -m src.coppelia_terrain --topodata data/raw/22S48_ZN.tif --center-lat -22.48196 --center-lon -47.26397 --area-m 1500 --size 50 --scale 0.01`
+
+O objeto `/AgriculturalTerrain` será criado no centro da cena. Uma nova execução substitui somente o terreno anterior que tenha esse alias. Remova ou oculte o `Floor` padrão e salve a cena após conferir o resultado.
+
+## Margem de segurança vertical
+
+Gere a rota com `--clearance-m 60`. A altura é medida no centro do target; essa margem adicional acomoda o tamanho físico do drone, oscilações do controlador e atraso ao acompanhar subidas. Como `--scale 0.01` é usado no simulador, 60 metros reais correspondem a 0,60 unidade acima do relevo.
