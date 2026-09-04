@@ -1,7 +1,5 @@
 # Planejamento inteligente de trajetórias para drone agrícola em relevo 3D
 
-Projeto prático da disciplina de Inteligência Artificial I. O sistema planeja uma missão de cobertura agrícola sobre um terreno real, considera relevo e obstáculos estáticos e envia a trajetória calculada para um drone simulado no CoppeliaSim.
-
 ## Visão geral
 
 O projeto utiliza dados de elevação TOPODATA/INPE para representar uma fazenda como um grid. Uma cobertura boustrophedon gera faixas de aplicação alternadas, e o algoritmo A* conecta os pontos da missão considerando distância tridimensional, ganho de altitude e regiões bloqueadas. A rota resultante é convertida em waypoints `(x, y, z)` e executada no CoppeliaSim pela ZeroMQ Remote API.
@@ -82,7 +80,7 @@ Projeto/
 Abra o PowerShell na pasta do projeto:
 
 ```powershell
-cd C:\Users\lucas.risso\repositorios\IA\Projeto
+cd ...\Projeto
 ```
 
 Crie o ambiente virtual:
