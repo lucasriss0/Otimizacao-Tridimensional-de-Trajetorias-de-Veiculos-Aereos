@@ -26,3 +26,9 @@ O objeto `/AgriculturalTerrain` será criado no centro da cena. Uma nova execuç
 ## Margem de segurança vertical
 
 Gere a rota com `--clearance-m 60`. A altura é medida no centro do target; essa margem adicional acomoda o tamanho físico do drone, oscilações do controlador e atraso ao acompanhar subidas. Como `--scale 0.01` é usado no simulador, 60 metros reais correspondem a 0,60 unidade acima do relevo.
+
+## Obstáculos estáticos
+
+Use `--obstacle "arvore1,X_M,Y_M,RAIO_M"` ao gerar a cobertura. As coordenadas são locais em metros, com o centro da fazenda em `(0,0)`. Para colocar o modelo visual na cena com escala `0.01`, multiplique `X_M` e `Y_M` por `0.01`. Exemplo: uma árvore em `(150,-90)` metros deve ficar em `(1.5,-0.9)` na cena.
+
+Para sincronizar automaticamente, dê aos objetos aliases iniciados por `Obstacle`, deixe a simulação parada e execute `python -m src.sync_obstacles --scale 0.01 --margin-m 30`. Em seguida gere a rota usando `--obstacles-file output/obstacles_coppelia.json`.

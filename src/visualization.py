@@ -83,12 +83,17 @@ def save_coverage_figure(
     waypoints: list[Position],
     output_path: str,
     title: str,
+    obstacle_mask: np.ndarray | None = None,
 ) -> None:
     destination = Path(output_path)
     destination.parent.mkdir(parents=True, exist_ok=True)
     figure, axis = plt.subplots(figsize=(9, 7))
     image = axis.imshow(terrain, cmap="terrain", origin="upper")
     figure.colorbar(image, ax=axis, label="Altitude (m)")
+
+    if obstacle_mask is not None and np.any(obstacle_mask):
+        overlay = np.ma.masked_where(~obstacle_mask, obstacle_mask)
+        axis.imshow(overlay, cmap="Reds", alpha=0.65, origin="upper")
 
     if path:
         axis.plot(

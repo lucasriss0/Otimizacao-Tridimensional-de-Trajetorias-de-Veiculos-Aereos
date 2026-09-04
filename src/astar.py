@@ -37,11 +37,20 @@ def heuristic(
     )
 
 
-def is_traversable(position: Position, terrain: np.ndarray) -> bool:
-    return bool(np.isfinite(terrain[position]))
+def is_traversable(
+    position: Position,
+    terrain: np.ndarray,
+    obstacle_mask: np.ndarray | None = None,
+) -> bool:
+    blocked = obstacle_mask is not None and bool(obstacle_mask[position])
+    return bool(np.isfinite(terrain[position])) and not blocked
 
 
-def get_neighbors(position: Position, terrain: np.ndarray) -> list[Position]:
+def get_neighbors(
+    position: Position,
+    terrain: np.ndarray,
+    obstacle_mask: np.ndarray | None = None,
+) -> list[Position]:
     row, column = position
     movements = [
         (-1, 0), (1, 0), (0, -1), (0, 1),
@@ -55,7 +64,7 @@ def get_neighbors(position: Position, terrain: np.ndarray) -> list[Position]:
             0 <= candidate[0] < terrain.shape[0]
             and 0 <= candidate[1] < terrain.shape[1]
         )
-        if not inside or not is_traversable(candidate, terrain):
+        if not inside or not is_traversable(candidate, terrain, obstacle_mask):
             continue
 
         # Uma diagonal não pode atravessar o canto de duas células bloqueadas.
@@ -63,8 +72,8 @@ def get_neighbors(position: Position, terrain: np.ndarray) -> list[Position]:
             side_vertical = (row + row_change, column)
             side_horizontal = (row, column + column_change)
             if not (
-                is_traversable(side_vertical, terrain)
-                and is_traversable(side_horizontal, terrain)
+                is_traversable(side_vertical, terrain, obstacle_mask)
+                and is_traversable(side_horizontal, terrain, obstacle_mask)
             ):
                 continue
 
@@ -113,16 +122,20 @@ def astar(
     climb_weight: float = 3.0,
     cell_size_x_m: float = 1.0,
     cell_size_y_m: float = 1.0,
+    obstacle_mask: np.ndarray | None = None,
 ) -> PathResult:
     if terrain.ndim != 2:
         return PathResult(False, [], inf, 0, "O terreno precisa ser uma matriz bidimensional.")
+
+    if obstacle_mask is not None and obstacle_mask.shape != terrain.shape:
+        return PathResult(False, [], inf, 0, "A máscara de obstáculos deve ter o mesmo formato do terreno.")
 
     rows, columns = terrain.shape
     for name, position in (("origem", start), ("destino", goal)):
         row, column = position
         if not (0 <= row < rows and 0 <= column < columns):
             return PathResult(False, [], inf, 0, f"A posição de {name} está fora do terreno.")
-        if not is_traversable(position, terrain):
+        if not is_traversable(position, terrain, obstacle_mask):
             return PathResult(False, [], inf, 0, f"A posição de {name} está bloqueada.")
 
     if climb_weight < 0:
@@ -155,7 +168,7 @@ def astar(
                 expanded_nodes,
             )
 
-        for neighbor in get_neighbors(current, terrain):
+        for neighbor in get_neighbors(current, terrain, obstacle_mask):
             new_cost = cost_so_far[current] + movement_cost(
                 terrain,
                 current,

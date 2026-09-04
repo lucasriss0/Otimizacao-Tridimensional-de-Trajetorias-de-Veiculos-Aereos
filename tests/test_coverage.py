@@ -58,3 +58,15 @@ def test_rejects_non_positive_swath():
 
 def test_empty_path_has_zero_coverage():
     assert calculate_coverage_percent((3, 3), [], 2, 1, 1) == 0
+
+
+def test_coverage_avoids_static_obstacle():
+    terrain = np.zeros((7, 7))
+    mask = np.zeros_like(terrain, dtype=bool)
+    mask[3, 3] = True
+    result = plan_boustrophedon_coverage(
+        terrain, 2, 0, 1, 1, obstacle_mask=mask
+    )
+    assert result.success
+    assert (3, 3) not in result.path
+    assert result.coverage_percent == pytest.approx(100.0)

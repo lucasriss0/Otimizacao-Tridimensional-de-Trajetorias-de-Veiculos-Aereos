@@ -10,6 +10,11 @@ from src.metrics import (
     calculate_reduction_percent,
     export_metrics_csv,
 )
+from src.obstacles import (
+    create_obstacle_mask,
+    load_obstacles_json,
+    parse_obstacle_spec,
+)
 from src.terrain import create_example_terrain, load_topodata
 from src.visualization import save_coverage_figure, save_path_figure
 from src.waypoints import export_waypoints_csv, grid_path_to_waypoints_3d
@@ -99,6 +104,15 @@ def parse_args() -> argparse.Namespace:
         "--clearance-m", type=float, default=60.0,
         help="Altura de segurança acima do terreno em metros (padrão: 60).",
     )
+    parser.add_argument(
+        "--obstacle", action="append", default=[],
+        metavar="NOME,X_M,Y_M,RAIO_M",
+        help="Obstáculo estático em coordenadas locais; pode ser repetido.",
+    )
+    parser.add_argument(
+        "--obstacles-file", type=Path,
+        help="JSON de obstáculos obtido automaticamente do CoppeliaSim.",
+    )
     return parser.parse_args()
 
 
@@ -162,6 +176,21 @@ def main() -> None:
     print(f"Origem no grid: {start}")
     print(f"Destino no grid: {goal}")
 
+    obstacles = [parse_obstacle_spec(spec) for spec in args.obstacle]
+    if args.obstacles_file:
+        obstacles.extend(load_obstacles_json(args.obstacles_file))
+    obstacle_mask = create_obstacle_mask(
+        terrain.shape, obstacles, cell_size_x_m, cell_size_y_m
+    )
+    if obstacles:
+        print(f"Obstáculos estáticos: {len(obstacles)}")
+        print(f"Células bloqueadas: {int(obstacle_mask.sum())}")
+        for obstacle in obstacles:
+            print(
+                f"- {obstacle.name}: x={obstacle.x_m:.1f} m, "
+                f"y={obstacle.y_m:.1f} m, raio={obstacle.safety_radius_m:.1f} m"
+            )
+
     if args.coverage:
         started = perf_counter()
         coverage_result = plan_boustrophedon_coverage(
@@ -170,6 +199,7 @@ def main() -> None:
             climb_weight=args.climb_weight,
             cell_size_x_m=cell_size_x_m,
             cell_size_y_m=cell_size_y_m,
+            obstacle_mask=obstacle_mask,
         )
         coverage_time = perf_counter() - started
         if not coverage_result.success:
@@ -205,6 +235,7 @@ def main() -> None:
             terrain, coverage_result.path, coverage_result.waypoints,
             figure_path,
             f"Cobertura boustrophedon ({coverage_result.coverage_percent:.1f}%)",
+            obstacle_mask,
         )
         print(f"Métricas exportadas para: {metrics_path}")
         print(f"Waypoints 3D exportados para: {waypoints_path}")
@@ -216,6 +247,7 @@ def main() -> None:
     result_without_climb_penalty = astar(
         terrain=terrain, start=start, goal=goal, climb_weight=0.0,
         cell_size_x_m=cell_size_x_m, cell_size_y_m=cell_size_y_m,
+        obstacle_mask=obstacle_mask,
     )
     baseline_time = perf_counter() - started
 
@@ -225,6 +257,7 @@ def main() -> None:
         climb_weight=args.climb_weight,
         cell_size_x_m=cell_size_x_m,
         cell_size_y_m=cell_size_y_m,
+        obstacle_mask=obstacle_mask,
     )
     proposed_time = perf_counter() - started
 

@@ -65,6 +65,7 @@ def calculate_coverage_percent(
     swath_width_m: float,
     cell_size_x_m: float,
     cell_size_y_m: float,
+    obstacle_mask: np.ndarray | None = None,
 ) -> float:
     """Calcula a parcela do grid coberta pela faixa de aplicação do drone."""
     if not path:
@@ -87,7 +88,16 @@ def calculate_coverage_percent(
                 if dx * dx + dy * dy <= (swath_width_m / 2) ** 2:
                     covered[candidate_row, candidate_col] = True
 
-    return 100.0 * float(covered.sum()) / covered.size
+    if obstacle_mask is None:
+        cultivable = np.ones(terrain_shape, dtype=bool)
+    else:
+        if obstacle_mask.shape != terrain_shape:
+            raise ValueError("A máscara de obstáculos deve ter o formato do terreno.")
+        cultivable = ~obstacle_mask
+    cultivable_count = int(cultivable.sum())
+    if cultivable_count == 0:
+        return 0.0
+    return 100.0 * float((covered & cultivable).sum()) / cultivable_count
 
 
 def plan_boustrophedon_coverage(
@@ -96,6 +106,7 @@ def plan_boustrophedon_coverage(
     climb_weight: float,
     cell_size_x_m: float,
     cell_size_y_m: float,
+    obstacle_mask: np.ndarray | None = None,
 ) -> CoverageResult:
     """Gera as faixas e usa A* para ligar cada par consecutivo de waypoints."""
     if swath_width_m <= 0:
@@ -104,13 +115,20 @@ def plan_boustrophedon_coverage(
     spacing = max(1, int(round(swath_width_m / cell_size_y_m)))
     waypoints = generate_boustrophedon_waypoints(terrain, spacing)
     targets = generate_boustrophedon_targets(terrain, spacing)
+    if obstacle_mask is not None:
+        if obstacle_mask.shape != terrain.shape:
+            return CoverageResult(False, [], [], 0.0, 0, 0.0, spacing, "Máscara de obstáculos incompatível.")
+        targets = [target for target in targets if not obstacle_mask[target]]
+    if len(targets) < 2:
+        return CoverageResult(False, waypoints, [], 0.0, 0, 0.0, spacing, "Não há células livres suficientes para planejar a cobertura.")
     complete_path: list[Position] = []
     expanded_nodes = 0
     total_cost = 0.0
 
     for start, goal in zip(targets, targets[1:]):
         segment: PathResult = astar(
-            terrain, start, goal, climb_weight, cell_size_x_m, cell_size_y_m
+            terrain, start, goal, climb_weight, cell_size_x_m, cell_size_y_m,
+            obstacle_mask,
         )
         expanded_nodes += segment.expanded_nodes
         if not segment.success:
@@ -124,7 +142,7 @@ def plan_boustrophedon_coverage(
 
     coverage = calculate_coverage_percent(
         terrain.shape, complete_path, swath_width_m,
-        cell_size_x_m, cell_size_y_m,
+        cell_size_x_m, cell_size_y_m, obstacle_mask,
     )
     return CoverageResult(
         True, waypoints, complete_path, coverage, expanded_nodes,

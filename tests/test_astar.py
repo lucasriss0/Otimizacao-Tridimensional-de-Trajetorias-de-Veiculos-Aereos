@@ -92,3 +92,14 @@ def test_rejeita_origem_bloqueada():
 
     assert not result.success
     assert "bloqueada" in result.error
+
+
+def test_contorna_obstaculo_em_mascara_separada():
+    terrain = np.zeros((5, 5))
+    mask = np.zeros_like(terrain, dtype=bool)
+    mask[2, 2] = True
+
+    result = astar(terrain, (2, 0), (2, 4), obstacle_mask=mask)
+
+    assert result.success
+    assert (2, 2) not in result.path
