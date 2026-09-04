@@ -1,20 +1,26 @@
 [
   {
-    "name": "ObstacleTree2",
-    "x_m": -337.5,
-    "y_m": 645.0,
-    "safety_radius_m": 45.0
+    "name": "Obstacle2",
+    "x_m": -340.0597158819437,
+    "y_m": 646.4330022037029,
+    "safety_radius_m": 112.74234086215563
   },
   {
-    "name": "Obstacle",
-    "x_m": 585.0,
-    "y_m": 547.5,
-    "safety_radius_m": 45.0
+    "name": "Obstacle3",
+    "x_m": 582.4402841180563,
+    "y_m": 548.9330022037029,
+    "safety_radius_m": 113.17361851006311
   },
   {
-    "name": "ObstacleTree",
-    "x_m": -110.0,
-    "y_m": -92.5,
+    "name": "Obstacle4",
+    "x_m": -112.5597158819437,
+    "y_m": -91.06699779629707,
+    "safety_radius_m": 112.50346401893458
+  },
+  {
+    "name": "obstacle",
+    "x_m": -307.5,
+    "y_m": 527.5,
     "safety_radius_m": 45.0
   }
 ]
