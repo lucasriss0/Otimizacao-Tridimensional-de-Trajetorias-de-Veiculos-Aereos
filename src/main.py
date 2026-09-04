@@ -3,6 +3,7 @@ from pathlib import Path
 from time import perf_counter
 
 from src.astar import PathResult, astar
+from src.coverage import plan_boustrophedon_coverage
 from src.metrics import (
     PathMetrics,
     calculate_path_metrics,
@@ -10,7 +11,7 @@ from src.metrics import (
     export_metrics_csv,
 )
 from src.terrain import create_example_terrain, load_topodata
-from src.visualization import save_path_figure
+from src.visualization import save_coverage_figure, save_path_figure
 
 
 def resolve_endpoints(
@@ -85,6 +86,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--start-col", type=int, help="Coluna da origem no grid.")
     parser.add_argument("--goal-row", type=int, help="Linha do destino no grid.")
     parser.add_argument("--goal-col", type=int, help="Coluna do destino no grid.")
+    parser.add_argument(
+        "--coverage", action="store_true",
+        help="Executa uma missão completa de cobertura boustrophedon.",
+    )
+    parser.add_argument(
+        "--swath-m", type=float, default=120.0,
+        help="Largura de aplicação do drone em metros (padrão: 120).",
+    )
     return parser.parse_args()
 
 
@@ -147,6 +156,47 @@ def main() -> None:
     )
     print(f"Origem no grid: {start}")
     print(f"Destino no grid: {goal}")
+
+    if args.coverage:
+        started = perf_counter()
+        coverage_result = plan_boustrophedon_coverage(
+            terrain=terrain,
+            swath_width_m=args.swath_m,
+            climb_weight=args.climb_weight,
+            cell_size_x_m=cell_size_x_m,
+            cell_size_y_m=cell_size_y_m,
+        )
+        coverage_time = perf_counter() - started
+        if not coverage_result.success:
+            raise RuntimeError(coverage_result.error)
+
+        print("\n" + "=" * 60)
+        print("MISSÃO DE COBERTURA BOUSTROPHEDON")
+        print("=" * 60)
+        print(f"Largura de aplicação: {args.swath_m:.2f} m")
+        print(f"Espaçamento: {coverage_result.stripe_spacing_cells} células")
+        print(f"Waypoints: {len(coverage_result.waypoints)}")
+        print(f"Pontos da rota: {len(coverage_result.path)}")
+        print(f"Cobertura estimada: {coverage_result.coverage_percent:.2f}%")
+
+        coverage_metrics = calculate_path_metrics(
+            "cobertura_boustrophedon", terrain, coverage_result.path,
+            cell_size_x_m, cell_size_y_m, args.climb_weight,
+            coverage_time, coverage_result.expanded_nodes,
+        )
+        show_metrics(coverage_metrics)
+        metrics_path = export_metrics_csv(
+            [coverage_metrics], "output/metricas_cobertura.csv"
+        )
+        figure_path = f"output/{output_prefix}_cobertura_boustrophedon.png"
+        save_coverage_figure(
+            terrain, coverage_result.path, coverage_result.waypoints,
+            figure_path,
+            f"Cobertura boustrophedon ({coverage_result.coverage_percent:.1f}%)",
+        )
+        print(f"Métricas exportadas para: {metrics_path}")
+        print(f"Imagem gerada: {figure_path}")
+        return
 
     started = perf_counter()
     result_without_climb_penalty = astar(

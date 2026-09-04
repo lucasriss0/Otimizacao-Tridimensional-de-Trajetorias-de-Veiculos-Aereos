@@ -75,3 +75,34 @@ def save_path_figure(
     figure.tight_layout()
     figure.savefig(destination, dpi=160)
     plt.close(figure)
+
+
+def save_coverage_figure(
+    terrain: np.ndarray,
+    path: list[Position],
+    waypoints: list[Position],
+    output_path: str,
+    title: str,
+) -> None:
+    destination = Path(output_path)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    figure, axis = plt.subplots(figsize=(9, 7))
+    image = axis.imshow(terrain, cmap="terrain", origin="upper")
+    figure.colorbar(image, ax=axis, label="Altitude (m)")
+
+    if path:
+        axis.plot(
+            [point[1] for point in path], [point[0] for point in path],
+            color="blue", linewidth=2, label="Rota de cobertura",
+        )
+    if waypoints:
+        axis.scatter(
+            [point[1] for point in waypoints], [point[0] for point in waypoints],
+            color="orange", edgecolor="black", s=35,
+            label="Waypoints das faixas", zorder=5,
+        )
+    axis.set(title=title, xlabel="Coluna", ylabel="Linha")
+    axis.legend(loc="best")
+    figure.tight_layout()
+    figure.savefig(destination, dpi=160)
+    plt.close(figure)
