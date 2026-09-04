@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from heapq import heappop, heappush
 from itertools import count
-from math import inf, hypot, sqrt
+from math import hypot, inf
 from typing import Optional
 
 import numpy as np
@@ -25,41 +25,50 @@ def heuristic(
     cell_size_x_m: float = 1.0,
     cell_size_y_m: float = 1.0,
 ) -> float:
-    """
-    Distância de Manhattan.
-    Como inicialmente permitimos apenas movimentos horizontais
-    e verticais, essa heurística não superestima a distância.
-    """
+    """Distância octil: admissível para movimentos retos e diagonais."""
     row_difference = abs(current[0] - goal[0])
     column_difference = abs(current[1] - goal[1])
+    diagonal_steps = min(row_difference, column_difference)
 
     return (
-        row_difference * cell_size_y_m
-        + column_difference * cell_size_x_m
+        diagonal_steps * hypot(cell_size_x_m, cell_size_y_m)
+        + (row_difference - diagonal_steps) * cell_size_y_m
+        + (column_difference - diagonal_steps) * cell_size_x_m
     )
+
+
+def is_traversable(position: Position, terrain: np.ndarray) -> bool:
+    return bool(np.isfinite(terrain[position]))
 
 
 def get_neighbors(position: Position, terrain: np.ndarray) -> list[Position]:
     row, column = position
-
-    possible_movements = [
-        (-1, 0),  # cima
-        (1, 0),   # baixo
-        (0, -1),  # esquerda
-        (0, 1),   # direita
+    movements = [
+        (-1, 0), (1, 0), (0, -1), (0, 1),
+        (-1, -1), (-1, 1), (1, -1), (1, 1),
     ]
-
     neighbors = []
 
-    for row_change, column_change in possible_movements:
-        new_row = row + row_change
-        new_column = column + column_change
+    for row_change, column_change in movements:
+        candidate = (row + row_change, column + column_change)
+        inside = (
+            0 <= candidate[0] < terrain.shape[0]
+            and 0 <= candidate[1] < terrain.shape[1]
+        )
+        if not inside or not is_traversable(candidate, terrain):
+            continue
 
-        inside_rows = 0 <= new_row < terrain.shape[0]
-        inside_columns = 0 <= new_column < terrain.shape[1]
+        # Uma diagonal não pode atravessar o canto de duas células bloqueadas.
+        if row_change != 0 and column_change != 0:
+            side_vertical = (row + row_change, column)
+            side_horizontal = (row, column + column_change)
+            if not (
+                is_traversable(side_vertical, terrain)
+                and is_traversable(side_horizontal, terrain)
+            ):
+                continue
 
-        if inside_rows and inside_columns:
-            neighbors.append((new_row, new_column))
+        neighbors.append(candidate)
 
     return neighbors
 
@@ -72,44 +81,29 @@ def movement_cost(
     cell_size_x_m: float = 1.0,
     cell_size_y_m: float = 1.0,
 ) -> float:
-    """
-    Calcula o custo de um movimento.
-
-    Todo movimento custa 1.
-    Subidas recebem uma penalização adicional.
-    Descidas não produzem custo negativo.
-    """
-    current_height = terrain[current]
-    neighbor_height = terrain[neighbor]
-
-    elevation_gain = max(0.0, neighbor_height - current_height)
-
+    current_height = float(terrain[current])
+    neighbor_height = float(terrain[neighbor])
+    elevation_difference = neighbor_height - current_height
+    elevation_gain = max(0.0, elevation_difference)
     row_delta = neighbor[0] - current[0]
     column_delta = neighbor[1] - current[1]
     horizontal_distance = hypot(
         column_delta * cell_size_x_m,
         row_delta * cell_size_y_m,
     )
-    distance_cost = sqrt(horizontal_distance**2 + (neighbor_height - current_height)**2)
-    climb_cost = climb_weight * elevation_gain
-
-    return distance_cost + climb_cost
+    distance_3d = hypot(horizontal_distance, elevation_difference)
+    return distance_3d + climb_weight * elevation_gain
 
 
 def reconstruct_path(
-    came_from: dict[Position, Optional[Position]],
-    goal: Position,
+    came_from: dict[Position, Optional[Position]], goal: Position
 ) -> list[Position]:
     path = []
     current: Optional[Position] = goal
-
     while current is not None:
         path.append(current)
         current = came_from[current]
-
-    path.reverse()
-
-    return path
+    return list(reversed(path))
 
 
 def astar(
@@ -121,121 +115,61 @@ def astar(
     cell_size_y_m: float = 1.0,
 ) -> PathResult:
     if terrain.ndim != 2:
-        return PathResult(
-            success=False,
-            path=[],
-            total_cost=inf,
-            expanded_nodes=0,
-            error="O terreno precisa ser uma matriz bidimensional.",
-        )
+        return PathResult(False, [], inf, 0, "O terreno precisa ser uma matriz bidimensional.")
 
     rows, columns = terrain.shape
-
-    for name, position in [("origem", start), ("destino", goal)]:
+    for name, position in (("origem", start), ("destino", goal)):
         row, column = position
-
         if not (0 <= row < rows and 0 <= column < columns):
-            return PathResult(
-                success=False,
-                path=[],
-                total_cost=inf,
-                expanded_nodes=0,
-                error=f"A posição de {name} está fora do terreno.",
-            )
+            return PathResult(False, [], inf, 0, f"A posição de {name} está fora do terreno.")
+        if not is_traversable(position, terrain):
+            return PathResult(False, [], inf, 0, f"A posição de {name} está bloqueada.")
 
     if climb_weight < 0:
-        return PathResult(
-            success=False,
-            path=[],
-            total_cost=inf,
-            expanded_nodes=0,
-            error="O peso de subida não pode ser negativo.",
-        )
+        return PathResult(False, [], inf, 0, "O peso de subida não pode ser negativo.")
     if cell_size_x_m <= 0 or cell_size_y_m <= 0:
-        return PathResult(
-            success=False,
-            path=[],
-            total_cost=inf,
-            expanded_nodes=0,
-            error="O tamanho da célula precisa ser positivo.",
-        )
+        return PathResult(False, [], inf, 0, "O tamanho da célula precisa ser positivo.")
 
     insertion_order = count()
-
     frontier = []
-    heappush(
-        frontier,
-        (
-            heuristic(start, goal, cell_size_x_m, cell_size_y_m),
-            next(insertion_order),
-            start,
-        ),
-    )
-
-    came_from: dict[Position, Optional[Position]] = {
-        start: None,
-    }
-
-    cost_so_far: dict[Position, float] = {
-        start: 0.0,
-    }
-
+    start_priority = heuristic(start, goal, cell_size_x_m, cell_size_y_m)
+    heappush(frontier, (start_priority, next(insertion_order), start))
+    came_from: dict[Position, Optional[Position]] = {start: None}
+    cost_so_far: dict[Position, float] = {start: 0.0}
     expanded_nodes = 0
 
     while frontier:
-        _, _, current = heappop(frontier)
+        queued_priority, _, current = heappop(frontier)
+        current_priority = cost_so_far[current] + heuristic(
+            current, goal, cell_size_x_m, cell_size_y_m
+        )
+        if queued_priority > current_priority + 1e-12:
+            continue
+
         expanded_nodes += 1
-
         if current == goal:
-            path = reconstruct_path(came_from, goal)
-
             return PathResult(
-                success=True,
-                path=path,
-                total_cost=cost_so_far[goal],
-                expanded_nodes=expanded_nodes,
+                True,
+                reconstruct_path(came_from, goal),
+                cost_so_far[goal],
+                expanded_nodes,
             )
 
         for neighbor in get_neighbors(current, terrain):
-            new_cost = (
-                cost_so_far[current]
-                + movement_cost(
-                    terrain,
-                    current,
-                    neighbor,
-                    climb_weight,
-                    cell_size_x_m,
-                    cell_size_y_m,
-                )
+            new_cost = cost_so_far[current] + movement_cost(
+                terrain,
+                current,
+                neighbor,
+                climb_weight,
+                cell_size_x_m,
+                cell_size_y_m,
             )
-
-            if (
-                neighbor not in cost_so_far
-                or new_cost < cost_so_far[neighbor]
-            ):
+            if neighbor not in cost_so_far or new_cost < cost_so_far[neighbor]:
                 cost_so_far[neighbor] = new_cost
                 came_from[neighbor] = current
-
-                estimated_total_cost = (
-                    new_cost
-                    + heuristic(
-                        neighbor, goal, cell_size_x_m, cell_size_y_m
-                    )
+                priority = new_cost + heuristic(
+                    neighbor, goal, cell_size_x_m, cell_size_y_m
                 )
+                heappush(frontier, (priority, next(insertion_order), neighbor))
 
-                heappush(
-                    frontier,
-                    (
-                        estimated_total_cost,
-                        next(insertion_order),
-                        neighbor,
-                    ),
-                )
-
-    return PathResult(
-        success=False,
-        path=[],
-        total_cost=inf,
-        expanded_nodes=expanded_nodes,
-        error="Não foi possível encontrar um caminho.",
-    )
+    return PathResult(False, [], inf, expanded_nodes, "Não foi possível encontrar um caminho.")
