@@ -1,5 +1,41 @@
 # Preparação do CoppeliaSim
 
+## Fluxo automático recomendado
+
+Com o CoppeliaSim aberto e a simulação parada:
+
+```powershell
+python -m src.coppelia_scene `
+  --scenario configs/demo_wind.yaml `
+  --save scenes/drone_agricola_wind.ttt
+```
+
+O comando carrega o modelo oficial do quadricóptero, cria o terreno TOPODATA,
+remove o piso padrão e salva a cena. Para substituir uma cena existente, use
+`--overwrite`.
+
+Valide o cenário sem conectar:
+
+```powershell
+python -m src.coppeliasim --scenario configs/demo_wind.yaml --dry-run
+```
+
+Execute a missão com vento e replanejamento:
+
+```powershell
+python -m src.coppeliasim `
+  --scenario configs/demo_wind.yaml `
+  --object auto `
+  --scale 0.01 `
+  --speed 8 `
+  --warmup-s 5
+```
+
+`--speed` é informado em m/s reais. Telemetria, eventos, métricas e todas as
+revisões da rota são gravados em `output/runs/`.
+
+## Preparação manual
+
 1. Abra o CoppeliaSim e crie uma cena nova.
 2. Adicione um `Dummy` e defina seu alias como `DroneTarget`.
 3. Adicione o modelo de quadricóptero e faça o script controlador dele seguir o dummy `/DroneTarget`. Para um primeiro teste cinemático, o próprio modelo ou dummy pode receber esse alias.
@@ -11,7 +47,7 @@
 
 7. Com a cena aberta e a simulação parada, execute:
 
-   `python -m src.coppeliasim --object /target --scale 0.01 --speed 0.05 --warmup-s 3`
+   `python -m src.coppeliasim --object auto --scale 0.01 --speed 2 --warmup-s 3`
 
 O valor `0.01` converte 1 metro real em 1 centímetro/unidade visual da cena. O terreno importado no CoppeliaSim deve usar exatamente a mesma escala. O programa primeiro mantém o alvo parado para o drone estabilizar e depois o leva progressivamente ao primeiro waypoint. A simulação é sincronizada e sempre encerrada mesmo se ocorrer uma falha durante o voo.
 

@@ -3,7 +3,12 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from src.waypoints import export_waypoints_csv, grid_path_to_waypoints_3d
+from src.waypoints import (
+    export_waypoints_csv,
+    grid_path_to_waypoints_3d,
+    local_xy_to_grid,
+    nearest_traversable_grid_position,
+)
 
 
 def test_converts_grid_to_centered_local_coordinates():
@@ -41,3 +46,16 @@ def test_exports_waypoints_csv(tmp_path: Path):
     assert destination.exists()
     assert "x_m,y_m,z_m" in content
     assert len(content.splitlines()) == 3
+
+
+def test_local_coordinates_round_trip_to_grid():
+    terrain = np.zeros((5, 5))
+    waypoint = grid_path_to_waypoints_3d(terrain, [(1, 3)], 30, 30, 10)[0]
+    assert local_xy_to_grid(waypoint.x_m, waypoint.y_m, terrain.shape, 30, 30) == (1, 3)
+
+
+def test_selects_nearest_traversable_cell():
+    terrain = np.zeros((3, 3))
+    mask = np.zeros_like(terrain, dtype=bool)
+    mask[1, 1] = True
+    assert nearest_traversable_grid_position((1, 1), terrain, mask) == (0, 1)

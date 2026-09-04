@@ -4,7 +4,7 @@ import csv
 
 import numpy as np
 
-from src.astar import Position
+from src.astar import Position, is_traversable
 
 
 @dataclass(frozen=True)
@@ -78,3 +78,59 @@ def export_waypoints_csv(
         writer.writeheader()
         writer.writerows(rows)
     return destination
+
+
+def local_xy_to_grid(
+    x_m: float,
+    y_m: float,
+    terrain_shape: tuple[int, int],
+    cell_size_x_m: float,
+    cell_size_y_m: float,
+) -> Position:
+    """Converte coordenadas métricas locais para a célula mais próxima."""
+
+    if cell_size_x_m <= 0 or cell_size_y_m <= 0:
+        raise ValueError("O tamanho da célula precisa ser positivo.")
+    rows, columns = terrain_shape
+    if rows < 1 or columns < 1:
+        raise ValueError("O terreno precisa conter células.")
+    center_row = (rows - 1) / 2
+    center_column = (columns - 1) / 2
+    row = round(center_row - y_m / cell_size_y_m)
+    column = round(center_column + x_m / cell_size_x_m)
+    return (
+        min(rows - 1, max(0, int(row))),
+        min(columns - 1, max(0, int(column))),
+    )
+
+
+def nearest_traversable_grid_position(
+    position: Position,
+    terrain: np.ndarray,
+    obstacle_mask: np.ndarray | None = None,
+) -> Position:
+    """Resolve arredondamentos sobre obstáculos escolhendo a célula livre mais próxima."""
+
+    if is_traversable(position, terrain, obstacle_mask):
+        return position
+    rows, columns = terrain.shape
+    for radius in range(1, max(rows, columns)):
+        candidates = []
+        for row in range(max(0, position[0] - radius), min(rows, position[0] + radius + 1)):
+            for column in range(
+                max(0, position[1] - radius), min(columns, position[1] + radius + 1)
+            ):
+                if max(abs(row - position[0]), abs(column - position[1])) != radius:
+                    continue
+                candidate = (row, column)
+                if is_traversable(candidate, terrain, obstacle_mask):
+                    candidates.append(candidate)
+        if candidates:
+            return min(
+                candidates,
+                key=lambda item: (
+                    (item[0] - position[0]) ** 2 + (item[1] - position[1]) ** 2,
+                    item,
+                ),
+            )
+    raise ValueError("Não existe célula navegável no terreno.")

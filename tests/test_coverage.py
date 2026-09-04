@@ -2,10 +2,12 @@ import numpy as np
 import pytest
 
 from src.coverage import (
+    CoverageWindow,
     calculate_coverage_percent,
     generate_boustrophedon_targets,
     generate_boustrophedon_waypoints,
     plan_boustrophedon_coverage,
+    replan_remaining_targets,
 )
 
 
@@ -36,6 +38,26 @@ def test_generates_every_required_cell_along_stripes():
         (0, 0), (0, 1), (0, 2),
         (2, 2), (2, 1), (2, 0),
     ]
+
+
+def test_generates_targets_only_inside_window():
+    terrain = np.zeros((6, 6))
+    assert generate_boustrophedon_targets(
+        terrain, 2, CoverageWindow(1, 1, 4, 4)
+    ) == [
+        (1, 1), (1, 2), (1, 3), (1, 4),
+        (3, 4), (3, 3), (3, 2), (3, 1),
+    ]
+
+
+def test_replans_from_current_without_revisiting_completed_targets():
+    terrain = np.zeros((5, 5))
+    remaining = [(2, 2), (2, 3), (2, 4)]
+    result = replan_remaining_targets(terrain, (1, 1), remaining, 0, 1, 1)
+    assert result.success
+    assert result.path[0] == (1, 1)
+    assert result.path[-1] == (2, 4)
+    assert (0, 0) not in result.path
 
 
 def test_plans_complete_coverage_on_flat_grid():

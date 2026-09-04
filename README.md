@@ -20,6 +20,56 @@ Heightfield e drone no CoppeliaSim
 Métricas, CSV e imagens
 ```
 
+> **Precisão do modelo:** o planejador atual é 2,5D. O A* busca células no plano
+> horizontal e cada waypoint recebe a altitude do MDE mais uma margem de segurança.
+> O drone executa uma trajetória 3D, mas o algoritmo ainda não escolhe camadas
+> verticais independentes.
+
+## Início rápido: demonstração com vento
+
+Na raiz do projeto, crie e ative o ambiente Python:
+
+```bash
+python3 -m virtualenv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+```
+
+Com o CoppeliaSim aberto e a simulação parada, prepare e salve a cena:
+
+```bash
+python -m src.coppelia_scene \
+  --scenario configs/demo_wind.yaml \
+  --save scenes/drone_agricola_wind.ttt
+```
+
+Se a cena já existir e você quiser recriá-la, acrescente `--overwrite`. Depois,
+execute a missão determinística:
+
+```bash
+python -m src.coppeliasim \
+  --scenario configs/demo_wind.yaml \
+  --speed 8 \
+  --scale 0.01
+```
+
+Nesse comando, `--speed 8` significa **8 m/s reais**; a conversão para unidades da
+cena é automática. Há vento forte desde `t=0`; aos 30 s e 70 s simulados ele muda,
+o A* recalcula a missão
+restante e a execução registra telemetria em `output/runs/`.
+
+O cenário usa altitude-alvo de 60 m sobre o MDE e registra violação caso a margem
+real medida fique abaixo de 55 m.
+
+Para comparar os casos sem vento, vento fixo e vento variável:
+
+```bash
+python -m src.experiments --scenario configs/demo_wind.yaml
+```
+
+O resultado é salvo em `output/experiments/wind_comparison.csv`. O custo com vento
+é um indicador normalizado, não uma medição em joules.
+
 ## Funcionalidades implementadas
 
 - Leitura de arquivos GeoTIFF TOPODATA;
@@ -36,6 +86,9 @@ Métricas, CSV e imagens
 - Leitura automática de obstáculos da cena;
 - Desvio de árvores e outros obstáculos estáticos;
 - Controle do target do quadricóptero em modo sincronizado;
+- Cenários determinísticos de vento e replanejamento durante o voo;
+- Perturbação visual limitada aplicada ao corpo dinâmico;
+- Telemetria de posição, erro, margem, colisão e eventos de replanejamento;
 - Exportação de métricas, waypoints e visualizações;
 - Testes automatizados com pytest.
 
@@ -115,7 +168,7 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 python -m pytest -v
 ```
 
-O projeto possui atualmente 47 testes automatizados. Avisos `PendingDeprecationWarning` emitidos pelo Rasterio não representam falha.
+O projeto possui atualmente 58 testes automatizados. Avisos `PendingDeprecationWarning` emitidos pelo Rasterio não representam falha.
 
 ## Dados utilizados
 
@@ -356,7 +409,7 @@ python -m src.coppeliasim `
   --object /target `
   --csv "output\waypoints_coppeliasim.csv" `
   --scale 0.01 `
-  --speed 0.02 `
+  --speed 2 `
   --warmup-s 5
 ```
 
@@ -371,7 +424,7 @@ O programa:
 7. Percorre a rota completa;
 8. Para a simulação ao final ou em caso de erro.
 
-Comece com `--speed 0.02`. Se o drone acompanhar com estabilidade, experimente `0.03` e depois `0.05`. Não use `2` com o controlador demonstrativo do quadricóptero.
+Comece com `--speed 2`, agora expresso em metros reais por segundo. Com `--scale 0.01`, o programa converte automaticamente esse valor para `0.02` unidade da cena por segundo.
 
 ## Fluxo completo recomendado
 
@@ -403,7 +456,7 @@ python -m src.coppeliasim --dry-run
 
 # 5. Executar o voo
 python -m src.coppeliasim `
-  --object /target --scale 0.01 --speed 0.02 --warmup-s 5
+  --object auto --scale 0.01 --speed 2 --warmup-s 5
 ```
 
 Se a cena não possuir objetos com prefixo `Obstacle`, pule a etapa 2 e remova `--obstacles-file` da etapa 3.
@@ -475,12 +528,13 @@ python -m pip install coppeliasim-zmqremoteapi-client==2.0.4
 - Use o modelo oficial `Quadcopter`;
 - Mantenha o target original dentro do modelo antes da simulação;
 - Não renomeie o target;
-- Execute o voo com `--object /target`, pois o script o desacopla ao iniciar.
+- Prefira `--object auto`; o programa localiza o target antes de o script do modelo
+  desacoplá-lo ao iniciar.
 
 ### Drone dispara ou perde o target
 
 - Restaure a cena;
-- Use `--speed 0.02`;
+- Use `--speed 2` (m/s reais);
 - Use `--warmup-s 5`;
 - Confirme que o modelo consegue flutuar sem o programa Python;
 - Não altere o script original do quadricóptero.
@@ -502,22 +556,20 @@ python -m pip install coppeliasim-zmqremoteapi-client==2.0.4
 ## Limitações atuais
 
 - Obstáculos são considerados estáticos;
-- Não há replanejamento durante o voo;
-- Vento não é simulado no planejador;
+- O vento é uniforme em cada intervalo e definido previamente no YAML;
+- A força aplicada ao drone é uma perturbação visual, não um modelo aerodinâmico calibrado;
 - O custo energético é normalizado;
 - O controlador do quadricóptero é o controlador demonstrativo do CoppeliaSim;
 - A área cultivável é atualmente representada por um recorte quadrado;
-- Ainda não existe telemetria completa da trajetória real do drone.
+- O planejador é 2,5D e não escolhe níveis verticais independentes.
 
 ## Próximas melhorias
 
-- Registrar posição planejada e posição real durante o voo;
-- Medir erro médio e máximo de acompanhamento;
-- Detectar colisões e violações de altura mínima;
-- Interromper a missão em situações inseguras;
 - Gerar gráficos de altitude e erro ao longo do tempo;
 - Permitir polígonos reais de propriedade rural;
 - Realizar replanejamento diante de obstáculos móveis;
+- Calibrar vento e consumo com parâmetros físicos ou telemetria real;
+- Adicionar plantação sintética e visão para identificar falhas, pragas e áreas não pulverizadas;
 - Comparar diferentes pesos de subida e configurações experimentais.
 
 ## Referências

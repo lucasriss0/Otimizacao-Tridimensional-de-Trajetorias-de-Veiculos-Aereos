@@ -31,7 +31,7 @@ def prepare_heightfield(
     cell_size_x_m: float,
     scale: float,
 ) -> HeightfieldData:
-    """Converte o raster norte→sul para o heightfield local sul→norte."""
+    """Converte o raster para o heightfield preservando norte em +Y."""
     if elevation.ndim != 2 or min(elevation.shape) < 2:
         raise ValueError("O heightfield exige uma matriz 2D de pelo menos 2 x 2.")
     if not np.all(np.isfinite(elevation)):
@@ -41,8 +41,9 @@ def prepare_heightfield(
 
     minimum = float(np.min(elevation))
     relative = (elevation - minimum) * scale
-    # O grid usa linha zero ao norte (+Y); a API recebe a primeira linha ao sul.
-    heights = np.flipud(relative).ravel(order="C").astype(float).tolist()
+    # No heightfield do Coppelia, a primeira linha recebida aparece em +Y.
+    # Portanto ela já coincide com a linha zero (norte) usada pelo planejador.
+    heights = relative.ravel(order="C").astype(float).tolist()
     rows, columns = elevation.shape
     return HeightfieldData(
         x_point_count=columns,

@@ -13,6 +13,12 @@ class StaticObstacle:
     safety_radius_m: float
     name: str = "obstaculo"
 
+    def __post_init__(self) -> None:
+        if not self.name.strip():
+            raise ValueError("O obstáculo precisa ter um nome.")
+        if self.safety_radius_m <= 0:
+            raise ValueError("O raio de segurança precisa ser positivo.")
+
 
 def parse_obstacle_spec(specification: str) -> StaticObstacle:
     """Interpreta NAME,X_M,Y_M,RAIO_M informado pela linha de comando."""

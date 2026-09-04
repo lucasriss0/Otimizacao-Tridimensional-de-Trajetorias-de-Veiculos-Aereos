@@ -6,6 +6,8 @@ from typing import Optional
 
 import numpy as np
 
+from src.wind import WindCostParameters, WindVector, calculate_wind_penalty
+
 
 Position = tuple[int, int]
 
@@ -89,6 +91,8 @@ def movement_cost(
     climb_weight: float,
     cell_size_x_m: float = 1.0,
     cell_size_y_m: float = 1.0,
+    wind: WindVector | None = None,
+    wind_cost: WindCostParameters | None = None,
 ) -> float:
     current_height = float(terrain[current])
     neighbor_height = float(terrain[neighbor])
@@ -101,7 +105,12 @@ def movement_cost(
         row_delta * cell_size_y_m,
     )
     distance_3d = hypot(horizontal_distance, elevation_difference)
-    return distance_3d + climb_weight * elevation_gain
+    movement_east_m = column_delta * cell_size_x_m
+    movement_north_m = -row_delta * cell_size_y_m
+    wind_penalty = calculate_wind_penalty(
+        movement_east_m, movement_north_m, wind, wind_cost
+    )
+    return distance_3d + climb_weight * elevation_gain + wind_penalty
 
 
 def reconstruct_path(
@@ -123,6 +132,8 @@ def astar(
     cell_size_x_m: float = 1.0,
     cell_size_y_m: float = 1.0,
     obstacle_mask: np.ndarray | None = None,
+    wind: WindVector | None = None,
+    wind_cost: WindCostParameters | None = None,
 ) -> PathResult:
     if terrain.ndim != 2:
         return PathResult(False, [], inf, 0, "O terreno precisa ser uma matriz bidimensional.")
@@ -176,6 +187,8 @@ def astar(
                 climb_weight,
                 cell_size_x_m,
                 cell_size_y_m,
+                wind,
+                wind_cost,
             )
             if neighbor not in cost_so_far or new_cost < cost_so_far[neighbor]:
                 cost_so_far[neighbor] = new_cost

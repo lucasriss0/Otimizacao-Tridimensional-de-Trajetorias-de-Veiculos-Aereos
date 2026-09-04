@@ -46,7 +46,7 @@ def test_prepares_scaled_and_oriented_heightfield():
     assert data.x_size == pytest.approx(0.3)
     assert data.minimum_elevation_m == 10
     assert data.maximum_relative_height == pytest.approx(0.04)
-    assert data.heights == pytest.approx([0.02, 0.04, 0.0, 0.01])
+    assert data.heights == pytest.approx([0.0, 0.01, 0.02, 0.04])
 
 
 def test_rejects_invalid_heightfield():
@@ -55,7 +55,7 @@ def test_rejects_invalid_heightfield():
 
 
 def test_creates_named_static_heightfield():
-    data = prepare_heightfield(np.zeros((2, 2)), 30, 0.01)
+    data = prepare_heightfield(np.array([[0.0, 1.0], [2.0, 4.0]]), 30, 0.01)
     sim = FakeTerrainSim()
     factory = lambda **kwargs: FakeClient(sim, **kwargs)
     result = create_heightfield_in_coppeliasim(data, client_factory=factory)

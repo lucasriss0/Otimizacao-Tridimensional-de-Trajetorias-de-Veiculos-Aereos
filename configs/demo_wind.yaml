@@ -1,0 +1,63 @@
+id: demo_wind
+output_root: output/runs
+
+terrain:
+  topodata: data/raw/22S48_ZN.tif
+  center_lat: -22.48196
+  center_lon: -47.26397
+  area_m: 1500
+  size: 50
+
+coverage:
+  # Janela central de 10 x 10 células (aproximadamente 300 x 300 m).
+  window: [20, 20, 29, 29]
+  swath_m: 120
+  clearance_m: 60
+  climb_weight: 10
+
+obstacles:
+  - name: ObstacleTreeCenter
+    x_m: 0
+    y_m: 0
+    safety_radius_m: 60
+
+simulation:
+  scale: 0.01
+  # Velocidade de demonstração: 8 m/s reais = 0,08 unidade/s na escala 1:100.
+  speed_mps: 8
+  warmup_s: 5
+  tolerance_m: 8
+  minimum_clearance_m: 55
+  waypoint_timeout_s: 90
+  global_timeout_s: 1200
+  target: auto
+  drone: /Drone
+  body: auto
+  apply_visual_force: true
+
+wind:
+  cost:
+    weight: 2.0
+    crosswind_factor: 0.7
+    reference_speed_mps: 15.0
+  visual:
+    # Efeito físico alto; o A* continua usando o vetor completo acima.
+    acceleration_gain: 2.125
+    maximum_acceleration: 1.60
+    # Deixa a rajada deslocar o drone antes de recalcular desde a posição real.
+    replan_delay_s: 3
+    maximum_drift_m: 20
+  events:
+    # Componentes indicam para onde o ar se desloca, em m/s.
+    - name: vento_norte_lateral
+      at_s: 10
+      east_mps: 0
+      north_mps: 12
+    - name: vento_sul_lateral
+      at_s: 30
+      east_mps: 0
+      north_mps: -12
+    - name: vento_noroeste_diagonal
+      at_s: 70
+      east_mps: -8.5
+      north_mps: 8.5
