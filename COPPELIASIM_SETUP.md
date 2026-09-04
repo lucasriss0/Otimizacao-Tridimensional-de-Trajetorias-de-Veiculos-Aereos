@@ -11,8 +11,8 @@ python -m src.coppelia_scene `
 ```
 
 O comando carrega o modelo oficial do quadricóptero, cria o terreno TOPODATA,
-remove o piso padrão e salva a cena. Para substituir uma cena existente, use
-`--overwrite`.
+adiciona os obstáculos declarados no cenário, remove o piso padrão e salva a
+cena. Para substituir uma cena existente, use `--overwrite`.
 
 Valide o cenário sem conectar:
 
@@ -64,6 +64,26 @@ O objeto `/AgriculturalTerrain` será criado no centro da cena. Uma nova execuç
 Gere a rota com `--clearance-m 60`. A altura é medida no centro do target; essa margem adicional acomoda o tamanho físico do drone, oscilações do controlador e atraso ao acompanhar subidas. Como `--scale 0.01` é usado no simulador, 60 metros reais correspondem a 0,60 unidade acima do relevo.
 
 ## Obstáculos estáticos
+
+No fluxo recomendado, declare os obstáculos diretamente no cenário:
+
+```yaml
+obstacles:
+  - name: ObstacleTreeCenter
+    x_m: 0
+    y_m: 0
+    safety_radius_m: 60
+```
+
+Ao preparar a cena, a árvore oficial do CoppeliaSim é posicionada no relevo. Na
+missão, o mesmo item gera uma máscara circular no grid: os alvos dentro do raio
+são removidos e o A* não pode atravessar as células bloqueadas. Isso evita que
+o objeto exista apenas visualmente sem participar do planejamento.
+
+Para modificar o experimento, altere `x_m`, `y_m` ou `safety_radius_m` e execute
+novamente `src.coppelia_scene` com `--overwrite`. A cena deve estar parada.
+
+### Compatibilidade com cenas montadas manualmente
 
 Use `--obstacle "arvore1,X_M,Y_M,RAIO_M"` ao gerar a cobertura. As coordenadas são locais em metros, com o centro da fazenda em `(0,0)`. Para colocar o modelo visual na cena com escala `0.01`, multiplique `X_M` e `Y_M` por `0.01`. Exemplo: uma árvore em `(150,-90)` metros deve ficar em `(1.5,-0.9)` na cena.
 

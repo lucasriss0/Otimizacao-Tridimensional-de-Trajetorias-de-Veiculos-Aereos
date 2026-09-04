@@ -500,6 +500,48 @@ custo = distância 3D + peso de subida × ganho de elevação
 
 Ele não representa uma medição física em joules ou quilojoules.
 
+## Padronizações e melhorias desta versão
+
+Esta versão consolida a demonstração em um único cenário reproduzível,
+`configs/demo_wind.yaml`. O arquivo passou a ser a fonte de configuração para
+terreno, recorte cultivável, velocidade, altura de segurança, obstáculos e
+eventos de vento. Assim, a cena, o planejador e a execução usam as mesmas
+coordenadas e unidades.
+
+As principais padronizações foram:
+
+- coordenadas geográficas apenas na importação do TOPODATA e coordenadas locais
+  em metros durante o planejamento;
+- conversão única de metros para unidades da cena por `simulation.scale`;
+- `speed_mps`, componentes do vento e raios de segurança sempre expressos em
+  unidades reais;
+- nomes estáveis para `/Drone`, `/AgriculturalTerrain` e obstáculos declarados
+  no YAML;
+- descoberta automática do target e do corpo dinâmico do quadricóptero;
+- execução sincronizada pelo Python, iniciada sempre com a simulação parada;
+- resultados de cada execução isolados em `output/runs/`, que não são
+  versionados.
+
+As melhorias funcionais incluem:
+
+- criação automática e salvamento de uma cena reproduzível;
+- relevo real recortado para a área do experimento e visualização por altitude;
+- cobertura boustrophedon conectada por A* com custo de relevo e vento;
+- eventos de vento em qualquer instante, inclusive sem evento em `t=0`;
+- deriva lateral visual limitada antes do replanejamento;
+- replanejamento a partir da posição efetiva do drone após cada mudança de
+  vento;
+- árvore central criada na cena e convertida na mesma máscara de ocupação usada
+  pelo A*;
+- preservação dos alvos já concluídos durante o replanejamento;
+- telemetria, eventos, métricas, trajetória executada e revisões da rota;
+- timeouts, verificação de altura mínima e detecção de colisão;
+- testes automatizados de planejamento, vento, obstáculos, conversões e
+  integração.
+
+O vento físico e a deriva são aproximações controladas para demonstrar a
+decisão do planejador. Eles não constituem um modelo aerodinâmico calibrado.
+
 ## Problemas comuns
 
 ### `ModuleNotFoundError: No module named 'src'`
