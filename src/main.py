@@ -13,6 +13,38 @@ from src.terrain import create_example_terrain, load_topodata
 from src.visualization import save_path_figure
 
 
+def resolve_endpoints(
+    terrain_shape: tuple[int, int],
+    start_row: int | None,
+    start_col: int | None,
+    goal_row: int | None,
+    goal_col: int | None,
+) -> tuple[tuple[int, int], tuple[int, int]]:
+    """Valida pontos informados ou usa o centro das bordas como padrão."""
+    values = (start_row, start_col, goal_row, goal_col)
+    if not any(value is not None for value in values):
+        middle_row = terrain_shape[0] // 2
+        return (middle_row, 0), (middle_row, terrain_shape[1] - 1)
+
+    if not all(value is not None for value in values):
+        raise ValueError(
+            "Informe juntos: --start-row, --start-col, --goal-row e --goal-col."
+        )
+
+    start = (start_row, start_col)
+    goal = (goal_row, goal_col)
+    rows, columns = terrain_shape
+
+    for name, (row, column) in (("origem", start), ("destino", goal)):
+        if not (0 <= row < rows and 0 <= column < columns):
+            raise ValueError(
+                f"A {name} {(row, column)} está fora do grid "
+                f"{rows} x {columns}."
+            )
+
+    return start, goal
+
+
 def show_result(name: str, result: PathResult) -> None:
     print()
     print("=" * 60)
@@ -49,6 +81,10 @@ def parse_args() -> argparse.Namespace:
         "--area-m", type=float, default=None,
         help="Lado, em metros, da área quadrada recortada (ex.: 1500).",
     )
+    parser.add_argument("--start-row", type=int, help="Linha da origem no grid.")
+    parser.add_argument("--start-col", type=int, help="Coluna da origem no grid.")
+    parser.add_argument("--goal-row", type=int, help="Linha do destino no grid.")
+    parser.add_argument("--goal-col", type=int, help="Coluna do destino no grid.")
     return parser.parse_args()
 
 
@@ -102,9 +138,15 @@ def main() -> None:
         cell_size_x_m = 1.0
         cell_size_y_m = 1.0
 
-    middle_row = terrain.shape[0] // 2
-    start = (middle_row, 0)
-    goal = (middle_row, terrain.shape[1] - 1)
+    start, goal = resolve_endpoints(
+        terrain.shape,
+        args.start_row,
+        args.start_col,
+        args.goal_row,
+        args.goal_col,
+    )
+    print(f"Origem no grid: {start}")
+    print(f"Destino no grid: {goal}")
 
     started = perf_counter()
     result_without_climb_penalty = astar(
