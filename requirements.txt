@@ -3,3 +3,4 @@ matplotlib==3.11.1
 pytest==9.1.1
 PyYAML==6.0.3
 rasterio==1.5.1
+coppeliasim-zmqremoteapi-client==2.0.4
