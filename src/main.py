@@ -12,6 +12,7 @@ from src.metrics import (
 )
 from src.terrain import create_example_terrain, load_topodata
 from src.visualization import save_coverage_figure, save_path_figure
+from src.waypoints import export_waypoints_csv, grid_path_to_waypoints_3d
 
 
 def resolve_endpoints(
@@ -93,6 +94,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--swath-m", type=float, default=120.0,
         help="Largura de aplicação do drone em metros (padrão: 120).",
+    )
+    parser.add_argument(
+        "--clearance-m", type=float, default=20.0,
+        help="Altura de segurança acima do terreno em metros (padrão: 20).",
     )
     return parser.parse_args()
 
@@ -188,6 +193,13 @@ def main() -> None:
         metrics_path = export_metrics_csv(
             [coverage_metrics], "output/metricas_cobertura.csv"
         )
+        waypoints_3d = grid_path_to_waypoints_3d(
+            terrain, coverage_result.path, cell_size_x_m, cell_size_y_m,
+            args.clearance_m,
+        )
+        waypoints_path = export_waypoints_csv(
+            waypoints_3d, "output/waypoints_coppeliasim.csv"
+        )
         figure_path = f"output/{output_prefix}_cobertura_boustrophedon.png"
         save_coverage_figure(
             terrain, coverage_result.path, coverage_result.waypoints,
@@ -195,6 +207,8 @@ def main() -> None:
             f"Cobertura boustrophedon ({coverage_result.coverage_percent:.1f}%)",
         )
         print(f"Métricas exportadas para: {metrics_path}")
+        print(f"Waypoints 3D exportados para: {waypoints_path}")
+        print(f"Altura de segurança: {args.clearance_m:.2f} m")
         print(f"Imagem gerada: {figure_path}")
         return
 
@@ -274,6 +288,14 @@ def main() -> None:
             output_path=f"output/{output_prefix}_subida_penalizada.png",
             title="A* - Distância e penalização de subida",
         )
+        waypoints_3d = grid_path_to_waypoints_3d(
+            terrain, result_with_climb_penalty.path,
+            cell_size_x_m, cell_size_y_m, args.clearance_m,
+        )
+        waypoints_path = export_waypoints_csv(
+            waypoints_3d, "output/waypoints_coppeliasim.csv"
+        )
+        print(f"Waypoints 3D exportados para: {waypoints_path}")
 
     print("\nImagens geradas:")
     print(f"- output/{output_prefix}_menor_distancia.png")
