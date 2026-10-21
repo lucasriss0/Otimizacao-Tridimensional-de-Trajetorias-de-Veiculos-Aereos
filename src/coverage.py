@@ -3,7 +3,7 @@ from math import ceil
 
 import numpy as np
 
-from src.astar import PathResult, Position, astar
+from src.astar import DistanceMode, PathResult, Position, astar
 from src.wind import WindCostParameters, WindVector
 
 
@@ -71,8 +71,21 @@ def generate_boustrophedon_targets(
     terrain: np.ndarray,
     stripe_spacing_cells: int,
     window: CoverageWindow | None = None,
+    orientation: str = "horizontal",
 ) -> list[Position]:
     """Gera todas as células centrais que precisam ser visitadas nas faixas."""
+    if orientation not in ("horizontal", "vertical"):
+        raise ValueError("Orientação deve ser horizontal ou vertical.")
+    if orientation == "vertical":
+        transposed_window = None if window is None else CoverageWindow(
+            window.col_start, window.row_start, window.col_end, window.row_end
+        )
+        return [
+            (column, row)
+            for row, column in generate_boustrophedon_targets(
+                terrain.T, stripe_spacing_cells, transposed_window
+            )
+        ]
     endpoints = generate_boustrophedon_waypoints(
         terrain, stripe_spacing_cells, window
     )
@@ -197,6 +210,7 @@ def plan_targets(
     obstacle_mask: np.ndarray | None = None,
     wind: WindVector | None = None,
     wind_cost: WindCostParameters | None = None,
+    distance_mode: DistanceMode = "3d",
 ) -> PathResult:
     """Conecta uma sequência fixa de alvos; útil no plano inicial e no replanejamento."""
 
@@ -219,6 +233,7 @@ def plan_targets(
             obstacle_mask,
             wind,
             wind_cost,
+            distance_mode,
         )
         expanded_nodes += segment.expanded_nodes
         if not segment.success:

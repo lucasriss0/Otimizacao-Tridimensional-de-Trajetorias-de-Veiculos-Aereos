@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from heapq import heappop, heappush
 from itertools import count
 from math import hypot, inf
-from typing import Optional
+from typing import Literal, Optional
 
 import numpy as np
 
@@ -10,6 +10,7 @@ from src.wind import WindCostParameters, WindVector, calculate_wind_penalty
 
 
 Position = tuple[int, int]
+DistanceMode = Literal["horizontal", "3d"]
 
 
 @dataclass
@@ -93,7 +94,10 @@ def movement_cost(
     cell_size_y_m: float = 1.0,
     wind: WindVector | None = None,
     wind_cost: WindCostParameters | None = None,
+    distance_mode: DistanceMode = "3d",
 ) -> float:
+    if distance_mode not in ("horizontal", "3d"):
+        raise ValueError("distance_mode deve ser 'horizontal' ou '3d'.")
     current_height = float(terrain[current])
     neighbor_height = float(terrain[neighbor])
     elevation_difference = neighbor_height - current_height
@@ -110,7 +114,8 @@ def movement_cost(
     wind_penalty = calculate_wind_penalty(
         movement_east_m, movement_north_m, wind, wind_cost
     )
-    return distance_3d + climb_weight * elevation_gain + wind_penalty
+    distance = horizontal_distance if distance_mode == "horizontal" else distance_3d
+    return distance + climb_weight * elevation_gain + wind_penalty
 
 
 def reconstruct_path(
@@ -134,7 +139,10 @@ def astar(
     obstacle_mask: np.ndarray | None = None,
     wind: WindVector | None = None,
     wind_cost: WindCostParameters | None = None,
+    distance_mode: DistanceMode = "3d",
 ) -> PathResult:
+    if distance_mode not in ("horizontal", "3d"):
+        return PathResult(False, [], inf, 0, "Modo de distância inválido.")
     if terrain.ndim != 2:
         return PathResult(False, [], inf, 0, "O terreno precisa ser uma matriz bidimensional.")
 
@@ -189,6 +197,7 @@ def astar(
                 cell_size_y_m,
                 wind,
                 wind_cost,
+                distance_mode,
             )
             if neighbor not in cost_so_far or new_cost < cost_so_far[neighbor]:
                 cost_so_far[neighbor] = new_cost

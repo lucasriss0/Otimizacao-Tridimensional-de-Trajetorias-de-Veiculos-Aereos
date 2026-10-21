@@ -164,6 +164,22 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 
 ## Executar os testes
 
+### Experimento de planejamento para o artigo
+
+A primeira etapa experimental roda sem CoppeliaSim e sem vento. Consulte
+[o protocolo](docs/PLANNING_EXPERIMENTS.md) para as hipóteses, comparações,
+critérios e limitações. Com o ambiente ativado:
+
+```powershell
+python -m src.planning_experiments --scenario configs/demo_wind.yaml --output output/experiments/planning_01
+```
+
+O comando avalia seis casos sintéticos fixos e o recorte real do cenário,
+preservando candidatos, falhas, métricas, rotas, gráficos e dados de entrada.
+A pasta de saída precisa ser nova para preservar execuções anteriores.
+
+### Testes automatizados
+
 ```powershell
 python -m pytest -v
 ```
