@@ -178,7 +178,31 @@ O comando avalia seis casos sintéticos fixos e o recorte real do cenário,
 preservando candidatos, falhas, métricas, rotas, gráficos e dados de entrada.
 A pasta de saída precisa ser nova para preservar execuções anteriores.
 
-### Testes automatizados
+### Etapa 2: métricas do voo executado
+
+As missões com cenário (`python -m src.coppeliasim --scenario ...`) agora
+acrescentam ao `metrics.csv` a distância 3D, subida, descida, custo normalizado,
+erro médio/RMSE/máximo, menor margem ao terreno e duração observada das
+colisões e violações de altura. `mission_completed` indica conclusão dos alvos;
+`mission_completed_safely` exige também telemetria presente, ausência de erro,
+colisões e violações. O campo antigo `success` foi preservado.
+
+Para resumir uma telemetria antiga sem conectar ao simulador:
+
+```powershell
+python -m src.telemetry_metrics output/runs/PASTA_DA_MISSAO/telemetry.csv --climb-weight 10
+```
+
+O resumo considera apenas o intervalo da primeira à última amostra, incluindo
+estabilização registrada. A duração de cada violação usa o estado da amostra
+anterior até a próxima; uma violação na última amostra conta como ocorrência,
+mas não recebe duração adicional. Médias e RMSE são calculados por amostra.
+A distância soma segmentos retos entre posições medidas. O custo normalizado
+não representa joules. Ausência de telemetria não comprova segurança.
+As margens usam a medição já registrada pelo simulador; esta etapa não calibra
+a física, não mede cobertura executada e não atesta segurança entre amostras.
+
+### Executar a suíte
 
 ```powershell
 python -m pytest -v

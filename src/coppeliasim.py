@@ -19,6 +19,7 @@ from src.coverage import (
 from src.obstacles import create_obstacle_mask
 from src.scenario import MissionScenario, load_scenario
 from src.terrain import load_topodata
+from src.telemetry_metrics import summarize_telemetry
 from src.waypoints import (
     grid_path_to_waypoints_3d,
     local_xy_to_grid,
@@ -468,16 +469,17 @@ def _save_simulation_log(
         "route_revisions": log.route_revisions,
         "collisions": log.collisions,
         "clearance_violations": log.clearance_violations,
-        "maximum_tracking_error_m": max(
-            (item.tracking_error_m for item in log.telemetry), default=0.0
-        ),
-        "mean_tracking_error_m": (
-            sum(item.tracking_error_m for item in log.telemetry) / len(log.telemetry)
-            if log.telemetry
-            else 0.0
-        ),
         "error": log.error or "",
     }
+    measured = summarize_telemetry(
+        (asdict(item) for item in log.telemetry), scenario.coverage.climb_weight
+    )
+    metrics.update(measured)
+    metrics["mission_completed"] = log.success
+    metrics["mission_completed_safely"] = (
+        log.success and log.error is None and measured["observed_safe"]
+        and log.collisions == 0 and log.clearance_violations == 0
+    )
     with (destination / "metrics.csv").open("w", newline="", encoding="utf-8-sig") as stream:
         writer = csv.DictWriter(stream, fieldnames=list(metrics))
         writer.writeheader()
