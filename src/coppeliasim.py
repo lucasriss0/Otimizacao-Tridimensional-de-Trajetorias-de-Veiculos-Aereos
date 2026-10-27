@@ -6,6 +6,7 @@ from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from math import ceil, dist, pi, sin
 from pathlib import Path
+from time import perf_counter
 from typing import Callable, Protocol
 
 import numpy as np
@@ -85,6 +86,7 @@ class ReplanEvent:
     success: bool
     normalized_cost: float
     error: str | None = None
+    planning_time_s: float = 0.0
 
 
 @dataclass
@@ -102,6 +104,7 @@ class SimulationLog:
     clearance_violations: int = 0
     error: str | None = None
     output_directory: Path | None = None
+    replanning_enabled: bool = True
 
 
 def load_waypoint_positions(
@@ -432,10 +435,15 @@ def _save_simulation_log(
     scenario: MissionScenario,
     scenario_path: Path,
 ) -> Path:
-    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
     destination = scenario.output_root / f"{scenario.scenario_id}_{stamp}"
     destination.mkdir(parents=True, exist_ok=False)
     shutil.copyfile(scenario_path, destination / "scenario.yaml")
+    (destination / "effective_configuration.json").write_text(
+        json.dumps({"scenario": asdict(scenario),
+                    "replanning_enabled": log.replanning_enabled},
+                   default=str, ensure_ascii=False, indent=2), encoding="utf-8",
+    )
 
     if log.telemetry:
         with (destination / "telemetry.csv").open("w", newline="", encoding="utf-8-sig") as stream:
@@ -467,6 +475,8 @@ def _save_simulation_log(
         "targets_completed": log.targets_completed,
         "simulation_steps": log.simulation_steps,
         "route_revisions": log.route_revisions,
+        "replanning_enabled": log.replanning_enabled,
+        "total_replanning_time_s": sum(e.planning_time_s for e in log.replan_events),
         "collisions": log.collisions,
         "clearance_violations": log.clearance_violations,
         "error": log.error or "",
@@ -504,6 +514,7 @@ def run_wind_mission(
     host: str = "localhost",
     port: int = 23000,
     client_factory: Callable[..., object] | None = None,
+    replanning_enabled: bool = True,
 ) -> SimulationLog:
     """Executa, mede e replaneja uma missão determinística em stepping mode."""
 
@@ -513,6 +524,7 @@ def run_wind_mission(
     log = SimulationLog(
         False, scenario.scenario_id, 0, 0, 0, 0, telemetry, replan_events, routes
     )
+    log.replanning_enabled = replanning_enabled
     cell_x = scenario.terrain.area_m / terrain.shape[1]
     cell_y = scenario.terrain.area_m / terrain.shape[0]
     scale = scenario.simulation.scale
@@ -617,8 +629,8 @@ def run_wind_mission(
             nonlocal wind_started_at_s
             commanded_target = list(target_position)
             if (
-                pending_replan_at_s is not None
-                and wind_started_at_s is not None
+                wind_started_at_s is not None
+                and float(sim.getSimulationTime()) < wind_started_at_s + scenario.wind.replan_delay_s
                 and active_event.wind.speed_mps > 1e-12
                 and scenario.wind.maximum_drift_m > 0
             ):
@@ -703,10 +715,12 @@ def run_wind_mission(
                     f"[VENTO t={now:.1f}s] {active_event.name}: "
                     f"leste={active_event.wind.east_mps:.1f} m/s, "
                     f"norte={active_event.wind.north_mps:.1f} m/s; "
-                    f"replanejamento em {scenario.wind.replan_delay_s:.1f}s...",
+                    f"replanejamento {'ligado' if replanning_enabled else 'desligado'}",
                     flush=True,
                 )
-                pending_replan_at_s = now + scenario.wind.replan_delay_s
+                pending_replan_at_s = (
+                    now + scenario.wind.replan_delay_s if replanning_enabled else None
+                )
                 wind_started_at_s = now
                 wind_drawing = _draw_wind(
                     sim, active_event.wind, drone_scene, wind_drawing
@@ -717,6 +731,7 @@ def run_wind_mission(
                     grid, terrain, obstacle_mask
                 )
                 remaining = targets[completed_targets:]
+                planning_started = perf_counter()
                 planned = replan_remaining_targets(
                     terrain,
                     current,
@@ -743,6 +758,7 @@ def run_wind_mission(
                         planned.success,
                         planned.total_cost,
                         planned.error,
+                        perf_counter() - planning_started,
                     )
                 )
                 if not planned.success:
@@ -885,6 +901,7 @@ def prepare_scenario_route(scenario: MissionScenario) -> tuple[np.ndarray, list[
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Executa waypoints 3D no CoppeliaSim.")
     parser.add_argument("--scenario", type=Path, help="Cenário YAML com missão e vento.")
+    parser.add_argument("--no-replan", action="store_true", help="Mantém a rota inicial sob o mesmo vento.")
     parser.add_argument("--csv", type=Path, default=Path("output/waypoints_coppeliasim.csv"))
     parser.add_argument("--object", default="auto", help="Caminho do alvo ou 'auto'.")
     parser.add_argument("--host", default="localhost")
@@ -924,7 +941,8 @@ def main() -> None:
             print("Cenário validado; nenhuma conexão foi realizada (--dry-run).")
             return
         result = run_wind_mission(
-            scenario, terrain, targets, initial_path, args.scenario, args.host, args.port
+            scenario, terrain, targets, initial_path, args.scenario, args.host, args.port,
+            replanning_enabled=not args.no_replan,
         )
         if not result.success:
             raise RuntimeError(

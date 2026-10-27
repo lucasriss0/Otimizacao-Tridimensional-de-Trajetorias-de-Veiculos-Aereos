@@ -25,7 +25,70 @@ Métricas, CSV e imagens
 > O drone executa uma trajetória 3D, mas o algoritmo ainda não escolhe camadas
 > verticais independentes.
 
-## Início rápido: demonstração com vento
+## Início rápido: comparação sem vento
+
+### Apresentar no Windows
+
+Com o ambiente `.venv` instalado, abra o CoppeliaSim e deixe a simulação
+parada. Execute **`apresentar.cmd`** na raiz deste repositório. Ele prepara
+terreno, árvore e drone e executa dois voos: referência A* horizontal com
+faixas fixas e proposta com penalização de subida e escolha da orientação.
+Ambos saem e retornam à mesma origem, com a mesma velocidade, altura e
+controlador. Vento, deriva artificial e replanejamento ficam desativados.
+A cena aberta é copiada antes da preparação para a pasta da comparação.
+
+Também é possível iniciar pelo ambiente Python:
+
+```powershell
+python -m src.coverage_comparison
+```
+
+Durante cada voo, a rota aparece em laranja. A mesma cena é recarregada antes
+do segundo voo. O cenário principal é `configs/demo_coverage.yaml`.
+O fluxo conecta as rotas comparadas à execução física e mede a trajetória
+efetivamente executada. Também exporta energia estimada em Wh pelo modelo
+teórico de referência, usando os mesmos parâmetros nos dois voos. Essa
+estimativa ainda não foi calibrada para um drone agrícola nem mede bateria real.
+Consulte [o modelo e suas limitações](docs/MODELO_ENERGIA.md).
+
+A cena `comparison_scene.ttt` e os resultados ficam em uma pasta nova de
+`output/experiments/coverage_.../`. `planned_*.csv` contém os planos em metros;
+`comparison.csv` contém os resultados lado a lado, inclusive falhas;
+`protocol.json` registra os parâmetros e as duas rotas; `runs/` preserva
+telemetria e trajetória medida de cada voo. A cobertura de 100% registrada
+refere-se ao plano discreto, não à área efetivamente pulverizada em voo.
+O método proposto combina subida e orientação; esta comparação inicial não
+isola a contribuição individual de cada melhoria.
+
+Para validar os planos sem abrir o CoppeliaSim:
+
+```powershell
+python -m src.coverage_comparison --dry-run --output output/experiments/coverage_check_01
+```
+
+Para repetir os voos, execute o mesmo comando com a simulação parada.
+O botão Play sozinho inicia a física, mas a execução da rota depende do
+programa Python. Não feche a janela do programa durante o voo.
+Opcionalmente, `--scene caminho/para/cena.ttt` usa uma cena já preparada e
+compatível com o cenário, em vez de gerar uma nova.
+
+A demonstração antiga com vento continua disponível via
+`python -m src.presentation`, como experimento secundário.
+
+Para separar as contribuições de cada melhoria, execute as cinco variantes
+com `python -m src.coverage_comparison --ablation`. A análise preliminar sem
+simulador usa `python -m src.ablation --scenario configs/demo_coverage.yaml --output output/experiments/ablation_01`.
+Consulte [comparação das contribuições](docs/COMPARACAO_CONTRIBUICOES.md) para
+distinguir energia de uma trajetória ideal das métricas de voo executado.
+
+Se a área 3D ficar preta mesmo numa cena nova: no AMD Software, crie um perfil
+para o executável `coppeliaSim.exe`, selecione **Graphics Profile: Default**
+somente nesse perfil e reinicie o simulador. Essa combinação corrigiu a
+visualização no computador de teste com Radeon RX 560X; não é uma garantia
+para outros drivers. A seleção da GPU de alto desempenho é independente do
+perfil gráfico. Confirme a GPU na linha `OpenGL ... Renderer` do log.
+
+### Preparação manual da demonstração secundária com vento
 
 Na raiz do projeto, crie e ative o ambiente Python:
 
@@ -202,7 +265,49 @@ não representa joules. Ausência de telemetria não comprova segurança.
 As margens usam a medição já registrada pelo simulador; esta etapa não calibra
 a física, não mede cobertura executada e não atesta segurança entre amostras.
 
-### Executar a suíte
+### Etapa 3: mesmo vento, com e sem replanejamento
+
+Com o CoppeliaSim aberto e parado, use uma cena salva que corresponda ao
+cenário (terreno, drone e obstáculos). O comando abaixo **recarrega essa cena
+antes de cada um dos dois voos**, descartando alterações não salvas na cena
+aberta. A rota inicial, o vento e o controlador são iguais; apenas a decisão
+de replanejar muda. A deriva artificial comandada do target é desativada nos
+dois casos; a força aproximada sobre o drone permanece ativa.
+
+Primeiro valide o protocolo sem conectar ao simulador, usando uma pasta nova:
+
+```powershell
+python -m src.wind_comparison --scenario configs/demo_wind.yaml --scene scenes/drone_agricola_wind.ttt --output output/experiments/wind_check_01 --dry-run
+```
+
+Para executar os dois voos e salvar as métricas lado a lado:
+
+```powershell
+python -m src.wind_comparison --scenario configs/demo_wind.yaml --scene scenes/drone_agricola_wind.ttt --output output/experiments/wind_pair_01
+```
+
+`comparison.csv` reúne os resultados, inclusive missões que falharam.
+`protocol.json` registra a configuração e a rota inicial comum. Cada voo
+preserva telemetria, eventos e métricas em `runs/`; a configuração efetivamente
+usada fica em `effective_configuration.json`. Os eventos incluem tempo de
+cálculo do replanejamento (tempo de processamento real, não tempo simulado).
+O CSV do primeiro voo é preservado se a segunda execução não puder iniciar.
+O modo `--dry-run` só produz o protocolo, sem resultados de voo.
+
+Compare conclusão segura, distância, subida, erro de acompanhamento, margem
+mínima e duração das violações. Redução de custo em uma missão incompleta não
+representa vantagem. Esta comparação não mede cobertura executada nem bateria,
+e a força continua sendo uma aproximação sem calibração aerodinâmica. Antes
+de interpretar resultados físicos, confirme que o corpo dinâmico foi encontrado
+e recebe a força: o mecanismo existente tolera falhas na aplicação da força.
+Um par de voos é uma verificação inicial, não evidência de generalização.
+
+Para uma execução individual pelo comando antigo, acrescente `--no-replan`
+ao `python -m src.coppeliasim --scenario ...`. Esse comando mantém os efeitos
+do YAML original, incluindo a deriva artificial quando configurada. Use o
+comparador acima para o protocolo pareado sem essa deriva.
+
+### Rodar os testes
 
 ```powershell
 python -m pytest -v

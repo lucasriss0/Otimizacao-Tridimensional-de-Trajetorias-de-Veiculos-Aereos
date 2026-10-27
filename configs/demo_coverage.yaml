@@ -1,0 +1,41 @@
+id: demo_coverage
+output_root: output/runs
+terrain:
+  topodata: data/raw/22S48_ZN.tif
+  center_lat: -22.48196
+  center_lon: -47.26397
+  area_m: 1500
+  size: 50
+coverage:
+  window: [20, 20, 29, 29]
+  swath_m: 120
+  clearance_m: 60
+  climb_weight: 10
+obstacles:
+  - name: ObstacleTreeCenter
+    x_m: 0
+    y_m: 0
+    safety_radius_m: 60
+simulation:
+  scale: 0.01
+  speed_mps: 8
+  warmup_s: 5
+  tolerance_m: 8
+  minimum_clearance_m: 55
+  waypoint_timeout_s: 90
+  global_timeout_s: 1200
+  target: auto
+  drone: /Drone
+  body: auto
+  apply_visual_force: false
+wind:
+  visual:
+    acceleration_gain: 0
+    maximum_acceleration: 0
+    replan_delay_s: 0
+    maximum_drift_m: 0
+  events:
+    - name: sem_vento
+      at_s: 0
+      east_mps: 0
+      north_mps: 0
