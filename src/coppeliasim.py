@@ -72,6 +72,7 @@ class TelemetrySample:
     clearance_m: float
     clearance_violation: bool
     collision: bool
+    application_active: bool = False
 
 
 @dataclass(frozen=True)
@@ -621,6 +622,8 @@ def run_wind_mission(
         pending_replan_at_s: float | None = None
         wind_started_at_s: float | None = None
 
+        application_active = False
+
         def step_once(target_position: Position3D) -> None:
             nonlocal active_event, next_event_index, revision, route, route_positions
             nonlocal route_index, replan_requested, collision_samples, clearance_samples
@@ -700,6 +703,7 @@ def run_wind_mission(
                     clearance,
                     clearance_violation,
                     collision,
+                    application_active,
                 )
             )
             if now - simulation_start > scenario.simulation.global_timeout_s:
@@ -798,6 +802,9 @@ def run_wind_mission(
             for _ in range(ceil(scenario.simulation.warmup_s / time_step)):
                 step_once(current_target)
 
+            # Aplicação geométrica ativa na missão, inclusive conexões e retorno.
+            # Não comanda uma bomba física; o estado fica explícito na telemetria.
+            application_active = True
             maximum_step = scenario.simulation.speed_mps * scale * time_step
             while route_index < len(route_positions):
                 replan_requested = False

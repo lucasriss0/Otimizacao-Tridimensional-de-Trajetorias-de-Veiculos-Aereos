@@ -24,7 +24,8 @@ python -m src.coverage_comparison --ablation
 As cinco rotas devem atender à cobertura planejada de 100%; cada plano é
 exportado, e cada voo gera telemetria e estimativa energética própria. Missões
 incompletas continuam nos registros e não devem ser anunciadas como economia.
-Esse modo ainda não mede a cobertura efetivamente aplicada.
+Esse modo também registra cobertura geométrica executada e critérios de
+elegibilidade, conforme `VALIDACAO_MISSAO.md`; não mede deposição física.
 
 ## Análise preliminar sem simulador
 

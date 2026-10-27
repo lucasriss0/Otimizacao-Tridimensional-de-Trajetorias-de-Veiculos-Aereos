@@ -1,0 +1,13 @@
+{
+  "base_scenario": "demo_coverage.yaml",
+  "energy_model": "energy_reference.json",
+  "selection_rule": "Centro de estudo e deslocamentos fixos de 0,02 grau para norte e sul, mesma longitude, antes de observar os resultados deste lote. Sem seleção por economia energética.",
+  "repetitions": 2,
+  "minimum_executed_coverage_percent": 100.0,
+  "maximum_telemetry_gap_s": 1.0,
+  "locations": [
+    {"id": "centro", "center_lat": -22.48196, "center_lon": -47.26397},
+    {"id": "norte", "center_lat": -22.46196, "center_lon": -47.26397},
+    {"id": "sul", "center_lat": -22.50196, "center_lon": -47.26397}
+  ]
+}

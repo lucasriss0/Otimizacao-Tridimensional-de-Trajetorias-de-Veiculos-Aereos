@@ -60,7 +60,7 @@ def test_flight_keeps_wind_and_drifts_with_replanning_off(tmp_path, monkeypatch,
     scenario = load_scenario("configs/demo_wind.yaml")
     scenario = replace(scenario, output_root=tmp_path,
                        obstacles=(), simulation=replace(scenario.simulation,
-                       target="/target", body="/body", warmup_s=0, speed_mps=30,
+                       target="/target", body="/body", warmup_s=.2, speed_mps=30,
                        tolerance_m=1, scale=1),
                        wind=replace(scenario.wind, replan_delay_s=.2, maximum_drift_m=2,
                        events=(WindEvent("gust", .1, WindVector(5, 0)),)))
@@ -104,5 +104,7 @@ def test_flight_keeps_wind_and_drifts_with_replanning_off(tmp_path, monkeypatch,
     assert any(wind.east_mps == 5 for wind in winds)
     assert result.route_revisions == int(enabled)
     assert any(s.wind_event == "gust" for s in result.telemetry)
+    assert not any(s.application_active for s in result.telemetry[:2])
+    assert all(s.application_active for s in result.telemetry[2:])
     if enabled:
         assert result.replan_events[0].planning_time_s >= 0

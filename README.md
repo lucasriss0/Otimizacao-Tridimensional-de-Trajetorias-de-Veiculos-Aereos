@@ -55,8 +55,12 @@ A cena `comparison_scene.ttt` e os resultados ficam em uma pasta nova de
 `output/experiments/coverage_.../`. `planned_*.csv` contém os planos em metros;
 `comparison.csv` contém os resultados lado a lado, inclusive falhas;
 `protocol.json` registra os parâmetros e as duas rotas; `runs/` preserva
-telemetria e trajetória medida de cada voo. A cobertura de 100% registrada
-refere-se ao plano discreto, não à área efetivamente pulverizada em voo.
+telemetria e trajetória medida de cada voo. A cobertura planejada e a cobertura
+geométrica executada são registradas separadamente; nenhuma mede deposição real.
+Uma redução de energia só é calculada em `energy_contrasts.csv` quando ambos
+os voos concluem com segurança e cumprem o mesmo limiar de cobertura executada.
+Consulte [validação da missão](docs/VALIDACAO_MISSAO.md) para o modelo de faixa,
+os critérios, as limitações e o lote pré-definido de terrenos e repetições.
 O método proposto combina subida e orientação; esta comparação inicial não
 isola a contribuição individual de cada melhoria.
 

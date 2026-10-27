@@ -88,7 +88,8 @@ de iniciar os dois voos. A configuração efetiva também fica no protocolo.
 ## Evidência necessária para o artigo
 
 Não declarar economia por comparar voos incompletos, com segurança ou cobertura
-diferentes. A cobertura executada ainda será implementada. Um voo mais curto
+diferentes. A cobertura geométrica executada e os critérios estão descritos em
+`VALIDACAO_MISSAO.md`; não são medição de deposição. Um voo mais curto
 por abandonar alvos não constitui vantagem energética.
 
 Próximos passos: escolher o drone/carga de referência, obter potência elétrica

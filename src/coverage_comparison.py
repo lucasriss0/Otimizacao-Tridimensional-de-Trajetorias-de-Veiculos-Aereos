@@ -18,6 +18,10 @@ from src.scenario import load_scenario
 from src.waypoints import export_waypoints_csv, grid_path_to_waypoints_3d
 from src.wind import WindEvent, WindScenario, WindVector
 from src.ablation import select_ablation_plans
+from src.executed_coverage import (
+    analyze_executed_coverage, assess_flight, export_energy_contrasts,
+    measure_executed_coverage,
+)
 
 
 def _wait_stopped(sim) -> None:
@@ -34,11 +38,13 @@ def compare_coverage_flights(
     dry_run: bool = False, client_factory=None,
     energy_model_path: Path = Path("configs/energy_reference.json"),
     ablation: bool = False,
+    minimum_executed_coverage: float = 100.,
+    maximum_telemetry_gap_s: float = 1.,
 ) -> Path:
     """A proposta usa subida e seleção horizontal/vertical; não mede bateria.
 
     Cada voo visita todas as células do plano em ordem, inclusive retorno à
-    origem. A cobertura exportada é a planejada, não a efetivamente aplicada.
+    origem. Cobertura executada é geométrica e não mede deposição de produto.
     """
     if output.exists():
         raise FileExistsError(f"Escolha uma pasta nova: {output}")
@@ -55,6 +61,8 @@ def compare_coverage_flights(
         output_root=output / "runs",
     )
     case = case_from_scenario(scenario_path)
+    assess_flight({}, {}, {}, minimum_executed_coverage)
+    measure_executed_coverage([], case, maximum_telemetry_gap_s)
     trials = compare_planners(case, (scenario.coverage.climb_weight,),
                               evaluation_weight=scenario.coverage.climb_weight)
     plans = [next(t for t in trials if t.method == method)
@@ -82,8 +90,11 @@ def compare_coverage_flights(
         "effective_scenario": asdict(scenario), "launch": case.launch,
         "plans": [asdict(plan) for plan in plans],
         "energy_model": model_manifest(energy_model),
+        "minimum_executed_coverage_percent": minimum_executed_coverage,
+        "maximum_telemetry_gap_s": maximum_telemetry_gap_s,
+        "application_policy": "Desligada durante estabilização; ativa na missão, conexões e retorno. Modelo geométrico de faixa, sem bomba física.",
         "dry_run": dry_run, "scene": str(scene_path) if scene_path else "prepared_automatically",
-        "limitations": "Energia estimada por referência teórica sem calibração; não mede bateria. Cobertura planejada discreta, sem medição de aplicação executada. Proposta combina subida e orientação.",
+        "limitations": "Energia estimada por referência teórica sem calibração; não mede bateria. Cobertura geométrica dos centros de células, sem medição de deposição. Proposta combina subida e orientação.",
     }, default=str, ensure_ascii=False, indent=2), encoding="utf-8")
     if dry_run:
         return output
@@ -130,16 +141,32 @@ def compare_coverage_flights(
             metrics = next(csv.DictReader(stream))
         energy = analyze_telemetry(log.output_directory / "telemetry.csv", energy_model,
                                    log.output_directory / "energy")
+        try:
+            coverage = analyze_executed_coverage(
+                log.output_directory / "telemetry.csv", case,
+                log.output_directory / "coverage", maximum_telemetry_gap_s,
+            )
+        except (ValueError, KeyError) as error:
+            # Não transforma dados ausentes/corrompidos em uma missão coberta.
+            coverage = measure_executed_coverage([], case, maximum_telemetry_gap_s)[0]
+            coverage["coverage_error"] = str(error)
+        eligibility = assess_flight(metrics, energy, coverage, minimum_executed_coverage)
+        area_ha = coverage["executed_covered_area_m2"] / 10000
         rows.append({
             "method": label, "orientation": plan.orientation,
             "planned_coverage_percent": plan.coverage_percent,
             "planned_normalized_cost": plan.normalized_cost,
             "run_directory": str(log.output_directory), **metrics, **energy,
+            **coverage, **eligibility,
+            "estimated_energy_wh_per_covered_ha": (
+                energy["estimated_energy_wh"] / area_ha
+                if area_ha > 0 and energy["energy_estimate_available"] else None),
         })
         with (output / "comparison.csv").open("w", newline="", encoding="utf-8-sig") as stream:
             writer = csv.DictWriter(stream, fieldnames=list(rows[0]))
             writer.writeheader()
             writer.writerows(rows)
+        export_energy_contrasts(rows, output / "energy_contrasts.csv")
         print(f"Concluído: {log.success}; logs: {log.output_directory}", flush=True)
     _wait_stopped(sim)
     print("Comparação concluída. O custo normalizado não representa consumo de bateria.")
@@ -155,12 +182,16 @@ def main() -> None:
     parser.add_argument("--port", type=int, default=23000)
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--ablation", action="store_true", help="Compara as cinco variantes para isolar contribuições.")
+    parser.add_argument("--minimum-executed-coverage", type=float, default=100.)
+    parser.add_argument("--maximum-telemetry-gap", type=float, default=1.)
     parser.add_argument("--energy-model", type=Path, default=Path("configs/energy_reference.json"))
     args = parser.parse_args()
     output = args.output or Path("output/experiments") / datetime.now().strftime("coverage_%Y%m%d_%H%M%S_%f")
     result = compare_coverage_flights(args.scenario, output, args.scene, args.host,
                                      args.port, args.dry_run, energy_model_path=args.energy_model,
-                                     ablation=args.ablation)
+                                     ablation=args.ablation,
+                                     minimum_executed_coverage=args.minimum_executed_coverage,
+                                     maximum_telemetry_gap_s=args.maximum_telemetry_gap)
     print(f"{'Planos validados' if args.dry_run else 'Resultados'}: {result}")
 
 

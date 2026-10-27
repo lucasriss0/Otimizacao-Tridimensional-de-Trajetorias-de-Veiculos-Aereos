@@ -103,6 +103,12 @@ Empates e pioras são resultados e devem permanecer nas tabelas.
 
 ## Etapa D — missão equivalente e protocolo final
 
+Implementados `src.executed_coverage`, a elegibilidade e os contrastes de
+energia no comparador, além do executor de lote `src.validation_suite`.
+Consulte `VALIDACAO_MISSAO.md`. Os planos dos três recortes foram validados
+sem conectar ao simulador; a coleta dos 30 voos continua pendente.
+Calibração, deposição física e análise estatística não estão concluídas.
+
 1. Medir cobertura pela trajetória executada, incluindo segmentos entre
    amostras e definindo quando a aplicação está ativa.
 2. Exigir o mesmo limiar de cobertura, conclusão e segurança nas comparações.
