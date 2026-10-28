@@ -49,6 +49,10 @@ iguais. Não anunciar economia de bateria nesta etapa.
 ## Etapa B — avaliador energético independente
 
 Protótipo implementado em `src.energy` e integrado ao comparador de voos.
+O ajuste parcial e a validação em voos separados foram implementados em
+`src.energy_calibration`; consulte `CALIBRACAO_ENERGIA.md`. Não existem
+medições reais do veículo do projeto no repositório, portanto a ferramenta
+está pronta, mas o modelo ainda não foi calibrado com dados físicos.
 Usa referência publicada para voo horizontal e extensão simplificada de subida,
 com parâmetros em `configs/energy_reference.json`. Consulte `MODELO_ENERGIA.md`.
 A calibração para veículo/carga real e validação elétrica continuam pendentes;

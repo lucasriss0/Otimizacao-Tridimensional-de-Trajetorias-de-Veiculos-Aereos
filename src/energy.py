@@ -31,9 +31,12 @@ class EnergyModel:
     auxiliary_power_w: float = 0.
     maximum_horizontal_speed_mps: float = 60.
     maximum_vertical_speed_mps: float = 5.
+    calibration: dict | None = None
 
     def __post_init__(self):
         for name, value in asdict(self).items():
+            if name == "calibration":
+                continue
             if isinstance(value, bool) or not isfinite(value):
                 raise ValueError(f"Parâmetro energético inválido: {name}")
             if value < 0:
@@ -64,13 +67,22 @@ def load_energy_model(path: Path) -> EnergyModel:
     raw = json.loads(path.read_text(encoding="utf-8"))
     if raw.get("model") != "zeng_level_plus_climb_v1":
         raise ValueError("Modelo energético desconhecido.")
-    return EnergyModel(**raw["parameters"])
+    calibration = raw.get("calibration")
+    if calibration is not None and not isinstance(calibration, dict):
+        raise ValueError("Metadados de calibração inválidos.")
+    if calibration is not None and calibration.get("held_out_criterion_passed") is not True:
+        raise ValueError("O candidato energético não passou no critério de validação separado.")
+    return EnergyModel(**raw["parameters"], calibration=calibration)
 
 
 def model_manifest(model: EnergyModel) -> dict:
+    parameters = asdict(model)
+    calibration = parameters.pop("calibration")
     return {
-        "model": "zeng_level_plus_climb_v1", "parameters": asdict(model),
+        "model": "zeng_level_plus_climb_v1", "parameters": parameters,
         "source": SOURCE, "calibrated_for_project_drone": False,
+        "parameter_fit_available": calibration is not None,
+        "calibration": calibration,
         "scope": "Referência teórica de voo horizontal; extensão de subida e eficiências são hipóteses do projeto. Não é bateria medida nem modelo 3D calibrado.",
     }
 
@@ -96,6 +108,14 @@ def estimate_energy(samples: Iterable[Mapping], model: EnergyModel) -> tuple[dic
         level_power = model.horizontal_power_w(horizontal_speed) / model.electrical_efficiency
         climb_power = model.weight_n * max(0., vertical_speed) / model.climb_efficiency
         power = level_power + climb_power + model.auxiliary_power_w
+        outside_calibration = False
+        if model.calibration is not None:
+            horizontal_range = model.calibration["training_horizontal_speed_range_mps"]
+            vertical_range = model.calibration["training_vertical_speed_range_mps"]
+            outside_calibration = not (
+                horizontal_range[0] - 1e-9 <= horizontal_speed <= horizontal_range[1] + 1e-9
+                and vertical_range[0] - 1e-9 <= vertical_speed <= vertical_range[1] + 1e-9
+            )
         horizontal_j += level_power * dt
         climb_j += climb_power * dt
         auxiliary_j += model.auxiliary_power_w * dt
@@ -107,7 +127,9 @@ def estimate_energy(samples: Iterable[Mapping], model: EnergyModel) -> tuple[dic
             "outside_reference_envelope": (
                 horizontal_speed > model.maximum_horizontal_speed_mps
                 or abs(vertical_speed) > model.maximum_vertical_speed_mps
+                or outside_calibration
             ),
+            "outside_calibration_envelope": outside_calibration,
         })
     available = bool(intervals)
     duration = times[-1] - times[0] if available else 0.
@@ -122,8 +144,10 @@ def estimate_energy(samples: Iterable[Mapping], model: EnergyModel) -> tuple[dic
         "energy_observed_duration_s": duration,
         "energy_samples": len(times),
         "energy_outside_envelope_intervals": sum(row["outside_reference_envelope"] for row in intervals),
+        "energy_outside_calibration_envelope_intervals": sum(row["outside_calibration_envelope"] for row in intervals),
         "energy_model": "zeng_level_plus_climb_v1",
         "energy_calibrated": False,
+        "energy_parameter_fit_available": model.calibration is not None,
     }
     return summary, intervals
 

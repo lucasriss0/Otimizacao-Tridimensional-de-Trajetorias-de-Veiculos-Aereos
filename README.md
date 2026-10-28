@@ -51,6 +51,13 @@ teórico de referência, usando os mesmos parâmetros nos dois voos. Essa
 estimativa ainda não foi calibrada para um drone agrícola nem mede bateria real.
 Consulte [o modelo e suas limitações](docs/MODELO_ENERGIA.md).
 
+O ajuste parcial por medições de tensão/corrente está disponível em
+`python -m src.energy_calibration --help`. Ele separa voos de treino e
+validação, mantém a origem dos dados e recusa candidatos reprovados.
+Consulte [calibração energética](docs/CALIBRACAO_ENERGIA.md) e o cabeçalho
+`configs/electrical_measurements_template.csv`. Ainda não há medições reais
+do drone do projeto; o modelo não deve ser declarado calibrado.
+
 A cena `comparison_scene.ttt` e os resultados ficam em uma pasta nova de
 `output/experiments/coverage_.../`. `planned_*.csv` contém os planos em metros;
 `comparison.csv` contém os resultados lado a lado, inclusive falhas;
