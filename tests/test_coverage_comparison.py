@@ -41,7 +41,7 @@ def test_live_pair_executes_exact_plans_and_keeps_controller_equal(tmp_path, mon
     loaded, saved, calls = [], [], []
     sim = SimpleNamespace(
         simulation_stopped=0, boolparam_infotext_visible=17,
-        getSimulationState=lambda: 0, loadScene=loaded.append,
+        getSimulationState=lambda: 0, getSimulationTimeStep=lambda: .05, loadScene=loaded.append,
         saveScene=saved.append, adjustView=lambda *args: None,
         getObject=lambda name: 0, setObjectSelection=lambda *args: None,
         setBoolParam=lambda *args: None,
@@ -103,6 +103,14 @@ def test_refuses_routes_that_cannot_cover_same_area(tmp_path, monkeypatch):
     assert not (tmp_path / "invalid").exists()
 
 
+@pytest.mark.parametrize("step", [0, -.01, float("nan"), .21])
+def test_invalid_time_step_is_rejected_before_connecting(tmp_path, step):
+    with pytest.raises(ValueError, match="Passo temporal"):
+        comparison.compare_coverage_flights(Path("configs/demo_coverage.yaml"),
+            tmp_path / "invalid", time_step_s=step,
+            client_factory=lambda **kwargs: pytest.fail("Não conectar"))
+
+
 def test_completed_flights_with_measured_coverage_generate_valid_contrast(tmp_path, monkeypatch):
     from math import ceil, dist
     from src.waypoints import grid_path_to_waypoints_3d
@@ -113,7 +121,7 @@ def test_completed_flights_with_measured_coverage_generate_valid_contrast(tmp_pa
     scene.touch()
     sim = SimpleNamespace(
         simulation_stopped=0, boolparam_infotext_visible=17,
-        getSimulationState=lambda: 0, loadScene=lambda path: None,
+        getSimulationState=lambda: 0, getSimulationTimeStep=lambda: .05, loadScene=lambda path: None,
         saveScene=lambda path: None, adjustView=lambda *args: None,
         getObject=lambda name: 0, setObjectSelection=lambda *args: None,
         setBoolParam=lambda *args: None,
@@ -155,11 +163,12 @@ def test_completed_flights_with_measured_coverage_generate_valid_contrast(tmp_pa
 
 def test_preparation_restores_model_setting_and_uses_same_scene_twice(tmp_path, monkeypatch):
     previous = comparison.scene.DEFAULT_TREE_MODEL
+    actions = []
     sim = SimpleNamespace(
         simulation_stopped=0, stringparam_application_path=1,
         boolparam_infotext_visible=17, getSimulationState=lambda: 0,
-        saveScene=lambda path: None, getStringParam=lambda param: str(tmp_path),
-        loadScene=lambda path: None, adjustView=lambda *args: None,
+        saveScene=lambda path: actions.append(("backup", path)), getStringParam=lambda param: str(tmp_path),
+        loadScene=lambda path: actions.append(("template", path)), adjustView=lambda *args: None,
         getObject=lambda name: 0, setObjectSelection=lambda *args: None,
         setBoolParam=lambda *args: None,
     )
@@ -170,3 +179,5 @@ def test_preparation_restores_model_setting_and_uses_same_scene_twice(tmp_path, 
         comparison.compare_coverage_flights(Path("configs/demo_coverage.yaml"),
                                             tmp_path / "prepare", client_factory=lambda **kw: client)
     assert comparison.scene.DEFAULT_TREE_MODEL == previous
+    assert actions[0][0] == "backup"
+    assert actions[1] == ("template", (tmp_path / "system/dfltscn.ttt").as_posix())

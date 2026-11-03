@@ -73,3 +73,14 @@ def test_bilinear_waypoints_preserve_straight_xy_and_plane_height():
     assert [p.altitude_asl_m for p in points] == pytest.approx([105,115,125])
     assert [p.x_m for p in points] == pytest.approx([-5,0,5])
     assert [p.y_m for p in points] == pytest.approx([10,5,0])
+
+
+def test_new_pair_protocol_identifies_conventional_reference(tmp_path):
+    import json
+    from src.coverage_comparison import compare_coverage_flights
+    output = compare_coverage_flights(Path('configs/demo_relief.yaml'),tmp_path/'pair',dry_run=True)
+    protocol = json.loads((output/'protocol.json').read_text(encoding='utf-8'))
+    assert protocol['baseline_planner'] == 'parallel_geometric_v1'
+    assert protocol['method_plan_mapping']['referencia_2d'] == 'convencional_geometrico'
+    assert protocol['plans'][0]['method'] == 'convencional_geometrico'
+    assert protocol['plans'][1]['method'] == 'climb_orientation'
