@@ -5,3 +5,8 @@
 *.csv text eol=lf
 *.json text eol=lf
 requirements.txt text eol=lf
+
+# Preserva os bytes dos registros históricos, inclusive seus hashes SHA-256.
+docs/resultados/** -text
+docs/RESULTADOS*.md -text
+docs/PROTOTIPO_ENERGIA_*.md -text
