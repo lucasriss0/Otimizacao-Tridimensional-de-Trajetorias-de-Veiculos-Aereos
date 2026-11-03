@@ -44,6 +44,12 @@ def test_offline_suite_keeps_all_cases_ties_and_provenance(tmp_path):
     assert len(effects) == 36
     assert all(abs(float(r["estimated_energy_reduction_percent"])) < 1e-8
                for r in effects if r["case"] == "flat_clear")
+    # A 8 m/s, os relevos sintéticos incluem subidas fora da referência de
+    # 5 m/s. Essas estimativas não podem virar um percentual de economia.
+    outside = [r for r in effects if r["outside_energy_envelope"] == "True"]
+    assert outside
+    assert all(r["comparable"] == "False" for r in outside)
+    assert all(r["estimated_energy_reduction_percent"] == "" for r in outside)
     assert (output / rows[0]["route_file"]).exists()
     with pytest.raises(FileExistsError):
         run_ablation(output)

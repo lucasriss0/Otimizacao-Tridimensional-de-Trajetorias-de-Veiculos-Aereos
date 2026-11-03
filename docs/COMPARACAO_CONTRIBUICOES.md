@@ -5,11 +5,19 @@ cena, sem vento, com o mesmo controlador, origem, retorno e velocidade:
 
 | Variante | Busca | Faixas |
 | --- | --- | --- |
-| referencia_2d | distância horizontal | horizontais fixas |
+| referencia_2d | conexões geométricas, sem A* | direção pelo maior lado do talhão |
 | distancia_3d | distância 3D | horizontais fixas |
 | somente_subida | distância 3D + penalização de subida | horizontais fixas |
 | somente_orientacao | distância 3D sem penalização de subida | escolha horizontal/vertical |
 | proposta_completa | distância 3D + penalização de subida | escolha horizontal/vertical |
+
+`referencia_2d` conserva a chave dos CSVs por compatibilidade, mas nos novos
+lotes corresponde a `parallel_geometric_v1`, sem A*. O protocolo registra
+essa identidade. Os quatro métodos restantes são controles da proposta A*.
+Comparar a referência geométrica com `distancia_3d` muda a estratégia de
+conexão e o custo; esse contraste não isola apenas a contribuição de Z.
+Os contrastes entre variantes A* continuam isolando suas alterações comuns.
+Os lotes antigos preservam o protocolo original, com referência também A*.
 
 “Somente orientação” retira a penalização de subida da busca; o critério que
 escolhe entre orientações continua sendo o mesmo custo normalizado declarado

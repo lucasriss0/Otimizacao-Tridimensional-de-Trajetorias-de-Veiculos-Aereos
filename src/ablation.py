@@ -30,9 +30,12 @@ def select_ablation_plans(case, climb_weight=10.):
         ("climb_fixed", climb_weight), ("climb_orientation", 0.),
         ("climb_orientation", climb_weight),
     )
-    return [replace(next(t for t in trials if t.method == method and
+    result = [replace(next(t for t in trials if t.method == method and
                          t.planning_climb_weight == weight), method=label)
             for label, (method, weight) in zip(METHODS, selectors)]
+    from src.conventional import plan_conventional
+    result[0] = replace(plan_conventional(case,climb_weight),method=METHODS[0])
+    return result
 
 
 def ideal_samples(case, path, speed_mps):
@@ -93,7 +96,7 @@ def run_ablation(output, scenario_path=None, climb_weight=10., speed_mps=8.,
     for case in cases:
         subset = {r["method"]: r for r in rows if r["case"] == case.name}
         for reference, proposed, effect in (
-            ("referencia_2d", "distancia_3d", "distancia_3d"),
+            ("referencia_2d", "distancia_3d", "geometrico_versus_astar_3d"),
             ("distancia_3d", "somente_subida", "subida_faixas_fixas"),
             ("distancia_3d", "somente_orientacao", "orientacao_sem_subida"),
             ("somente_subida", "proposta_completa", "orientacao_com_subida"),
@@ -101,13 +104,17 @@ def run_ablation(output, scenario_path=None, climb_weight=10., speed_mps=8.,
             ("referencia_2d", "proposta_completa", "efeito_total"),
         ):
             a, b = subset[reference], subset[proposed]
-            comparable = a["eligible"] and b["eligible"] and a["energy_estimate_available"] and b["energy_estimate_available"]
+            outside_envelope = bool(a["energy_outside_envelope_intervals"] or
+                                    b["energy_outside_envelope_intervals"])
+            comparable = (a["eligible"] and b["eligible"]
+                          and a["energy_estimate_available"] and b["energy_estimate_available"]
+                          and not outside_envelope)
             contrasts.append({"case": case.name, "effect": effect,
                 "reference": reference, "proposed": proposed, "comparable": comparable,
                 "estimated_energy_reduction_percent": (
                     100 * (a["estimated_energy_wh"] - b["estimated_energy_wh"]) / a["estimated_energy_wh"]
                     if comparable else None),
-                "outside_energy_envelope": bool(a["energy_outside_envelope_intervals"] or b["energy_outside_envelope_intervals"]),
+                "outside_energy_envelope": outside_envelope,
             })
     with (output / "effects.csv").open("w", newline="", encoding="utf-8-sig") as stream:
         writer = csv.DictWriter(stream, fieldnames=list(contrasts[0]))
