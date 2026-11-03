@@ -232,13 +232,15 @@ def _set_scene_appearance(sim: object) -> None:
         return
 
 
-def _frame_default_camera(sim: object) -> None:
+def _frame_default_camera(sim: object, focus_z: float = .30, extent: float | None = None) -> None:
     """Enquadra o centro do terreno em perspectiva oblíqua."""
 
     try:
         camera = sim.getObject("/DefaultCamera")
         position = np.array([-2.5, 3.3, 2.8], dtype=float)
-        target = np.array([0.0, 0.0, 0.30], dtype=float)
+        target = np.array([0.0, 0.0, focus_z], dtype=float)
+        if extent is not None:
+            position = target + np.array([-.8 * extent, 1.1 * extent, .9 * extent])
         forward = target - position
         forward /= np.linalg.norm(forward)
         right = np.cross(np.array([0.0, 0.0, 1.0]), forward)
@@ -370,6 +372,7 @@ def setup_scene(
             scenario.terrain.center_lat,
             scenario.terrain.center_lon,
             scenario.terrain.area_m,
+            height_scale=scenario.terrain.height_scale,
         )
         cell_size = scenario.terrain.area_m / terrain.elevation.shape[1]
         window = scenario.coverage.window
@@ -379,12 +382,17 @@ def setup_scene(
                 0, 0, scene_elevation.shape[0] - 1, scene_elevation.shape[1] - 1
             )
         else:
+            physical_window = window.expanded(scenario.simulation.terrain_padding_cells,
+                                               terrain.elevation.shape)
             scene_elevation = terrain.elevation[
-                window.row_start : window.row_end + 1,
-                window.col_start : window.col_end + 1,
+                physical_window.row_start : physical_window.row_end + 1,
+                physical_window.col_start : physical_window.col_end + 1,
             ]
             scene_window = CoverageWindow(
-                0, 0, scene_elevation.shape[0] - 1, scene_elevation.shape[1] - 1
+                window.row_start - physical_window.row_start,
+                window.col_start - physical_window.col_start,
+                window.row_end - physical_window.row_start,
+                window.col_end - physical_window.col_start,
             )
         scene_z_offset = (
             float(np.min(scene_elevation)) - float(np.min(terrain.elevation))
@@ -478,7 +486,7 @@ def setup_scene(
         body_handle = _find_dynamic_body(sim, drone_handle)
 
         # Posiciona o modelo no primeiro alvo para evitar um traslado longo antes da missão.
-        spacing = max(1, round(scenario.coverage.swath_m / cell_size))
+        spacing = max(1, int((scenario.coverage.stripe_spacing_m or scenario.coverage.swath_m) / cell_size))
         first_target = generate_boustrophedon_targets(
             terrain.elevation, spacing, scenario.coverage.window
         )[0]
@@ -498,7 +506,14 @@ def setup_scene(
             ],
             sim.handle_world,
         )
-        _frame_default_camera(sim)
+        if scenario.terrain.height_scale != 1.:
+            focus = (float(np.mean(scene_elevation)) - float(np.min(terrain.elevation))) * scenario.simulation.scale
+            extent = max(scene_elevation.shape[1] * cell_size * scenario.simulation.scale,
+                         float(np.ptp(scene_elevation)) * scenario.simulation.scale,
+                         scenario.coverage.clearance_m * scenario.simulation.scale) * 1.3
+            _frame_default_camera(sim, focus + .3, extent)
+        else:
+            _frame_default_camera(sim)
 
         destination.parent.mkdir(parents=True, exist_ok=True)
         sim.saveScene(to_coppeliasim_path(destination))

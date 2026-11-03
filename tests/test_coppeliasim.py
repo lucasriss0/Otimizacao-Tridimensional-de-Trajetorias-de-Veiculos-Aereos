@@ -112,6 +112,23 @@ def test_interprets_compound_collision_result():
     assert not _check_collision(CollisionSim(), 1, 2)
 
 
+def test_strict_collision_monitoring_rejects_missing_or_failed_observation():
+    class CollisionFailure:
+        def checkCollision(self, first, second):
+            raise RuntimeError("API indisponível")
+
+    with pytest.raises(RuntimeError, match="terreno ausente"):
+        _check_collision(CollisionFailure(), 1, None, strict=True)
+    with pytest.raises(RuntimeError, match="API indisponível"):
+        _check_collision(CollisionFailure(), 1, 2, strict=True)
+    for invalid in ([], -1):
+        class InvalidCollision:
+            def checkCollision(self, first, second):
+                return invalid
+        with pytest.raises(RuntimeError, match="colisão indisponível"):
+            _check_collision(InvalidCollision(), 1, 2, strict=True)
+
+
 def test_discovers_nested_target_before_simulation_starts():
     class DiscoverySim:
         handle_scene = -1

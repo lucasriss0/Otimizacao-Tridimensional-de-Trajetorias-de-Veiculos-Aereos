@@ -419,15 +419,24 @@ def _apply_visual_wind_force(
         return
 
 
-def _check_collision(sim: object, drone_handle: int, terrain_handle: int | None) -> bool:
+def _check_collision(sim: object, drone_handle: int, terrain_handle: int | None,
+                     strict: bool = False) -> bool:
     if terrain_handle is None:
+        if strict:
+            raise RuntimeError("Monitoramento de colisão indisponível: terreno ausente.")
         return False
     try:
         result = sim.checkCollision(drone_handle, terrain_handle)
         if isinstance(result, (tuple, list)):
-            result = result[0] if result else 0
+            if not result:
+                raise ValueError("Resposta de colisão vazia.")
+            result = result[0]
+        if int(result) < 0:
+            raise ValueError("Resposta de colisão inválida.")
         return int(result) > 0
-    except Exception:
+    except Exception as error:
+        if strict:
+            raise RuntimeError(f"Monitoramento de colisão indisponível: {error}") from error
         return False
 
 
@@ -516,6 +525,7 @@ def run_wind_mission(
     port: int = 23000,
     client_factory: Callable[..., object] | None = None,
     replanning_enabled: bool = True,
+    strict_safety: bool = False,
 ) -> SimulationLog:
     """Executa, mede e replaneja uma missão determinística em stepping mode."""
 
@@ -532,6 +542,7 @@ def run_wind_mission(
     obstacle_mask = create_obstacle_mask(
         terrain.shape, list(scenario.obstacles), cell_x, cell_y
     )
+    collision_collection = None
     try:
         if client_factory is None:
             from coppeliasim_zmqremoteapi_client import RemoteAPIClient
@@ -548,6 +559,14 @@ def run_wind_mission(
             terrain_handle = int(sim.getObject("/AgriculturalTerrain"))
         except Exception:
             terrain_handle = None
+        if strict_safety and terrain_handle is None:
+            raise RuntimeError("Monitoramento de colisão indisponível: /AgriculturalTerrain ausente.")
+        collision_drone = drone_handle
+        if strict_safety:
+            # Uma coleção inclui todas as shapes do modelo, não só seu corpo.
+            collision_collection = int(sim.createCollection(0))
+            sim.addItemToCollection(collision_collection, sim.handle_tree, drone_handle, 0)
+            collision_drone = collision_collection
         collision_handles = [terrain_handle] if terrain_handle is not None else []
         for obstacle in scenario.obstacles:
             try:
@@ -683,7 +702,7 @@ def run_wind_mission(
             clearance = drone_m[2] - ground_m
             clearance_violation = clearance < scenario.simulation.minimum_clearance_m
             collision = any(
-                _check_collision(sim, drone_handle, handle)
+                _check_collision(sim, collision_drone, handle, strict=strict_safety)
                 for handle in collision_handles
             )
             collision_samples += int(collision)
@@ -865,6 +884,11 @@ def run_wind_mission(
     except Exception as exc:
         log.error = str(exc)
     finally:
+        if collision_collection is not None:
+            try:
+                sim.destroyCollection(collision_collection)
+            except Exception:
+                pass
         _save_simulation_log(log, scenario, scenario_path)
     return log
 
@@ -876,11 +900,12 @@ def prepare_scenario_route(scenario: MissionScenario) -> tuple[np.ndarray, list[
         scenario.terrain.center_lat,
         scenario.terrain.center_lon,
         scenario.terrain.area_m,
+        height_scale=scenario.terrain.height_scale,
     )
     terrain = terrain_data.elevation
     cell_x = scenario.terrain.area_m / terrain.shape[1]
     cell_y = scenario.terrain.area_m / terrain.shape[0]
-    spacing = max(1, round(scenario.coverage.swath_m / cell_y))
+    spacing = max(1, int((scenario.coverage.stripe_spacing_m or scenario.coverage.swath_m) / cell_y))
     obstacle_mask = create_obstacle_mask(
         terrain.shape, list(scenario.obstacles), cell_x, cell_y
     )
@@ -899,6 +924,7 @@ def prepare_scenario_route(scenario: MissionScenario) -> tuple[np.ndarray, list[
         scenario.coverage.window,
         initial_wind,
         scenario.wind.cost,
+        stripe_spacing_m=scenario.coverage.stripe_spacing_m,
     )
     if not coverage.success:
         raise RuntimeError(coverage.error)
