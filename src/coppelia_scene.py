@@ -3,7 +3,7 @@ from __future__ import annotations
 import argparse
 from dataclasses import dataclass
 from math import radians
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Callable
 
 import numpy as np
@@ -38,11 +38,13 @@ class SceneSetupResult:
 def to_coppeliasim_path(path: str | Path) -> str:
     """Converte /mnt/c/... para um caminho entendido pelo CoppeliaSim no Windows."""
 
-    resolved = Path(path).resolve()
-    parts = resolved.parts
-    if len(parts) >= 4 and parts[:3] == ("/", "mnt", "c"):
-        return "C:/" + "/".join(parts[3:])
-    return str(resolved)
+    # Examina o prefixo antes de resolve(): no Windows, /mnt/c viraria
+    # C:\\mnt\\c e o prefixo do WSL seria perdido.
+    parts = PurePosixPath(str(path).replace("\\", "/")).parts
+    if (len(parts) >= 3 and parts[:2] == ("/", "mnt")
+            and len(parts[2]) == 1 and parts[2].isalpha()):
+        return parts[2].upper() + ":/" + "/".join(parts[3:])
+    return Path(path).resolve().as_posix()
 
 
 def _remove_if_present(sim: object, path: str) -> None:

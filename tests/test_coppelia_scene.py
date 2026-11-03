@@ -20,6 +20,19 @@ def test_converts_wsl_path_for_windows_coppeliasim():
     assert converted == "C:/3D-DRONE/scenes/drone_agricola_wind.ttt"
 
 
+@pytest.mark.parametrize("source, expected", [
+    ("/mnt/d/Cenas com espaços/drone.ttt", "D:/Cenas com espaços/drone.ttt"),
+    ("/mnt/E", "E:/"),
+])
+def test_converts_wsl_drive_before_platform_specific_resolution(source, expected):
+    assert to_coppeliasim_path(source) == expected
+
+
+def test_resolves_native_path_without_treating_it_as_wsl(tmp_path):
+    native = tmp_path / "cena.ttt"
+    assert to_coppeliasim_path(native) == native.resolve().as_posix()
+
+
 def test_refuses_to_overwrite_scene_before_connecting(tmp_path: Path):
     destination = tmp_path / "existing.ttt"
     destination.write_bytes(b"scene")
