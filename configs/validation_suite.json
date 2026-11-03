@@ -2,7 +2,11 @@
   "base_scenario": "demo_coverage.yaml",
   "energy_model": "energy_reference.json",
   "selection_rule": "Centro de estudo e deslocamentos fixos de 0,02 grau para norte e sul, mesma longitude, antes de observar os resultados deste lote. Sem seleção por economia energética.",
+  "protocol_version": "3_conventional_geometric",
+  "baseline_planner": "parallel_geometric_v1",
+  "development_note": "Piloto anterior com faixas espaçadas120m apresentou98,86% de cobertura na referência, sem consulta da economia do par. Definiu-se90m para ambos métodos mantendo largura120m e exigência100%. Centro é recorte de desenvolvimento; norte/sul são validação exploratória e não propriedades independentes.",
   "repetitions": 2,
+  "method_order": "balanced_rotation",
   "minimum_executed_coverage_percent": 100.0,
   "maximum_telemetry_gap_s": 1.0,
   "locations": [

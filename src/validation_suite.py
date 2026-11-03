@@ -8,12 +8,13 @@ from pathlib import Path
 import yaml
 
 from src.coverage_comparison import compare_coverage_flights
+from src.ablation import METHODS
 from src.energy import load_energy_model, model_manifest
 from src.scenario import load_scenario
 
 
 def run_validation_suite(manifest_path, output, dry_run=False,
-                         host="127.0.0.1", port=23000):
+                         host="127.0.0.1", port=23000, executor="python", disable_rendering=False):
     if output.exists():
         raise FileExistsError(f"Escolha uma pasta nova: {output}")
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
@@ -32,11 +33,17 @@ def run_validation_suite(manifest_path, output, dry_run=False,
     locations = manifest["locations"]
     if not locations or len({entry["id"] for entry in locations}) != len(locations):
         raise ValueError("Informe locais com identificadores únicos.")
+    ablation = manifest.get("ablation", True)
+    methods = METHODS if ablation else ("referencia_2d", "proposta_subida_orientacao")
+    balanced = manifest.get("method_order", "fixed") == "balanced_rotation"
+    if manifest.get("method_order", "fixed") not in ("fixed", "balanced_rotation"):
+        raise ValueError("method_order deve ser fixed ou balanced_rotation.")
     output.mkdir(parents=True, exist_ok=False)
     (output / "manifest.json").write_text(json.dumps({
         "definition": manifest, "base_scenario_yaml": base_path.read_text(encoding="utf-8"),
         "energy_model": model_manifest(model), "dry_run": dry_run,
-        "scope": "Recortes geográficos exploratórios; não representam limites cadastrais de fazendas. Repetições não são terrenos independentes. Ordem dos métodos fixa.",
+        "executor": executor, "rendering_disabled_during_run": disable_rendering,
+        "scope": manifest.get("scope", "Recortes geográficos exploratórios; não representam limites cadastrais de fazendas. Repetições não são terrenos independentes."),
     }, ensure_ascii=False, indent=2), encoding="utf-8")
     attempts, rows = [], []
     for index, location in enumerate(locations):
@@ -45,36 +52,45 @@ def run_validation_suite(manifest_path, output, dry_run=False,
         raw["terrain"]["topodata"] = str(base.terrain.topodata.resolve())
         raw["terrain"]["center_lat"] = location["center_lat"]
         raw["terrain"]["center_lon"] = location["center_lon"]
+        if "height_scale" in location:
+            raw["terrain"]["height_scale"] = location["height_scale"]
         scenario_path = output / f"scenario_{index:02d}.yaml"
         scenario_path.write_text(yaml.safe_dump(raw, allow_unicode=True), encoding="utf-8")
         for repetition in range(1, repetitions + 1):
             folder = output / f"case_{index:02d}_repeat_{repetition:02d}"
             attempt = {"case": raw["id"], "repetition": repetition,
                        "output": str(folder), "status": "started", "error": ""}
+            shift = (index * repetitions + repetition - 1) % len(methods)
+            order = list(methods[shift:] + methods[:shift]) if balanced else list(methods)
+            attempt["method_order"] = order
+            attempt["expected_flights"] = len(order)
             attempts.append(attempt)
             status_path = output / "attempts.json"
             status_path.write_text(json.dumps(attempts, ensure_ascii=False, indent=2), encoding="utf-8")
             try:
+                print(f"CASO: {raw['id']} | repetição {repetition}/{repetitions} | ordem: {', '.join(order)}", flush=True)
                 compare_coverage_flights(
                     scenario_path, folder, host=host, port=port, dry_run=dry_run,
-                    energy_model_path=energy_path, ablation=True,
+                    energy_model_path=energy_path, ablation=ablation,
                     minimum_executed_coverage=manifest["minimum_executed_coverage_percent"],
                     maximum_telemetry_gap_s=manifest["maximum_telemetry_gap_s"],
+                    method_order=order,
+                    executor=executor, disable_rendering=disable_rendering,
                 )
-                if not dry_run:
-                    with (folder / "comparison.csv").open(encoding="utf-8-sig") as stream:
-                        for row in csv.DictReader(stream):
-                            rows.append({"geographic_case": raw["id"], "repetition": repetition, **row})
-                    with (output / "all_flights.csv").open("w", newline="", encoding="utf-8-sig") as stream:
-                        writer = csv.DictWriter(stream, fieldnames=list(rows[0]))
-                        writer.writeheader()
-                        writer.writerows(rows)
                 attempt["status"] = "planned" if dry_run else "recorded"
             except (ValueError, RuntimeError, FileNotFoundError) as error:
                 attempt["status"] = "failed"
                 attempt["error"] = str(error)
-                # Não substitui cenários que falharam por cenários favoráveis.
+                print(f"Tentativa preservada com falha: {error}", flush=True)
             finally:
+                if not dry_run and (folder / "comparison.csv").is_file():
+                    with (folder / "comparison.csv").open(encoding="utf-8-sig") as stream:
+                        for row in csv.DictReader(stream):
+                            rows.append({"geographic_case": raw["id"], "repetition": repetition, **row})
+                    with (output / "all_flights.csv").open("w", newline="", encoding="utf-8-sig") as stream:
+                        writer = csv.DictWriter(stream, fieldnames=list(dict.fromkeys(key for row in rows for key in row)))
+                        writer.writeheader()
+                        writer.writerows(rows)
                 status_path.write_text(json.dumps(attempts, ensure_ascii=False, indent=2), encoding="utf-8")
     return output
 
