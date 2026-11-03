@@ -1,0 +1,262 @@
+{
+  "source_experiment": "output/experiments/benchmark_20261028_v2",
+  "report_sha256": "a9c10c5dc3b314b541cebb5702d7815c6a1b6a35ec23dcd46921b2c2c4675061",
+  "sensitivity_sha256": "a9c57b24ee3bacaa119b05d1a19b8846e4bd7b98adb6c4fc40be7d30f3173bf5",
+  "energy_model": {
+    "model": "zeng_level_plus_climb_v1",
+    "parameters": {
+      "weight_n": 100.0,
+      "air_density_kg_m3": 1.225,
+      "rotor_radius_m": 0.5,
+      "tip_speed_mps": 200.0,
+      "rotor_solidity": 0.05,
+      "fuselage_drag_ratio": 0.3,
+      "blade_profile_drag": 0.012,
+      "induced_correction": 0.1,
+      "electrical_efficiency": 0.8,
+      "climb_efficiency": 0.8,
+      "auxiliary_power_w": 0.0,
+      "maximum_horizontal_speed_mps": 60.0,
+      "maximum_vertical_speed_mps": 5.0
+    },
+    "source": "https://arxiv.org/abs/1804.02238",
+    "calibrated_for_project_drone": false,
+    "parameter_fit_available": false,
+    "calibration": null,
+    "scope": "Referência teórica de voo horizontal; extensão de subida e eficiências são hipóteses do projeto. Não é bateria medida nem modelo 3D calibrado."
+  },
+  "summary": {
+    "expected_pairs": 6,
+    "eligible_pairs": 5,
+    "ineligible_or_missing_pairs": 1,
+    "recorded_flights_in_target_pairs": 12,
+    "all_pairs_eligible": false,
+    "positive_pairs": 2,
+    "negative_pairs": 0,
+    "tied_pairs": 3,
+    "mean_estimated_energy_reduction_percent": 0.09256436760233419,
+    "sample_sd_estimated_energy_reduction_percent": 0.12674898039249707,
+    "minimum_estimated_energy_reduction_percent": 0.0,
+    "maximum_estimated_energy_reduction_percent": 0.2314109190058355,
+    "total_reference_estimated_energy_wh": 473.80217788821585,
+    "total_proposed_estimated_energy_wh": 473.36543396046767,
+    "pooled_estimated_energy_reduction_percent": 0.09217853951089755,
+    "case_mean_estimated_energy_reduction_percent": 0.07713697300194516,
+    "geographic_cases_with_eligible_pairs": 3,
+    "observed_mean_estimated_energy_saving": true,
+    "real_battery_saving_proven": false
+  },
+  "real_battery_saving_proven": false,
+  "telemetry_sources": [
+    {
+      "case": "centro",
+      "repetition": "1",
+      "method": "referencia_2d",
+      "path": "output/experiments/benchmark_20261028_v2/flights/case_00_repeat_01/runs/referencia_2d_20261028T231655445720Z/telemetry.csv",
+      "sha256": null
+    },
+    {
+      "case": "centro",
+      "repetition": "1",
+      "method": "distancia_3d",
+      "path": "output/experiments/benchmark_20261028_v2/flights/case_00_repeat_01/runs/distancia_3d_20261028T231800512569Z/telemetry.csv",
+      "sha256": "ce3776aa9d855d4878d340d7e6fc0232cf989e5736557c6f6fc33237fc7640cf"
+    },
+    {
+      "case": "centro",
+      "repetition": "1",
+      "method": "somente_subida",
+      "path": "output/experiments/benchmark_20261028_v2/flights/case_00_repeat_01/runs/somente_subida_20261028T231839714134Z/telemetry.csv",
+      "sha256": "ce3776aa9d855d4878d340d7e6fc0232cf989e5736557c6f6fc33237fc7640cf"
+    },
+    {
+      "case": "centro",
+      "repetition": "1",
+      "method": "somente_orientacao",
+      "path": "output/experiments/benchmark_20261028_v2/flights/case_00_repeat_01/runs/somente_orientacao_20261028T231919829557Z/telemetry.csv",
+      "sha256": "ce3776aa9d855d4878d340d7e6fc0232cf989e5736557c6f6fc33237fc7640cf"
+    },
+    {
+      "case": "centro",
+      "repetition": "1",
+      "method": "proposta_completa",
+      "path": "output/experiments/benchmark_20261028_v2/flights/case_00_repeat_01/runs/proposta_completa_20261028T232020710107Z/telemetry.csv",
+      "sha256": "ce3776aa9d855d4878d340d7e6fc0232cf989e5736557c6f6fc33237fc7640cf"
+    },
+    {
+      "case": "centro",
+      "repetition": "2",
+      "method": "distancia_3d",
+      "path": "output/experiments/benchmark_20261028_v2/flights/case_00_repeat_02/runs/distancia_3d_20261028T232212371822Z/telemetry.csv",
+      "sha256": "ce3776aa9d855d4878d340d7e6fc0232cf989e5736557c6f6fc33237fc7640cf"
+    },
+    {
+      "case": "centro",
+      "repetition": "2",
+      "method": "somente_subida",
+      "path": "output/experiments/benchmark_20261028_v2/flights/case_00_repeat_02/runs/somente_subida_20261028T232307280386Z/telemetry.csv",
+      "sha256": "ce3776aa9d855d4878d340d7e6fc0232cf989e5736557c6f6fc33237fc7640cf"
+    },
+    {
+      "case": "centro",
+      "repetition": "2",
+      "method": "somente_orientacao",
+      "path": "output/experiments/benchmark_20261028_v2/flights/case_00_repeat_02/runs/somente_orientacao_20261028T232349689842Z/telemetry.csv",
+      "sha256": "ce3776aa9d855d4878d340d7e6fc0232cf989e5736557c6f6fc33237fc7640cf"
+    },
+    {
+      "case": "centro",
+      "repetition": "2",
+      "method": "proposta_completa",
+      "path": "output/experiments/benchmark_20261028_v2/flights/case_00_repeat_02/runs/proposta_completa_20261028T232441269163Z/telemetry.csv",
+      "sha256": "ce3776aa9d855d4878d340d7e6fc0232cf989e5736557c6f6fc33237fc7640cf"
+    },
+    {
+      "case": "centro",
+      "repetition": "2",
+      "method": "referencia_2d",
+      "path": "output/experiments/benchmark_20261028_v2/flights/case_00_repeat_02/runs/referencia_2d_20261028T232535725002Z/telemetry.csv",
+      "sha256": "ce3776aa9d855d4878d340d7e6fc0232cf989e5736557c6f6fc33237fc7640cf"
+    },
+    {
+      "case": "norte",
+      "repetition": "1",
+      "method": "somente_subida",
+      "path": "output/experiments/benchmark_20261028_v2/flights/case_01_repeat_01/runs/somente_subida_20261028T232616752124Z/telemetry.csv",
+      "sha256": "4e0c56f4b918bf6b50f5d5016fbd1224af4ae3c232f958312acb737039035541"
+    },
+    {
+      "case": "norte",
+      "repetition": "1",
+      "method": "somente_orientacao",
+      "path": "output/experiments/benchmark_20261028_v2/flights/case_01_repeat_01/runs/somente_orientacao_20261028T232654547345Z/telemetry.csv",
+      "sha256": "d2f4a6455ed2e08abad1e5d5799f9ada26e17ab6f38e8c8caf0ba2571bd981ce"
+    },
+    {
+      "case": "norte",
+      "repetition": "1",
+      "method": "proposta_completa",
+      "path": "output/experiments/benchmark_20261028_v2/flights/case_01_repeat_01/runs/proposta_completa_20261028T232735144695Z/telemetry.csv",
+      "sha256": "d2f4a6455ed2e08abad1e5d5799f9ada26e17ab6f38e8c8caf0ba2571bd981ce"
+    },
+    {
+      "case": "norte",
+      "repetition": "1",
+      "method": "referencia_2d",
+      "path": "output/experiments/benchmark_20261028_v2/flights/case_01_repeat_01/runs/referencia_2d_20261028T232815497405Z/telemetry.csv",
+      "sha256": "4e0c56f4b918bf6b50f5d5016fbd1224af4ae3c232f958312acb737039035541"
+    },
+    {
+      "case": "norte",
+      "repetition": "1",
+      "method": "distancia_3d",
+      "path": "output/experiments/benchmark_20261028_v2/flights/case_01_repeat_01/runs/distancia_3d_20261028T232854511785Z/telemetry.csv",
+      "sha256": "4e0c56f4b918bf6b50f5d5016fbd1224af4ae3c232f958312acb737039035541"
+    },
+    {
+      "case": "norte",
+      "repetition": "2",
+      "method": "somente_orientacao",
+      "path": "output/experiments/benchmark_20261028_v2/flights/case_01_repeat_02/runs/somente_orientacao_20261028T232934330236Z/telemetry.csv",
+      "sha256": "d2f4a6455ed2e08abad1e5d5799f9ada26e17ab6f38e8c8caf0ba2571bd981ce"
+    },
+    {
+      "case": "norte",
+      "repetition": "2",
+      "method": "proposta_completa",
+      "path": "output/experiments/benchmark_20261028_v2/flights/case_01_repeat_02/runs/proposta_completa_20261028T233027676062Z/telemetry.csv",
+      "sha256": "d2f4a6455ed2e08abad1e5d5799f9ada26e17ab6f38e8c8caf0ba2571bd981ce"
+    },
+    {
+      "case": "norte",
+      "repetition": "2",
+      "method": "referencia_2d",
+      "path": "output/experiments/benchmark_20261028_v2/flights/case_01_repeat_02/runs/referencia_2d_20261028T233157290878Z/telemetry.csv",
+      "sha256": "4e0c56f4b918bf6b50f5d5016fbd1224af4ae3c232f958312acb737039035541"
+    },
+    {
+      "case": "norte",
+      "repetition": "2",
+      "method": "distancia_3d",
+      "path": "output/experiments/benchmark_20261028_v2/flights/case_01_repeat_02/runs/distancia_3d_20261028T233242843645Z/telemetry.csv",
+      "sha256": "4e0c56f4b918bf6b50f5d5016fbd1224af4ae3c232f958312acb737039035541"
+    },
+    {
+      "case": "norte",
+      "repetition": "2",
+      "method": "somente_subida",
+      "path": "output/experiments/benchmark_20261028_v2/flights/case_01_repeat_02/runs/somente_subida_20261028T233334985830Z/telemetry.csv",
+      "sha256": "4e0c56f4b918bf6b50f5d5016fbd1224af4ae3c232f958312acb737039035541"
+    },
+    {
+      "case": "sul",
+      "repetition": "1",
+      "method": "proposta_completa",
+      "path": "output/experiments/benchmark_20261028_v2/flights/case_02_repeat_01/runs/proposta_completa_20261028T233420683109Z/telemetry.csv",
+      "sha256": "66bf21113196d5c08ae8e86de92dd32a7cc48be14d81050d5804b466da2cad0d"
+    },
+    {
+      "case": "sul",
+      "repetition": "1",
+      "method": "referencia_2d",
+      "path": "output/experiments/benchmark_20261028_v2/flights/case_02_repeat_01/runs/referencia_2d_20261028T233507894101Z/telemetry.csv",
+      "sha256": "66bf21113196d5c08ae8e86de92dd32a7cc48be14d81050d5804b466da2cad0d"
+    },
+    {
+      "case": "sul",
+      "repetition": "1",
+      "method": "distancia_3d",
+      "path": "output/experiments/benchmark_20261028_v2/flights/case_02_repeat_01/runs/distancia_3d_20261028T233552511543Z/telemetry.csv",
+      "sha256": "66bf21113196d5c08ae8e86de92dd32a7cc48be14d81050d5804b466da2cad0d"
+    },
+    {
+      "case": "sul",
+      "repetition": "1",
+      "method": "somente_subida",
+      "path": "output/experiments/benchmark_20261028_v2/flights/case_02_repeat_01/runs/somente_subida_20261028T233639159532Z/telemetry.csv",
+      "sha256": "66bf21113196d5c08ae8e86de92dd32a7cc48be14d81050d5804b466da2cad0d"
+    },
+    {
+      "case": "sul",
+      "repetition": "1",
+      "method": "somente_orientacao",
+      "path": "output/experiments/benchmark_20261028_v2/flights/case_02_repeat_01/runs/somente_orientacao_20261029T001033799249Z/telemetry.csv",
+      "sha256": "66bf21113196d5c08ae8e86de92dd32a7cc48be14d81050d5804b466da2cad0d"
+    },
+    {
+      "case": "sul",
+      "repetition": "2",
+      "method": "referencia_2d",
+      "path": "output/experiments/benchmark_20261028_v2/flights/case_02_repeat_02/runs/referencia_2d_20261029T001119067504Z/telemetry.csv",
+      "sha256": "66bf21113196d5c08ae8e86de92dd32a7cc48be14d81050d5804b466da2cad0d"
+    },
+    {
+      "case": "sul",
+      "repetition": "2",
+      "method": "distancia_3d",
+      "path": "output/experiments/benchmark_20261028_v2/flights/case_02_repeat_02/runs/distancia_3d_20261029T001203257867Z/telemetry.csv",
+      "sha256": "66bf21113196d5c08ae8e86de92dd32a7cc48be14d81050d5804b466da2cad0d"
+    },
+    {
+      "case": "sul",
+      "repetition": "2",
+      "method": "somente_subida",
+      "path": "output/experiments/benchmark_20261028_v2/flights/case_02_repeat_02/runs/somente_subida_20261029T001403638145Z/telemetry.csv",
+      "sha256": "66bf21113196d5c08ae8e86de92dd32a7cc48be14d81050d5804b466da2cad0d"
+    },
+    {
+      "case": "sul",
+      "repetition": "2",
+      "method": "somente_orientacao",
+      "path": "output/experiments/benchmark_20261028_v2/flights/case_02_repeat_02/runs/somente_orientacao_20261029T001521635057Z/telemetry.csv",
+      "sha256": "66bf21113196d5c08ae8e86de92dd32a7cc48be14d81050d5804b466da2cad0d"
+    },
+    {
+      "case": "sul",
+      "repetition": "2",
+      "method": "proposta_completa",
+      "path": "output/experiments/benchmark_20261028_v2/flights/case_02_repeat_02/runs/proposta_completa_20261029T001637203859Z/telemetry.csv",
+      "sha256": "66bf21113196d5c08ae8e86de92dd32a7cc48be14d81050d5804b466da2cad0d"
+    }
+  ]
+}
