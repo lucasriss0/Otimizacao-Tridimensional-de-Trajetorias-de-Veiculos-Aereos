@@ -4,6 +4,14 @@
 
 O projeto utiliza dados de elevação TOPODATA/INPE para representar uma fazenda como um grid. Uma cobertura boustrophedon gera faixas de aplicação alternadas, e o algoritmo A* conecta os pontos da missão considerando distância tridimensional, ganho de altitude e regiões bloqueadas. A rota resultante é convertida em waypoints `(x, y, z)` e executada no CoppeliaSim pela ZeroMQ Remote API.
 
+A contribuição avaliada é busca heurística com penalização de subida e seleção
+da orientação das faixas. O projeto ainda não contém um modelo aprendido ou
+treinado. A referência atual gera faixas paralelas e conexões geométricas,
+sem A*. O A* fica nas variantes da proposta. Consulte a
+[definição da referência convencional](docs/REFERENCIA_CONVENCIONAL.md).
+Os lotes anteriores comparavam variantes de A* e são históricos; não
+demonstram vantagem sobre o padrão operacional de drones comerciais.
+
 ```text
 GeoTIFF TOPODATA
        ↓
@@ -27,29 +35,102 @@ Métricas, CSV e imagens
 
 ## Início rápido: comparação sem vento
 
+O [benchmark corrigido de 29/10/2026](docs/RESULTADOS_CONVENCIONAL_20261029.md)
+usa referência geométrica de faixas paralelas **sem A***. Foram executados
+18 voos, com 100% de cobertura e nove pares elegíveis. A proposta A* gastou
+mais energia estimada nos nove pares, entre 2,46% e 10,46%. A hipótese de
+economia não foi confirmada neste lote. Consulte o
+[relatório HTML](docs/resultados/convencional_20261029/relatorio.html).
+
+O [protótipo energético de 30/10/2026](docs/PROTOTIPO_ENERGIA_20261030.md)
+acrescenta seleção por Wh previstos e refinamento geométrico das conexões,
+ativados por `--energy-planning`. No teste de desenvolvimento norte 10×,
+os três voos completos registraram 206,80 Wh na referência, 211,89 Wh no
+A* anterior e 200,47 Wh na nova seleção: redução estimada de 3,06% frente
+à referência, com 100% de cobertura. Uma tentativa interrompida por suspensão
+do computador permanece registrada. A mesma rota nova pode ser construída
+por geometria sem A*: o teste não isola vantagem do A* nem comprova economia
+elétrica de bateria. O lote anterior de nove pares negativos foi preservado.
+
+O [benchmark histórico de 28/10/2026](docs/RESULTADOS_20261028.md) registra
+as 30 tentativas, os empates, a pequena economia estimada observada no norte
+e a falha do controlador no diagnóstico com passo temporal menor. Esses
+resultados ainda não comprovam economia física de bateria.
+
+O [comparativo com relevo ampliado](docs/RELEVO_AMPLIADO.md) testa 1×, 5× e
+10× nos mesmos recortes, incluindo desníveis de até 249 m. As versões ampliadas
+são sintéticas. Para coletar os nove pares e gerar o relatório comparativo:
+
+```powershell
+python -m src.benchmark --manifest configs/relief_suite.json --disable-rendering --output output/experiments/relevo_01
+```
+
+O relatório específico fica em `relief_report/index.html`, com gráficos,
+CSV e Markdown. A apresentação seleciona o maior nível com os dois voos
+completos, pela ordem do manifesto, incluindo qualquer resultado de energia.
+
+O [resultado histórico de 28–29/10/2026](docs/RESULTADOS_RELEVO_20261029.md) registra
+16 voos no lote principal e dois no suplemento do centro10×. No norte10×,
+a proposta reduziu a energia estimada em 2,68%; no centro5× aumentou em
+4,57% e no centro10× suplementar aumentou em 3,92%. O sul empatou em todos
+os níveis. A conclusão depende do recorte e não comprova economia real de
+bateria. O [relatório HTML com tabelas e gráficos](docs/resultados/relevo_20261029/relatorio.html)
+inclui a tentativa bloqueada e o reparo do suporte físico.
+Esses dois lotes históricos usavam A* também na referência e não representam
+o novo comparativo com a referência convencional.
+
 ### Apresentar no Windows
 
 Com o ambiente `.venv` instalado, abra o CoppeliaSim e deixe a simulação
 parada. Execute **`apresentar.cmd`** na raiz deste repositório. Ele prepara
-terreno, árvore e drone e executa dois voos: referência A* horizontal com
-faixas fixas e proposta com penalização de subida e escolha da orientação.
+terreno, árvore e drone e executa dois voos: referência geométrica de
+faixas paralelas sem A* e proposta A* com penalização de subida e escolha da orientação.
 Ambos saem e retornam à mesma origem, com a mesma velocidade, altura e
 controlador. Vento, deriva artificial e replanejamento ficam desativados.
 A cena aberta é copiada antes da preparação para a pasta da comparação.
+Ao terminar, o programa gera um relatório HTML e abre uma cena com dois terrenos
+lado a lado. Aperte **Play** para reproduzir as trajetórias registradas, com
+relógio comum e Wh estimados acumulados. Essa cena é um replay; os voos que
+alimentam o benchmark são executados separadamente com o mesmo controlador.
+
+Para executar o benchmark completo, use **`benchmark.cmd`**: três recortes
+geográficos, duas repetições e cinco variantes, totalizando 30 voos. A ordem
+dos métodos gira entre os pares. O recorte central é de desenvolvimento;
+norte e sul são validações exploratórias da mesma região. Os resultados,
+falhas e pares inelegíveis ficam no relatório, sem seleção por ganho.
+Para a cena visual, o orquestrador usa o primeiro par em ordem de coleta com
+as duas missões completas. Essa regra verifica disponibilidade para o replay;
+a elegibilidade energética é reavaliada separadamente. O caminho escolhido e
+a regra ficam em `session.json`, e as tentativas anteriores continuam no relatório.
 
 Também é possível iniciar pelo ambiente Python:
 
 ```powershell
-python -m src.coverage_comparison
+.venv/Scripts/python.exe -m src.benchmark --scenario configs/demo_coverage.yaml
+.venv/Scripts/python.exe -m src.benchmark --disable-rendering
 ```
 
 Durante cada voo, a rota aparece em laranja. A mesma cena é recarregada antes
 do segundo voo. O cenário principal é `configs/demo_coverage.yaml`.
-O fluxo conecta as rotas comparadas à execução física e mede a trajetória
+O fluxo conecta as rotas comparadas à dinâmica do simulador e registra a trajetória
 efetivamente executada. Também exporta energia estimada em Wh pelo modelo
 teórico de referência, usando os mesmos parâmetros nos dois voos. Essa
 estimativa ainda não foi calibrada para um drone agrícola nem mede bateria real.
 Consulte [o modelo e suas limitações](docs/MODELO_ENERGIA.md).
+O executor padrão do benchmark mantém a física e o controlador do Quadcopter,
+controlando o alvo e coletando amostras com um script Lua dentro do CoppeliaSim
+para reduzir consultas remotas. Python orquestra a coleta e calcula os resultados.
+`--disable-rendering` acelera a coleta e restaura a exibição;
+a apresentação final volta a mostrar os dois terrenos. O executor anterior
+continua disponível com `--executor python`.
+
+A largura geométrica de aplicação permanece 120 m e o espaçamento das faixas
+é 90 m em ambos os métodos, oferecendo sobreposição para o rastreamento.
+O critério de comparação continua sendo 100% de cobertura geométrica executada,
+sem colisões, violações de altura ou extrapolação do modelo energético.
+Consulte [benchmark e relatório](docs/BENCHMARK_ENERGIA.md),
+[cena lado a lado](docs/CENA_COMPARACAO.md) e
+[sensibilidade energética](docs/SENSIBILIDADE_ENERGIA.md).
 
 O ajuste parcial por medições de tensão/corrente está disponível em
 `python -m src.energy_calibration --help`. Ele separa voos de treino e
@@ -58,11 +139,13 @@ Consulte [calibração energética](docs/CALIBRACAO_ENERGIA.md) e o cabeçalho
 `configs/electrical_measurements_template.csv`. Ainda não há medições reais
 do drone do projeto; o modelo não deve ser declarado calibrado.
 
-A cena `comparison_scene.ttt` e os resultados ficam em uma pasta nova de
-`output/experiments/coverage_.../`. `planned_*.csv` contém os planos em metros;
+A cena de voo, a apresentação e os resultados ficam em uma pasta nova de
+`output/experiments/benchmark_.../`. `flights/` contém os voos,
+`report/index.html` apresenta os resultados e `presentation/comparacao_lado_a_lado.ttt`
+permite reabrir o replay. `planned_*.csv` contém os planos em metros;
 `comparison.csv` contém os resultados lado a lado, inclusive falhas;
 `protocol.json` registra os parâmetros e as duas rotas; `runs/` preserva
-telemetria e trajetória medida de cada voo. A cobertura planejada e a cobertura
+telemetria e trajetória registrada de cada voo. A cobertura planejada e a cobertura
 geométrica executada são registradas separadamente; nenhuma mede deposição real.
 Uma redução de energia só é calculada em `energy_contrasts.csv` quando ambos
 os voos concluem com segurança e cumprem o mesmo limiar de cobertura executada.
@@ -77,11 +160,30 @@ Para validar os planos sem abrir o CoppeliaSim:
 python -m src.coverage_comparison --dry-run --output output/experiments/coverage_check_01
 ```
 
-Para repetir os voos, execute o mesmo comando com a simulação parada.
-O botão Play sozinho inicia a física, mas a execução da rota depende do
-programa Python. Não feche a janela do programa durante o voo.
-Opcionalmente, `--scene caminho/para/cena.ttt` usa uma cena já preparada e
-compatível com o cenário, em vez de gerar uma nova.
+Para coletar os voos, execute `src.benchmark` ou remova `--dry-run` do comando
+do comparador, sempre com uma pasta nova e a simulação parada.
+Durante a coleta, mantenha o programa Python aberto até a exportação dos dados.
+A cena final de
+replay já contém as trajetórias e pode ser apresentada só com o botão Play.
+No comparador `src.coverage_comparison`, a opção `--scene caminho/para/cena.ttt`
+usa uma cena já preparada e compatível com o cenário.
+
+### Mostrar a comparação na interface do CoppeliaSim
+
+1. Aguarde a coleta terminar. A cena de comparação será carregada no simulador.
+   Para reabri-la depois, use o menu **File** e abra
+   `presentation/comparacao_lado_a_lado.ttt` da pasta do benchmark.
+2. Clique em **Play** na barra do simulador. O terreno à esquerda mostra a
+   referência em azul; o da direita mostra a proposta em laranja. A trilha
+   branca acompanha as posições registradas. O painel informa que é um replay.
+3. Compare os Wh estimados acumulados e a cobertura final. Os relógios usam
+   segundos originais; o drone que termina antes fica parado com o Wh final.
+   Ao terminar os dois voos, o replay pausa e mantém o quadro para apresentação.
+4. Para começar novamente, clique em **Stop** e depois em **Play**. O arquivo
+   contém os dados e o Lua da reprodução, dispensando o processo Python.
+5. Apresente também `report/index.html`: ele contém todos os pares previstos,
+   falhas e aumentos de consumo. O painel só calcula a redução final quando
+   ambos os voos do replay são elegíveis.
 
 A demonstração antiga com vento continua disponível via
 `python -m src.presentation`, como experimento secundário.
@@ -128,7 +230,7 @@ python -m src.coppeliasim \
 ```
 
 Nesse comando, `--speed 8` significa **8 m/s reais**; a conversão para unidades da
-cena é automática. Há vento forte desde `t=0`; aos 30 s e 70 s simulados ele muda,
+cena é automática. O vento começa aos 10 s; aos 30 s e 70 s simulados ele muda,
 o A* recalcula a missão
 restante e a execução registra telemetria em `output/runs/`.
 
@@ -160,10 +262,13 @@ O resultado é salvo em `output/experiments/wind_comparison.csv`. O custo com ve
 - Leitura automática de obstáculos da cena;
 - Desvio de árvores e outros obstáculos estáticos;
 - Controle do target do quadricóptero em modo sincronizado;
+- Executor local em Lua para missões sem vento, mantendo a dinâmica do Quadcopter;
 - Cenários determinísticos de vento e replanejamento durante o voo;
 - Perturbação visual limitada aplicada ao corpo dinâmico;
 - Telemetria de posição, erro, margem, colisão e eventos de replanejamento;
 - Exportação de métricas, waypoints e visualizações;
+- Benchmark de cinco variantes, energia estimada, cobertura executada e relatório pareado;
+- Replay autocontido das telemetrias em uma cena com dois terrenos lado a lado;
 - Testes automatizados com pytest.
 
 ## Tecnologias
@@ -186,14 +291,22 @@ Projeto/
 ├── output/
 ├── src/
 │   ├── astar.py
+│   ├── benchmark.py
+│   ├── benchmark_report.py
+│   ├── comparison_scene.py
+│   ├── coppelia_benchmark.py
 │   ├── coppelia_terrain.py
 │   ├── coppeliasim.py
 │   ├── coverage.py
+│   ├── coverage_comparison.py
+│   ├── energy.py
+│   ├── executed_coverage.py
 │   ├── main.py
 │   ├── metrics.py
 │   ├── obstacles.py
 │   ├── sync_obstacles.py
 │   ├── terrain.py
+│   ├── validation_suite.py
 │   ├── visualization.py
 │   └── waypoints.py
 ├── tests/
@@ -324,7 +437,9 @@ comparador acima para o protocolo pareado sem essa deriva.
 python -m pytest -v
 ```
 
-O projeto possui atualmente 58 testes automatizados. Avisos `PendingDeprecationWarning` emitidos pelo Rasterio não representam falha.
+Os testes cobrem planejamento, conversões, telemetria, critérios de comparação,
+energia estimada, coleta e replay. Avisos `PendingDeprecationWarning` emitidos
+pelo Rasterio não representam falha.
 
 ## Dados utilizados
 
@@ -582,7 +697,7 @@ O programa:
 
 Comece com `--speed 2`, agora expresso em metros reais por segundo. Com `--scale 0.01`, o programa converte automaticamente esse valor para `0.02` unidade da cena por segundo.
 
-## Fluxo completo recomendado
+## Fluxo manual para uma missão individual
 
 Com o ambiente virtual ativado e o CoppeliaSim aberto:
 
@@ -642,26 +757,29 @@ sequence,grid_row,grid_column,x_m,y_m,z_m,terrain_z_m,altitude_asl_m
 - Ganho de elevação;
 - Perda de elevação;
 - Inclinação máxima;
-- Custo energético normalizado;
+- Custo auxiliar de distância e subida;
 - Tempo de planejamento;
 - Nós expandidos;
 - Quantidade de pontos da rota;
 - Porcentagem de cobertura.
 
-O custo energético é uma estimativa normalizada:
+O custo auxiliar usado pelo planejador é:
 
 ```text
 custo = distância 3D + peso de subida × ganho de elevação
 ```
 
-Ele não representa uma medição física em joules ou quilojoules.
+Ele não representa energia em joules ou Wh. O benchmark calcula os Wh
+separadamente, usando potência e tempo sobre a telemetria executada, conforme
+[MODELO_ENERGIA.md](docs/MODELO_ENERGIA.md).
 
 ## Padronizações e melhorias desta versão
 
-Esta versão consolida a demonstração em um único cenário reproduzível,
-`configs/demo_wind.yaml`. O arquivo passou a ser a fonte de configuração para
-terreno, recorte cultivável, velocidade, altura de segurança, obstáculos e
-eventos de vento. Assim, a cena, o planejador e a execução usam as mesmas
+O cenário principal reproduzível é `configs/demo_coverage.yaml`, usado no
+benchmark sem vento. `configs/demo_wind.yaml` mantém o experimento secundário
+de perturbação e replanejamento. Cada YAML define terreno, recorte cultivável,
+velocidade, altura de segurança e obstáculos; o cenário complementar também
+define eventos de vento. A cena, o planejador e a execução usam as mesmas
 coordenadas e unidades.
 
 As principais padronizações foram:
@@ -674,9 +792,10 @@ As principais padronizações foram:
 - nomes estáveis para `/Drone`, `/AgriculturalTerrain` e obstáculos declarados
   no YAML;
 - descoberta automática do target e do corpo dinâmico do quadricóptero;
-- execução sincronizada pelo Python, iniciada sempre com a simulação parada;
-- resultados de cada execução isolados em `output/runs/`, que não são
-  versionados.
+- execução iniciada com a simulação parada, por script local Lua no benchmark
+  ou por passos remotos no executor Python;
+- resultados isolados em pastas novas de `output/`, preservando todas as
+  tentativas, protocolos, telemetrias e parâmetros.
 
 As melhorias funcionais incluem:
 
@@ -756,7 +875,7 @@ python -m pip install coppeliasim-zmqremoteapi-client==2.0.4
 - Obstáculos são considerados estáticos;
 - O vento é uniforme em cada intervalo e definido previamente no YAML;
 - A força aplicada ao drone é uma perturbação visual, não um modelo aerodinâmico calibrado;
-- O custo energético é normalizado;
+- O custo do planejador é auxiliar; os Wh vêm de um modelo teórico sem validação elétrica;
 - O controlador do quadricóptero é o controlador demonstrativo do CoppeliaSim;
 - A área cultivável é atualmente representada por um recorte quadrado;
 - O planejador é 2,5D e não escolhe níveis verticais independentes.
@@ -780,4 +899,10 @@ python -m pip install coppeliasim-zmqremoteapi-client==2.0.4
 
 ## Estado atual
 
-O protótipo funcional já realiza o fluxo principal desde o dado geográfico até a simulação. O próximo passo recomendado é implementar telemetria do drone para comparar a trajetória planejada com a trajetória efetivamente executada.
+O projeto integra dado geográfico, planejamento, execução com dinâmica no
+CoppeliaSim, telemetria, cobertura geométrica, energia estimada e benchmark
+pareado. A cena de apresentação reproduz as duas telemetrias lado a lado.
+Os resultados devem ser interpretados junto com falhas, critérios de cobertura
+e análise de sensibilidade. Medições elétricas e validação para um veículo e
+carga definidos continuam necessárias para sustentar uma conclusão sobre
+economia real de bateria.
