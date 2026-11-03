@@ -1,0 +1,1244 @@
+{
+  "source_scenario_yaml": "id: norte_x10_desenvolvimento_energia\noutput_root: output/runs\nterrain:\n  topodata: data/raw/22S48_ZN.tif\n  center_lat: -22.46196\n  center_lon: -47.26397\n  area_m: 1500\n  size: 50\n  height_scale: 10\ncoverage:\n  window: [20, 20, 29, 29]\n  swath_m: 120\n  stripe_spacing_m: 90\n  clearance_m: 100\n  climb_weight: 10\nobstacles:\n  - name: ObstacleTreeCenter\n    x_m: 0\n    y_m: 0\n    safety_radius_m: 60\nsimulation:\n  terrain_padding_cells: 4\n  scale: 0.01\n  speed_mps: 4\n  warmup_s: 5\n  tolerance_m: 8\n  minimum_clearance_m: 55\n  waypoint_timeout_s: 120\n  global_timeout_s: 1800\n  target: auto\n  drone: /Drone\n  body: auto\n  apply_visual_force: false\nwind:\n  visual:\n    acceleration_gain: 0\n    maximum_acceleration: 0\n    replan_delay_s: 0\n    maximum_drift_m: 0\n  events:\n    - name: sem_vento\n      at_s: 0\n      east_mps: 0\n      north_mps: 0\n",
+  "effective_scenario": {
+    "scenario_id": "norte_x10_desenvolvimento_energia_sem_vento",
+    "terrain": {
+      "topodata": "data\\raw\\22S48_ZN.tif",
+      "center_lat": -22.46196,
+      "center_lon": -47.26397,
+      "area_m": 1500.0,
+      "size": 50,
+      "height_scale": 10.0
+    },
+    "coverage": {
+      "swath_m": 120.0,
+      "clearance_m": 100.0,
+      "climb_weight": 10.0,
+      "window": {
+        "row_start": 20,
+        "col_start": 20,
+        "row_end": 29,
+        "col_end": 29
+      },
+      "stripe_spacing_m": 90.0
+    },
+    "simulation": {
+      "scale": 0.01,
+      "speed_mps": 4.0,
+      "warmup_s": 5.0,
+      "tolerance_m": 8.0,
+      "minimum_clearance_m": 55.0,
+      "waypoint_timeout_s": 120.0,
+      "global_timeout_s": 1800.0,
+      "target": "auto",
+      "drone": "/Drone",
+      "body": "auto",
+      "apply_visual_force": false,
+      "terrain_padding_cells": 4
+    },
+    "wind": {
+      "events": [
+        {
+          "name": "sem_vento",
+          "at_s": 0.0,
+          "wind": {
+            "east_mps": 0.0,
+            "north_mps": 0.0
+          }
+        }
+      ],
+      "cost": {
+        "weight": 1.0,
+        "crosswind_factor": 0.25,
+        "reference_speed_mps": 5.0
+      },
+      "visual_acceleration_gain": 0.05,
+      "maximum_visual_acceleration": 0.5,
+      "replan_delay_s": 0.0,
+      "maximum_drift_m": 0.0
+    },
+    "obstacles": [
+      {
+        "x_m": 0.0,
+        "y_m": 0.0,
+        "safety_radius_m": 60.0,
+        "name": "ObstacleTreeCenter"
+      }
+    ],
+    "output_root": "output\\experiments\\energy_development_20261030\\physical_retry\\runs"
+  },
+  "launch": [
+    20,
+    20
+  ],
+  "plans": [
+    {
+      "case": "norte_x10_desenvolvimento_energia",
+      "method": "convencional_geometrico",
+      "orientation": "horizontal",
+      "planning_climb_weight": 0.0,
+      "evaluation_climb_weight": 10.0,
+      "success": true,
+      "eligible": true,
+      "selected": true,
+      "error": null,
+      "coverage_percent": 100.0,
+      "horizontal_distance_m": 1646.0697826084172,
+      "distance_3d_m": 1711.317504447939,
+      "elevation_gain_m": 192.8265380859375,
+      "normalized_cost": 3639.582885307314,
+      "planning_time_s": 0.010691100033000112,
+      "expanded_nodes": 22,
+      "path": [
+        [
+          20,
+          20
+        ],
+        [
+          20,
+          21
+        ],
+        [
+          20,
+          22
+        ],
+        [
+          20,
+          23
+        ],
+        [
+          20,
+          24
+        ],
+        [
+          20,
+          25
+        ],
+        [
+          20,
+          26
+        ],
+        [
+          20,
+          27
+        ],
+        [
+          20,
+          28
+        ],
+        [
+          20,
+          29
+        ],
+        [
+          21.0,
+          29.0
+        ],
+        [
+          22.0,
+          29.0
+        ],
+        [
+          23,
+          29
+        ],
+        [
+          23,
+          28
+        ],
+        [
+          23,
+          27
+        ],
+        [
+          23,
+          26
+        ],
+        [
+          22.49,
+          25.51
+        ],
+        [
+          22.49,
+          24.836666666666666
+        ],
+        [
+          22.49,
+          24.163333333333334
+        ],
+        [
+          22.49,
+          23.49
+        ],
+        [
+          23,
+          23
+        ],
+        [
+          23,
+          22
+        ],
+        [
+          23,
+          21
+        ],
+        [
+          23,
+          20
+        ],
+        [
+          24.0,
+          20.0
+        ],
+        [
+          25.0,
+          20.0
+        ],
+        [
+          26,
+          20
+        ],
+        [
+          26,
+          21
+        ],
+        [
+          26,
+          22
+        ],
+        [
+          26,
+          23
+        ],
+        [
+          26.51,
+          23.49
+        ],
+        [
+          26.51,
+          24.163333333333334
+        ],
+        [
+          26.51,
+          24.836666666666666
+        ],
+        [
+          26.51,
+          25.51
+        ],
+        [
+          26,
+          26
+        ],
+        [
+          26,
+          27
+        ],
+        [
+          26,
+          28
+        ],
+        [
+          26,
+          29
+        ],
+        [
+          27.0,
+          29.0
+        ],
+        [
+          28.0,
+          29.0
+        ],
+        [
+          29,
+          29
+        ],
+        [
+          29,
+          28
+        ],
+        [
+          29,
+          27
+        ],
+        [
+          29,
+          26
+        ],
+        [
+          29,
+          25
+        ],
+        [
+          29,
+          24
+        ],
+        [
+          29,
+          23
+        ],
+        [
+          29,
+          22
+        ],
+        [
+          29,
+          21
+        ],
+        [
+          29,
+          20
+        ],
+        [
+          28.0,
+          20.0
+        ],
+        [
+          27.0,
+          20.0
+        ],
+        [
+          26.0,
+          20.0
+        ],
+        [
+          25.0,
+          20.0
+        ],
+        [
+          24.0,
+          20.0
+        ],
+        [
+          23.0,
+          20.0
+        ],
+        [
+          22.0,
+          20.0
+        ],
+        [
+          21.0,
+          20.0
+        ],
+        [
+          20,
+          20
+        ]
+      ]
+    },
+    {
+      "case": "norte_x10_desenvolvimento_energia",
+      "method": "climb_orientation",
+      "orientation": "vertical",
+      "planning_climb_weight": 10.0,
+      "evaluation_climb_weight": 10.0,
+      "success": true,
+      "eligible": true,
+      "selected": true,
+      "error": null,
+      "coverage_percent": 100.0,
+      "horizontal_distance_m": 1740.0,
+      "distance_3d_m": 1776.6745429401965,
+      "elevation_gain_m": 132.12646484375,
+      "normalized_cost": 3097.9391913776963,
+      "planning_time_s": 0.025200400035828352,
+      "expanded_nodes": 482,
+      "path": [
+        [
+          20,
+          20
+        ],
+        [
+          21,
+          20
+        ],
+        [
+          22,
+          20
+        ],
+        [
+          23,
+          20
+        ],
+        [
+          24,
+          20
+        ],
+        [
+          25,
+          20
+        ],
+        [
+          26,
+          20
+        ],
+        [
+          27,
+          20
+        ],
+        [
+          28,
+          20
+        ],
+        [
+          29,
+          20
+        ],
+        [
+          29,
+          21
+        ],
+        [
+          29,
+          22
+        ],
+        [
+          29,
+          23
+        ],
+        [
+          28,
+          23
+        ],
+        [
+          27,
+          23
+        ],
+        [
+          26,
+          23
+        ],
+        [
+          26,
+          22
+        ],
+        [
+          25,
+          22
+        ],
+        [
+          24,
+          22
+        ],
+        [
+          23,
+          22
+        ],
+        [
+          23,
+          23
+        ],
+        [
+          22,
+          23
+        ],
+        [
+          21,
+          23
+        ],
+        [
+          20,
+          23
+        ],
+        [
+          20,
+          24
+        ],
+        [
+          20,
+          25
+        ],
+        [
+          20,
+          26
+        ],
+        [
+          21,
+          26
+        ],
+        [
+          22,
+          26
+        ],
+        [
+          23,
+          26
+        ],
+        [
+          23,
+          27
+        ],
+        [
+          24,
+          27
+        ],
+        [
+          25,
+          27
+        ],
+        [
+          26,
+          27
+        ],
+        [
+          26,
+          26
+        ],
+        [
+          27,
+          26
+        ],
+        [
+          28,
+          26
+        ],
+        [
+          29,
+          26
+        ],
+        [
+          29,
+          27
+        ],
+        [
+          29,
+          28
+        ],
+        [
+          29,
+          29
+        ],
+        [
+          28,
+          29
+        ],
+        [
+          27,
+          29
+        ],
+        [
+          26,
+          29
+        ],
+        [
+          25,
+          29
+        ],
+        [
+          24,
+          29
+        ],
+        [
+          23,
+          29
+        ],
+        [
+          22,
+          29
+        ],
+        [
+          21,
+          29
+        ],
+        [
+          20,
+          29
+        ],
+        [
+          20,
+          28
+        ],
+        [
+          20,
+          27
+        ],
+        [
+          20,
+          26
+        ],
+        [
+          20,
+          25
+        ],
+        [
+          20,
+          24
+        ],
+        [
+          20,
+          23
+        ],
+        [
+          20,
+          22
+        ],
+        [
+          20,
+          21
+        ],
+        [
+          20,
+          20
+        ]
+      ]
+    },
+    {
+      "case": "norte_x10_desenvolvimento_energia",
+      "method": "energy_selected",
+      "orientation": "vertical",
+      "planning_climb_weight": 0.0,
+      "evaluation_climb_weight": 10.0,
+      "success": true,
+      "eligible": true,
+      "selected": true,
+      "error": null,
+      "coverage_percent": 100.0,
+      "horizontal_distance_m": 1646.0697826084172,
+      "distance_3d_m": 1679.3499198746892,
+      "elevation_gain_m": 121.0123891601562,
+      "normalized_cost": 2889.4738114762513,
+      "planning_time_s": 0.28971489996183664,
+      "expanded_nodes": 696,
+      "path": [
+        [
+          20,
+          20
+        ],
+        [
+          21,
+          20
+        ],
+        [
+          22,
+          20
+        ],
+        [
+          23,
+          20
+        ],
+        [
+          24,
+          20
+        ],
+        [
+          25,
+          20
+        ],
+        [
+          26,
+          20
+        ],
+        [
+          27,
+          20
+        ],
+        [
+          28,
+          20
+        ],
+        [
+          29,
+          20
+        ],
+        [
+          29,
+          21
+        ],
+        [
+          29,
+          22
+        ],
+        [
+          29,
+          23
+        ],
+        [
+          28,
+          23
+        ],
+        [
+          27,
+          23
+        ],
+        [
+          26,
+          23
+        ],
+        [
+          25.51,
+          22.49
+        ],
+        [
+          24.836666666666666,
+          22.49
+        ],
+        [
+          24.163333333333334,
+          22.49
+        ],
+        [
+          23.49,
+          22.49
+        ],
+        [
+          23,
+          23
+        ],
+        [
+          22,
+          23
+        ],
+        [
+          21,
+          23
+        ],
+        [
+          20,
+          23
+        ],
+        [
+          20,
+          24
+        ],
+        [
+          20,
+          25
+        ],
+        [
+          20,
+          26
+        ],
+        [
+          21,
+          26
+        ],
+        [
+          22,
+          26
+        ],
+        [
+          23,
+          26
+        ],
+        [
+          23.49,
+          26.51
+        ],
+        [
+          24.163333333333334,
+          26.51
+        ],
+        [
+          24.836666666666666,
+          26.51
+        ],
+        [
+          25.51,
+          26.51
+        ],
+        [
+          26,
+          26
+        ],
+        [
+          27,
+          26
+        ],
+        [
+          28,
+          26
+        ],
+        [
+          29,
+          26
+        ],
+        [
+          29,
+          27
+        ],
+        [
+          29,
+          28
+        ],
+        [
+          29,
+          29
+        ],
+        [
+          28,
+          29
+        ],
+        [
+          27,
+          29
+        ],
+        [
+          26,
+          29
+        ],
+        [
+          25,
+          29
+        ],
+        [
+          24,
+          29
+        ],
+        [
+          23,
+          29
+        ],
+        [
+          22,
+          29
+        ],
+        [
+          21,
+          29
+        ],
+        [
+          20,
+          29
+        ],
+        [
+          20,
+          28
+        ],
+        [
+          20,
+          27
+        ],
+        [
+          20,
+          26
+        ],
+        [
+          20,
+          25
+        ],
+        [
+          20,
+          24
+        ],
+        [
+          20,
+          23
+        ],
+        [
+          20,
+          22
+        ],
+        [
+          20,
+          21
+        ],
+        [
+          20,
+          20
+        ]
+      ]
+    }
+  ],
+  "physical_terrain_window": {
+    "row_start": 16,
+    "col_start": 16,
+    "row_end": 33,
+    "col_end": 33
+  },
+  "terrain_interpretation": "Terreno sintético: exagero vertical do TOPODATA, não representa novas altitudes reais.",
+  "method_order": [
+    "referencia_2d",
+    "proposta_subida_orientacao",
+    "proposta_energia"
+  ],
+  "executor": "lua_physics_v1",
+  "rendering_disabled_during_run": true,
+  "requested_time_step_s": 0.05,
+  "baseline_planner": "parallel_geometric_v1",
+  "baseline_description": "Faixas paralelas ao maior lado do talhão (horizontal no empate); conexões retas e desvios geométricos por visibilidade/Dijkstra XY, sem A*. Sem custo de relevo ou energia na escolha da rota. Aproximação operacional, não reprodução do algoritmo fechado de fabricante.",
+  "energy_planning": {
+    "version": "energy_candidates_v1",
+    "selected_candidate": "astar_peso_0_vertical_geometria",
+    "fallback_selected": false,
+    "selection_metric": "estimated_energy_wh_on_ideal_3d_constant_speed_path",
+    "candidates": [
+      {
+        "candidate": "convencional",
+        "family": "convencional",
+        "orientation": "horizontal",
+        "eligible": true,
+        "planned_coverage_percent": 100.0,
+        "within_physical_terrain": true,
+        "obstacle_segments_visible": true,
+        "minimum_sampled_planned_clearance_m": 99.87475518120664,
+        "energy_estimate_available": true,
+        "estimated_energy_wh": 202.3232291963207,
+        "estimated_level_energy_wh": 195.627863290559,
+        "estimated_climb_energy_wh": 6.69536590576172,
+        "estimated_auxiliary_energy_wh": 0.0,
+        "estimated_mean_power_w": 1702.4628643454926,
+        "energy_observed_duration_s": 427.82937611198474,
+        "energy_samples": 59,
+        "energy_outside_envelope_intervals": 0,
+        "energy_outside_calibration_envelope_intervals": 0,
+        "energy_model": "zeng_level_plus_climb_v1",
+        "energy_calibrated": false,
+        "energy_parameter_fit_available": false
+      },
+      {
+        "candidate": "astar_peso_0_horizontal",
+        "family": "astar",
+        "orientation": "horizontal",
+        "eligible": true,
+        "planned_coverage_percent": 100.0,
+        "within_physical_terrain": true,
+        "obstacle_segments_visible": true,
+        "minimum_sampled_planned_clearance_m": 100.0,
+        "energy_estimate_available": true,
+        "estimated_energy_wh": 213.32559535309278,
+        "estimated_level_energy_wh": 206.54526766212055,
+        "estimated_climb_energy_wh": 6.780327690972222,
+        "estimated_auxiliary_energy_wh": 0.0,
+        "estimated_mean_power_w": 1700.0146092196524,
+        "energy_observed_duration_s": 451.74443743377697,
+        "energy_samples": 59,
+        "energy_outside_envelope_intervals": 0,
+        "energy_outside_calibration_envelope_intervals": 0,
+        "energy_model": "zeng_level_plus_climb_v1",
+        "energy_calibrated": false,
+        "energy_parameter_fit_available": false
+      },
+      {
+        "candidate": "astar_peso_0_horizontal_atalhos",
+        "family": "astar_atalhos",
+        "orientation": "horizontal",
+        "eligible": true,
+        "planned_coverage_percent": 100.0,
+        "within_physical_terrain": true,
+        "obstacle_segments_visible": true,
+        "minimum_sampled_planned_clearance_m": 100.0,
+        "energy_estimate_available": true,
+        "estimated_energy_wh": 213.32559535309278,
+        "estimated_level_energy_wh": 206.54526766212055,
+        "estimated_climb_energy_wh": 6.780327690972222,
+        "estimated_auxiliary_energy_wh": 0.0,
+        "estimated_mean_power_w": 1700.0146092196524,
+        "energy_observed_duration_s": 451.74443743377697,
+        "energy_samples": 59,
+        "energy_outside_envelope_intervals": 0,
+        "energy_outside_calibration_envelope_intervals": 0,
+        "energy_model": "zeng_level_plus_climb_v1",
+        "energy_calibrated": false,
+        "energy_parameter_fit_available": false
+      },
+      {
+        "candidate": "astar_peso_0_horizontal_geometria",
+        "family": "astar_geometria",
+        "orientation": "horizontal",
+        "eligible": true,
+        "planned_coverage_percent": 100.0,
+        "within_physical_terrain": true,
+        "obstacle_segments_visible": true,
+        "minimum_sampled_planned_clearance_m": 99.87475518120664,
+        "energy_estimate_available": true,
+        "estimated_energy_wh": 202.3232291963207,
+        "estimated_level_energy_wh": 195.627863290559,
+        "estimated_climb_energy_wh": 6.69536590576172,
+        "estimated_auxiliary_energy_wh": 0.0,
+        "estimated_mean_power_w": 1702.4628643454926,
+        "energy_observed_duration_s": 427.82937611198474,
+        "energy_samples": 59,
+        "energy_outside_envelope_intervals": 0,
+        "energy_outside_calibration_envelope_intervals": 0,
+        "energy_model": "zeng_level_plus_climb_v1",
+        "energy_calibrated": false,
+        "energy_parameter_fit_available": false
+      },
+      {
+        "candidate": "astar_peso_0_vertical",
+        "family": "astar",
+        "orientation": "vertical",
+        "eligible": true,
+        "planned_coverage_percent": 100.0,
+        "within_physical_terrain": true,
+        "obstacle_segments_visible": true,
+        "minimum_sampled_planned_clearance_m": 100.0,
+        "energy_estimate_available": true,
+        "estimated_energy_wh": 207.40504409405096,
+        "estimated_level_energy_wh": 202.81731962030963,
+        "estimated_climb_energy_wh": 4.58772447374132,
+        "estimated_auxiliary_energy_wh": 0.0,
+        "estimated_mean_power_w": 1681.0240495773596,
+        "energy_observed_duration_s": 444.1686357350491,
+        "energy_samples": 59,
+        "energy_outside_envelope_intervals": 0,
+        "energy_outside_calibration_envelope_intervals": 0,
+        "energy_model": "zeng_level_plus_climb_v1",
+        "energy_calibrated": false,
+        "energy_parameter_fit_available": false
+      },
+      {
+        "candidate": "astar_peso_0_vertical_atalhos",
+        "family": "astar_atalhos",
+        "orientation": "vertical",
+        "eligible": true,
+        "planned_coverage_percent": 100.0,
+        "within_physical_terrain": true,
+        "obstacle_segments_visible": true,
+        "minimum_sampled_planned_clearance_m": 100.0,
+        "energy_estimate_available": true,
+        "estimated_energy_wh": 207.40504409405096,
+        "estimated_level_energy_wh": 202.81731962030963,
+        "estimated_climb_energy_wh": 4.58772447374132,
+        "estimated_auxiliary_energy_wh": 0.0,
+        "estimated_mean_power_w": 1681.0240495773596,
+        "energy_observed_duration_s": 444.1686357350491,
+        "energy_samples": 59,
+        "energy_outside_envelope_intervals": 0,
+        "energy_outside_calibration_envelope_intervals": 0,
+        "energy_model": "zeng_level_plus_climb_v1",
+        "energy_calibrated": false,
+        "energy_parameter_fit_available": false
+      },
+      {
+        "candidate": "astar_peso_0_vertical_geometria",
+        "family": "astar_geometria",
+        "orientation": "vertical",
+        "eligible": true,
+        "planned_coverage_percent": 100.0,
+        "within_physical_terrain": true,
+        "obstacle_segments_visible": true,
+        "minimum_sampled_planned_clearance_m": 99.92044877115882,
+        "energy_estimate_available": true,
+        "estimated_energy_wh": 195.89602315214677,
+        "estimated_level_energy_wh": 191.69420408408578,
+        "estimated_climb_energy_wh": 4.2018190680609795,
+        "estimated_auxiliary_energy_wh": 0.0,
+        "estimated_mean_power_w": 1679.7587566511481,
+        "energy_observed_duration_s": 419.8374799686723,
+        "energy_samples": 59,
+        "energy_outside_envelope_intervals": 0,
+        "energy_outside_calibration_envelope_intervals": 0,
+        "energy_model": "zeng_level_plus_climb_v1",
+        "energy_calibrated": false,
+        "energy_parameter_fit_available": false
+      },
+      {
+        "candidate": "astar_peso_10_horizontal",
+        "family": "astar",
+        "orientation": "horizontal",
+        "eligible": true,
+        "planned_coverage_percent": 100.0,
+        "within_physical_terrain": true,
+        "obstacle_segments_visible": true,
+        "minimum_sampled_planned_clearance_m": 100.0,
+        "energy_estimate_available": true,
+        "estimated_energy_wh": 213.32559535309278,
+        "estimated_level_energy_wh": 206.54526766212055,
+        "estimated_climb_energy_wh": 6.780327690972222,
+        "estimated_auxiliary_energy_wh": 0.0,
+        "estimated_mean_power_w": 1700.0146092196524,
+        "energy_observed_duration_s": 451.74443743377697,
+        "energy_samples": 59,
+        "energy_outside_envelope_intervals": 0,
+        "energy_outside_calibration_envelope_intervals": 0,
+        "energy_model": "zeng_level_plus_climb_v1",
+        "energy_calibrated": false,
+        "energy_parameter_fit_available": false
+      },
+      {
+        "candidate": "astar_peso_10_horizontal_atalhos",
+        "family": "astar_atalhos",
+        "orientation": "horizontal",
+        "eligible": true,
+        "planned_coverage_percent": 100.0,
+        "within_physical_terrain": true,
+        "obstacle_segments_visible": true,
+        "minimum_sampled_planned_clearance_m": 100.0,
+        "energy_estimate_available": true,
+        "estimated_energy_wh": 213.32559535309278,
+        "estimated_level_energy_wh": 206.54526766212055,
+        "estimated_climb_energy_wh": 6.780327690972222,
+        "estimated_auxiliary_energy_wh": 0.0,
+        "estimated_mean_power_w": 1700.0146092196524,
+        "energy_observed_duration_s": 451.74443743377697,
+        "energy_samples": 59,
+        "energy_outside_envelope_intervals": 0,
+        "energy_outside_calibration_envelope_intervals": 0,
+        "energy_model": "zeng_level_plus_climb_v1",
+        "energy_calibrated": false,
+        "energy_parameter_fit_available": false
+      },
+      {
+        "candidate": "astar_peso_10_horizontal_geometria",
+        "family": "astar_geometria",
+        "orientation": "horizontal",
+        "eligible": true,
+        "planned_coverage_percent": 100.0,
+        "within_physical_terrain": true,
+        "obstacle_segments_visible": true,
+        "minimum_sampled_planned_clearance_m": 99.87475518120664,
+        "energy_estimate_available": true,
+        "estimated_energy_wh": 202.3232291963207,
+        "estimated_level_energy_wh": 195.627863290559,
+        "estimated_climb_energy_wh": 6.69536590576172,
+        "estimated_auxiliary_energy_wh": 0.0,
+        "estimated_mean_power_w": 1702.4628643454926,
+        "energy_observed_duration_s": 427.82937611198474,
+        "energy_samples": 59,
+        "energy_outside_envelope_intervals": 0,
+        "energy_outside_calibration_envelope_intervals": 0,
+        "energy_model": "zeng_level_plus_climb_v1",
+        "energy_calibrated": false,
+        "energy_parameter_fit_available": false
+      },
+      {
+        "candidate": "astar_peso_10_vertical",
+        "family": "astar",
+        "orientation": "vertical",
+        "eligible": true,
+        "planned_coverage_percent": 100.0,
+        "within_physical_terrain": true,
+        "obstacle_segments_visible": true,
+        "minimum_sampled_planned_clearance_m": 100.0,
+        "energy_estimate_available": true,
+        "estimated_energy_wh": 207.40504409405096,
+        "estimated_level_energy_wh": 202.81731962030963,
+        "estimated_climb_energy_wh": 4.58772447374132,
+        "estimated_auxiliary_energy_wh": 0.0,
+        "estimated_mean_power_w": 1681.0240495773596,
+        "energy_observed_duration_s": 444.1686357350491,
+        "energy_samples": 59,
+        "energy_outside_envelope_intervals": 0,
+        "energy_outside_calibration_envelope_intervals": 0,
+        "energy_model": "zeng_level_plus_climb_v1",
+        "energy_calibrated": false,
+        "energy_parameter_fit_available": false
+      },
+      {
+        "candidate": "astar_peso_10_vertical_atalhos",
+        "family": "astar_atalhos",
+        "orientation": "vertical",
+        "eligible": true,
+        "planned_coverage_percent": 100.0,
+        "within_physical_terrain": true,
+        "obstacle_segments_visible": true,
+        "minimum_sampled_planned_clearance_m": 100.0,
+        "energy_estimate_available": true,
+        "estimated_energy_wh": 207.40504409405096,
+        "estimated_level_energy_wh": 202.81731962030963,
+        "estimated_climb_energy_wh": 4.58772447374132,
+        "estimated_auxiliary_energy_wh": 0.0,
+        "estimated_mean_power_w": 1681.0240495773596,
+        "energy_observed_duration_s": 444.1686357350491,
+        "energy_samples": 59,
+        "energy_outside_envelope_intervals": 0,
+        "energy_outside_calibration_envelope_intervals": 0,
+        "energy_model": "zeng_level_plus_climb_v1",
+        "energy_calibrated": false,
+        "energy_parameter_fit_available": false
+      },
+      {
+        "candidate": "astar_peso_10_vertical_geometria",
+        "family": "astar_geometria",
+        "orientation": "vertical",
+        "eligible": true,
+        "planned_coverage_percent": 100.0,
+        "within_physical_terrain": true,
+        "obstacle_segments_visible": true,
+        "minimum_sampled_planned_clearance_m": 99.92044877115882,
+        "energy_estimate_available": true,
+        "estimated_energy_wh": 195.89602315214677,
+        "estimated_level_energy_wh": 191.69420408408578,
+        "estimated_climb_energy_wh": 4.2018190680609795,
+        "estimated_auxiliary_energy_wh": 0.0,
+        "estimated_mean_power_w": 1679.7587566511481,
+        "energy_observed_duration_s": 419.8374799686723,
+        "energy_samples": 59,
+        "energy_outside_envelope_intervals": 0,
+        "energy_outside_calibration_envelope_intervals": 0,
+        "energy_model": "zeng_level_plus_climb_v1",
+        "energy_calibrated": false,
+        "energy_parameter_fit_available": false
+      }
+    ],
+    "scope": "Desenvolvimento nos recortes conhecidos; não é teste independente nem bateria medida. Refinamento geométrico e orientação não são ganhos exclusivos do A*."
+  },
+  "method_plan_mapping": {
+    "referencia_2d": "convencional_geometrico",
+    "proposta_subida_orientacao": "climb_orientation",
+    "proposta_energia": "energy_selected"
+  },
+  "comparison_scope": "Referência operacional geométrica sem A* versus proposta A*. Não reproduz o algoritmo interno de um fabricante.",
+  "collision_monitoring": "Obrigatório, coleção de todas as shapes do drone contra terreno e obstáculos; falha de leitura invalida o voo.",
+  "git_revision": "88ea0f907e7c0951a1b9b8cc9c55ac56a625fdc5",
+  "source_sha256": {
+    "ablation.py": "3f55c9a6c84858dd5dd49824d5f6201f073dcab03886b4f66a4f8560a2ad78da",
+    "astar.py": "92452c6a22fe6437e458c7dfd616440d6de95731411d1b8872ea34e5062a1abe",
+    "benchmark.py": "ae2dcfad7f596c9c7449c1c06632d1462ce8ffd95880f1cd8ccb20f04d9c558f",
+    "benchmark_report.py": "ac811f177a77117fd017d6272c24c65bc06adb901f291f40d16d6ef2e5796896",
+    "comparison_scene.py": "c76fdfb9594a34179ce8563808d3b66cd4e1b6cb839a234a2aad497b3741080b",
+    "conventional.py": "1a7e9cd0ef5de31923f93be0ce2bdcc0b48ec9467309f0fc2c4dcd6cb1eb9304",
+    "coppeliasim.py": "1458560c18e096d11ee87dc536b862525319fc86bbd5f65f909288934e18c928",
+    "coppelia_benchmark.py": "d62e0ad834ccceb7cebf4d4fa6eeefefac6c9a93ee71fc9b6aa9692c563c7e31",
+    "coppelia_scene.py": "523cf6470e4c1642b737c08844c2a38851f07ff5e938ff5e8b65296597a5d697",
+    "coppelia_terrain.py": "5991f1cebaca778679404f18a9ee60ee835de1b0a83846a9833dfd6f329f4c48",
+    "coverage.py": "0926391667919fd358804ff8c8d043894b1ea90adb8373dc0d2406282b1fe2ff",
+    "coverage_comparison.py": "396d8a5bc11ff7f33647c6ce700a4597fc50351f7c45724cdb92d5ccf92b061a",
+    "energy.py": "2f93d9fdb0bae2c5b13bfa04da83d9eb075621fe770f6628677d4fc99643adce",
+    "energy_calibration.py": "89a10fec86b0f0d12fa44dea7cc69b6c54d50808b9e61f102cfac05452327371",
+    "energy_planning.py": "c57d6081ac43a5c08daaf61d9c35deaab28f8093f9f1708a82f6f65b056790fe",
+    "energy_sensitivity.py": "957e9d23a9b374694ce84653846683badfa2c34f6a03a3ef556f1bd62a4867ac",
+    "executed_coverage.py": "364f5c2ba6ff75c20c049092984858a2d1076e12d29dbda06a0b2dac604cc223",
+    "experiments.py": "d3d8bd627d863dbf3089c1b2a68f5227d799b11f56c9f942311fe3e6a678e543",
+    "main.py": "38ef7078ef006a8ea3d4658250f60a6cccbfb55a6c2a0ed0fa9c48961b71b45a",
+    "metrics.py": "afe0638abc71ab18e3a1251aedf21d7e4bffea2c913c568b50dd6fb16b6b9e8c",
+    "obstacles.py": "83f64a97d50d838bfceb97742d789593d1e49b725984e59f5c53181c5062b9e8",
+    "planning_experiments.py": "c6ec2bc605bf11730637f2035d79f9d0940634fcd6ae2fa869ceb5475c3ff979",
+    "presentation.py": "a9429b156947698051d7f46f2c4384a6fc59864dabed2c6071e2e3e10cf6c901",
+    "relief_report.py": "1b8ca2cedc1c567232fdd03f289974f5a2db10f7b56272ebedd0e15c5580212d",
+    "scenario.py": "16a7dd11b35fdf744e1824beeb96bc8cf1dc809c7ae6eae6acec72d858ad344b",
+    "sync_obstacles.py": "a82c975c37e45830b5c2e0bc610aca3480d4920c6b486de635443c822335ef03",
+    "telemetry_metrics.py": "0cd1a17e3d0ea4959b179945cf341fccfbe375d8f230d866e02eae933c89fab6",
+    "terrain.py": "5d0195baddc256cf8ed9540fe458cb33083d838725b9c9ac6a43c37a79905528",
+    "time_step_check.py": "907876b4e1cc4ec6dd7d96fab31da587fdc73a6427c0b7dcad7b868102256d9c",
+    "validation_suite.py": "f1491e4e68eb257e8648b48ac8e1289f1bed75ec570d8df8e61b41fdb7e97aee",
+    "visualization.py": "27747d1f5741d7a9b02f5e8151deb6be6d72787197a17716ca0392785bf85500",
+    "waypoints.py": "3c2657aa432d8efbacac1088ef03edab5a7b604eb69469aa9fcaf0801b99bba7",
+    "wind.py": "98c8fffe3f76ececf91582b3ce1fc89fc61db095d488be2120584e1fcd6e3d43",
+    "wind_comparison.py": "30807d0a820bda0b4970fd76d531e02fe30f311de9c1c5b238794156307abe42",
+    "__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "energy_model": {
+    "model": "zeng_level_plus_climb_v1",
+    "parameters": {
+      "weight_n": 100.0,
+      "air_density_kg_m3": 1.225,
+      "rotor_radius_m": 0.5,
+      "tip_speed_mps": 200.0,
+      "rotor_solidity": 0.05,
+      "fuselage_drag_ratio": 0.3,
+      "blade_profile_drag": 0.012,
+      "induced_correction": 0.1,
+      "electrical_efficiency": 0.8,
+      "climb_efficiency": 0.8,
+      "auxiliary_power_w": 0.0,
+      "maximum_horizontal_speed_mps": 60.0,
+      "maximum_vertical_speed_mps": 5.0
+    },
+    "source": "https://arxiv.org/abs/1804.02238",
+    "calibrated_for_project_drone": false,
+    "parameter_fit_available": false,
+    "calibration": null,
+    "scope": "Referência teórica de voo horizontal; extensão de subida e eficiências são hipóteses do projeto. Não é bateria medida nem modelo 3D calibrado."
+  },
+  "energy_model_sha256": "edc3b98c6fc1abfbca6ff671526f555cbc3467309a77f90292e0bddf671c37dd",
+  "minimum_executed_coverage_percent": 100.0,
+  "maximum_telemetry_gap_s": 1.0,
+  "application_policy": "Desligada durante estabilização; ativa na missão, conexões e retorno. Modelo geométrico de faixa, sem bomba física.",
+  "dry_run": false,
+  "scene": "prepared_automatically",
+  "limitations": "Energia estimada por referência teórica sem calibração; não mede bateria. Cobertura geométrica dos centros de células, sem medição de deposição. Proposta combina subida e orientação."
+}

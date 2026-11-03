@@ -1,0 +1,14 @@
+[
+  {
+    "TimeCreated": "2026-10-30T20:10:09.6411192-03:00",
+    "ProviderName": "Microsoft-Windows-Kernel-Power",
+    "Id": 42,
+    "Message": "O sistema está entrando em suspensão.\r\n\r\nMotivo da Suspensão: Application API"
+  },
+  {
+    "TimeCreated": "2026-10-30T23:24:06.3884527-03:00",
+    "ProviderName": "Microsoft-Windows-Power-Troubleshooter",
+    "Id": 1,
+    "Message": "O sistema continuou após retornar do modo de suspensão.\r\n\r\nHora da Suspensão: ‎2026‎-‎10‎-‎30T23:10:08.255650600Z\r\nHora da Ativação: ‎2026‎-‎10‎-‎31T02:24:04.332043600Z\r\n\r\nAtivar Origem: Unknown"
+  }
+]
