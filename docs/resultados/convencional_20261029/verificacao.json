@@ -1,0 +1,29 @@
+{
+  "full_suite": {
+    "passed": 215,
+    "warnings": 48,
+    "duration_s": 38.32,
+    "command": ".venv/Scripts/python.exe -X utf8 -m pytest -q --basetemp output/experiments/pytest_conventional_final2_20261029",
+    "log": "pytest_final.log"
+  },
+  "scope": "Verificação final: impede A* na referência com e sem obstáculos; recusa mistura de referência geométrica com lotes antigos, testa exclusões e altitude contínua.",
+  "real_battery_saving_proven": false,
+  "presentation_labels_regression": {
+    "passed": 13,
+    "duration_s": 1.28,
+    "command": ".venv/Scripts/python.exe -X utf8 -m pytest -q tests/test_comparison_scene.py --basetemp output/experiments/pytest_conventional_labels_20261029"
+  },
+  "historical_results_policy": "Os números dos lotes anteriores foram preservados e receberam aviso de referência histórica A*. A nova coleta não reutiliza suas energias nas médias.",
+  "demonstration_scope": "Corrige apenas a referência de trajetória. Altura100m, faixa120m e aplicação em conexões/retorno permanecem condições demonstrativas comuns.",
+  "physical_flights_audit": {
+    "recorded": 18,
+    "eligible_flights": 18,
+    "all_100_percent_coverage": true,
+    "zero_collisions": true,
+    "zero_clearance_violations": true,
+    "all_inside_energy_envelope": true,
+    "minimum_clearance_m": 73.65554842722099,
+    "time_step_s": 0.05,
+    "energy_model_sha256": "edc3b98c6fc1abfbca6ff671526f555cbc3467309a77f90292e0bddf671c37dd"
+  }
+}

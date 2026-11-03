@@ -1,0 +1,55 @@
+{
+  "scope": "Planejamento, execução, terreno e modelo de energia congelados durante a coleta. Alterações posteriores em documentação, análise e rótulos de replay não alteram voos.",
+  "files": [
+    {
+      "path": "src/conventional.py",
+      "sha256": "1a7e9cd0ef5de31923f93be0ce2bdcc0b48ec9467309f0fc2c4dcd6cb1eb9304",
+      "unchanged_since_collection_started": true
+    },
+    {
+      "path": "src/coverage_comparison.py",
+      "sha256": "51e6325ddb3cbe5295f6ebda8ebb0ba6c77e74a6df7b368427b678ab5e279faf",
+      "unchanged_since_collection_started": true
+    },
+    {
+      "path": "src/coppelia_benchmark.py",
+      "sha256": "d62e0ad834ccceb7cebf4d4fa6eeefefac6c9a93ee71fc9b6aa9692c563c7e31",
+      "unchanged_since_collection_started": true
+    },
+    {
+      "path": "src/coppeliasim.py",
+      "sha256": "1458560c18e096d11ee87dc536b862525319fc86bbd5f65f909288934e18c928",
+      "unchanged_since_collection_started": true
+    },
+    {
+      "path": "src/terrain.py",
+      "sha256": "5d0195baddc256cf8ed9540fe458cb33083d838725b9c9ac6a43c37a79905528",
+      "unchanged_since_collection_started": true
+    },
+    {
+      "path": "src/waypoints.py",
+      "sha256": "3c2657aa432d8efbacac1088ef03edab5a7b604eb69469aa9fcaf0801b99bba7",
+      "unchanged_since_collection_started": true
+    },
+    {
+      "path": "src/metrics.py",
+      "sha256": "afe0638abc71ab18e3a1251aedf21d7e4bffea2c913c568b50dd6fb16b6b9e8c",
+      "unchanged_since_collection_started": true
+    },
+    {
+      "path": "configs/demo_relief.yaml",
+      "sha256": "114c408c9d9e47165e89bf68d2a5c6a63486e4ddcddd26a29cdb2b4bce0efb74",
+      "unchanged_since_collection_started": true
+    },
+    {
+      "path": "configs/energy_reference.json",
+      "sha256": "c43c536526860617461484b9ea429ec2ac5ea97cf6c5ff0a96635320c1c05be5",
+      "unchanged_since_collection_started": true
+    },
+    {
+      "path": "configs/relief_suite.json",
+      "sha256": "c58a06ea02ab8001ca917a50358ba4e80d716f8a82bb85bf95862c4fba584ccf",
+      "unchanged_since_collection_started": true
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "scenes": {
+    "norte": {
+      "source": "C:\\DEV\\fho-ia\\Otimizacao-Tridimensional-de-Trajetorias-de-Veiculos-Aereos\\output\\experiments\\conventional_benchmark_20261029\\flights\\case_07_repeat_01",
+      "scene": "C:\\DEV\\fho-ia\\Otimizacao-Tridimensional-de-Trajetorias-de-Veiculos-Aereos\\output\\experiments\\conventional_benchmark_20261029\\presentation_norte_x10\\comparacao_lado_a_lado.ttt",
+      "sha256": "c3be79165b134646377db3217f38eba5e8c635875bbb897a7a374f02e7fff09e"
+    },
+    "sul": {
+      "source": "C:\\DEV\\fho-ia\\Otimizacao-Tridimensional-de-Trajetorias-de-Veiculos-Aereos\\output\\experiments\\conventional_benchmark_20261029\\flights\\case_08_repeat_01",
+      "scene": "C:\\DEV\\fho-ia\\Otimizacao-Tridimensional-de-Trajetorias-de-Veiculos-Aereos\\output\\experiments\\conventional_benchmark_20261029\\presentation_sul_x10\\comparacao_lado_a_lado.ttt",
+      "sha256": "35148452b5d58eb692ac42ce8185c420a3dc52c439a4ce0c5929fa9179a7d9ad"
+    },
+    "centro": {
+      "source": "C:\\DEV\\fho-ia\\Otimizacao-Tridimensional-de-Trajetorias-de-Veiculos-Aereos\\output\\experiments\\conventional_benchmark_20261029\\flights\\case_06_repeat_01",
+      "scene": "C:\\DEV\\fho-ia\\Otimizacao-Tridimensional-de-Trajetorias-de-Veiculos-Aereos\\output\\experiments\\conventional_benchmark_20261029\\presentation_centro_x10\\comparacao_lado_a_lado.ttt",
+      "sha256": "fc1be28b7289d8eab2f4d2bd98054f97870f650acee69b007d048fb747bb4a42"
+    }
+  },
+  "active_origin": "centro",
+  "height_scale": 10,
+  "baseline_planner": "parallel_geometric_v1",
+  "reference_uses_astar": false,
+  "selection_rule": "Três recortes no maior fator; centro ativo pela ordem do manifesto, sem consultar energia.",
+  "scope": "Replay de telemetrias de voos físicos já registrados; sem medição elétrica ou nova física simultânea.",
+  "gui_port": 23040,
+  "renderer": "[CoppeliaSim:loadinfo]   OpenGL: ATI Technologies Inc., Renderer: Radeon RX 560X, Version: 4.6.0 Compatibility Profile Context 26.5.2.260413",
+  "active_state": 17,
+  "rendering_enabled": true,
+  "realtime": true,
+  "motion_verification": {
+    "initial": {
+      "time_s": 0.0,
+      "positions": [
+        [
+          -4.450000116,
+          1.349999621,
+          3.195536747
+        ],
+        [
+          1.749999884,
+          1.349999621,
+          3.195536747
+        ]
+      ]
+    },
+    "after_two_seconds": {
+      "time_s": 2.1000000000000005,
+      "positions": [
+        [
+          -4.355490971,
+          1.349463226,
+          3.149889624
+        ],
+        [
+          1.75002245,
+          1.2494281379999999,
+          3.157193638
+        ]
+      ]
+    }
+  },
+  "presentation_source_sha256": "c76fdfb9594a34179ce8563808d3b66cd4e1b6cb839a234a2aad497b3741080b"
+}

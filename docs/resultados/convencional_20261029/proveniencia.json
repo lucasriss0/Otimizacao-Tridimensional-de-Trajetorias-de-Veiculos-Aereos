@@ -1,0 +1,510 @@
+{
+  "experiment": "output/experiments/conventional_benchmark_20261029",
+  "baseline_planner": "parallel_geometric_v1",
+  "reference_uses_astar": false,
+  "recorded_flights": 18,
+  "expected_pairs": 9,
+  "eligible_pairs": 9,
+  "real_battery_saving_proven": false,
+  "selection_rule": "Três recortes e fatores1/5/10 fixados antes da nova coleta; sem seleção por economia.",
+  "files": [
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/session.json",
+      "sha256": "031b5d164acc39d24f30292c84aefe0b5e490e596b5525c54eba0b463ce5f578"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/verification.json",
+      "sha256": "03e416a85a4f8583ecf1d7b04fd300c3aed86ef819678d4076a41a4e0e2cd395"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/pytest_final.log",
+      "sha256": "a21705dfc115505521544c08186c70f443a7e95cfb3b2bf3dcdd54d5e4babbd2"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/manifest.json",
+      "sha256": "7d25923c9bab6b262fd41acf94eeae17ba9a7e9fc5deecd7cdf66db064ab1b22"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/attempts.json",
+      "sha256": "7f4a5ddb96ddf4319d44729d9232939013cf5fd7316d03c30d07765beac27d2b"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/presentation_status.json",
+      "sha256": "a5046a8b5b74237c464b72eb79394935a06c21e753d87b96cf93aecf1637aca2"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/presentation_renderer.log",
+      "sha256": "df6a075a8006700edd6249b614d0efb3d865fa05de0bcc24ac586e21f157bcf8"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/presentation_source.py",
+      "sha256": "c76fdfb9594a34179ce8563808d3b66cd4e1b6cb839a234a2aad497b3741080b"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/export_findings.py",
+      "sha256": "e069be6154df0b096be263e0131db67c122335f9a497bd624d148ddf34e0a6a0"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/relief_report_final/relief_comparison.json",
+      "sha256": "f9a97cd9529a4ec0eabc9128a6adf462574d4d34b4ce561989c5679c6737c674"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/implementation/src/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/implementation/src/ablation.py",
+      "sha256": "3f55c9a6c84858dd5dd49824d5f6201f073dcab03886b4f66a4f8560a2ad78da"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/implementation/src/astar.py",
+      "sha256": "92452c6a22fe6437e458c7dfd616440d6de95731411d1b8872ea34e5062a1abe"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/implementation/src/benchmark.py",
+      "sha256": "ae2dcfad7f596c9c7449c1c06632d1462ce8ffd95880f1cd8ccb20f04d9c558f"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/implementation/src/benchmark_report.py",
+      "sha256": "8c8d2492be63331475150adf6b402f1eea2cbf178c638f11fd9fe8e4ac9b3870"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/implementation/src/comparison_scene.py",
+      "sha256": "a42d3e948bc89ad8f53162fa10f060260d3b1cd7b8c281b44ffc0c8f017d6dc0"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/implementation/src/conventional.py",
+      "sha256": "1a7e9cd0ef5de31923f93be0ce2bdcc0b48ec9467309f0fc2c4dcd6cb1eb9304"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/implementation/src/coppelia_benchmark.py",
+      "sha256": "d62e0ad834ccceb7cebf4d4fa6eeefefac6c9a93ee71fc9b6aa9692c563c7e31"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/implementation/src/coppelia_scene.py",
+      "sha256": "523cf6470e4c1642b737c08844c2a38851f07ff5e938ff5e8b65296597a5d697"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/implementation/src/coppelia_terrain.py",
+      "sha256": "5991f1cebaca778679404f18a9ee60ee835de1b0a83846a9833dfd6f329f4c48"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/implementation/src/coppeliasim.py",
+      "sha256": "1458560c18e096d11ee87dc536b862525319fc86bbd5f65f909288934e18c928"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/implementation/src/coverage.py",
+      "sha256": "0926391667919fd358804ff8c8d043894b1ea90adb8373dc0d2406282b1fe2ff"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/implementation/src/coverage_comparison.py",
+      "sha256": "51e6325ddb3cbe5295f6ebda8ebb0ba6c77e74a6df7b368427b678ab5e279faf"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/implementation/src/energy.py",
+      "sha256": "2f93d9fdb0bae2c5b13bfa04da83d9eb075621fe770f6628677d4fc99643adce"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/implementation/src/energy_calibration.py",
+      "sha256": "89a10fec86b0f0d12fa44dea7cc69b6c54d50808b9e61f102cfac05452327371"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/implementation/src/energy_sensitivity.py",
+      "sha256": "957e9d23a9b374694ce84653846683badfa2c34f6a03a3ef556f1bd62a4867ac"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/implementation/src/executed_coverage.py",
+      "sha256": "364f5c2ba6ff75c20c049092984858a2d1076e12d29dbda06a0b2dac604cc223"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/implementation/src/experiments.py",
+      "sha256": "d3d8bd627d863dbf3089c1b2a68f5227d799b11f56c9f942311fe3e6a678e543"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/implementation/src/main.py",
+      "sha256": "38ef7078ef006a8ea3d4658250f60a6cccbfb55a6c2a0ed0fa9c48961b71b45a"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/implementation/src/metrics.py",
+      "sha256": "afe0638abc71ab18e3a1251aedf21d7e4bffea2c913c568b50dd6fb16b6b9e8c"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/implementation/src/obstacles.py",
+      "sha256": "83f64a97d50d838bfceb97742d789593d1e49b725984e59f5c53181c5062b9e8"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/implementation/src/planning_experiments.py",
+      "sha256": "c6ec2bc605bf11730637f2035d79f9d0940634fcd6ae2fa869ceb5475c3ff979"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/implementation/src/presentation.py",
+      "sha256": "a9429b156947698051d7f46f2c4384a6fc59864dabed2c6071e2e3e10cf6c901"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/implementation/src/relief_report.py",
+      "sha256": "09f1d7e767d9eb67af46c777ef57e99966145b308f06fb16fd3421f1371b2152"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/implementation/src/scenario.py",
+      "sha256": "16a7dd11b35fdf744e1824beeb96bc8cf1dc809c7ae6eae6acec72d858ad344b"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/implementation/src/sync_obstacles.py",
+      "sha256": "a82c975c37e45830b5c2e0bc610aca3480d4920c6b486de635443c822335ef03"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/implementation/src/telemetry_metrics.py",
+      "sha256": "0cd1a17e3d0ea4959b179945cf341fccfbe375d8f230d866e02eae933c89fab6"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/implementation/src/terrain.py",
+      "sha256": "5d0195baddc256cf8ed9540fe458cb33083d838725b9c9ac6a43c37a79905528"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/implementation/src/time_step_check.py",
+      "sha256": "907876b4e1cc4ec6dd7d96fab31da587fdc73a6427c0b7dcad7b868102256d9c"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/implementation/src/validation_suite.py",
+      "sha256": "f1491e4e68eb257e8648b48ac8e1289f1bed75ec570d8df8e61b41fdb7e97aee"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/implementation/src/visualization.py",
+      "sha256": "27747d1f5741d7a9b02f5e8151deb6be6d72787197a17716ca0392785bf85500"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/implementation/src/waypoints.py",
+      "sha256": "3c2657aa432d8efbacac1088ef03edab5a7b604eb69469aa9fcaf0801b99bba7"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/implementation/src/wind.py",
+      "sha256": "98c8fffe3f76ececf91582b3ce1fc89fc61db095d488be2120584e1fcd6e3d43"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/implementation/src/wind_comparison.py",
+      "sha256": "30807d0a820bda0b4970fd76d531e02fe30f311de9c1c5b238794156307abe42"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/implementation/configs/demo_coverage.yaml",
+      "sha256": "34e5eb07e6a2b91d3fabb7b2ae8842990813a28caf2c19bad10972d41e7b3fa7"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/implementation/configs/demo_relief.yaml",
+      "sha256": "114c408c9d9e47165e89bf68d2a5c6a63486e4ddcddd26a29cdb2b4bce0efb74"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/implementation/configs/demo_wind.yaml",
+      "sha256": "228f88130bbc4dcfa0a93290b9ad49ffe7170945448ffcfab40e0903104739a6"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/implementation/configs/energy_reference.json",
+      "sha256": "c43c536526860617461484b9ea429ec2ac5ea97cf6c5ff0a96635320c1c05be5"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/implementation/configs/relief_suite.json",
+      "sha256": "c58a06ea02ab8001ca917a50358ba4e80d716f8a82bb85bf95862c4fba584ccf"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/implementation/configs/validation_suite.json",
+      "sha256": "9622a59729a4704711c7ab4468a2d1d57b34789946fb4f34707faed30ef1fd85"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/relief_report_final/analysis_sources/benchmark_report.py",
+      "sha256": "ac811f177a77117fd017d6272c24c65bc06adb901f291f40d16d6ef2e5796896"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/relief_report_final/analysis_sources/relief_report.py",
+      "sha256": "1b8ca2cedc1c567232fdd03f289974f5a2db10f7b56272ebedd0e15c5580212d"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_00_repeat_01/protocol.json",
+      "sha256": "1c02406d290347e3095b8096e7cf071d4ad3158d6439b9587743333fbaf8566e"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_01_repeat_01/protocol.json",
+      "sha256": "e90444a9de00f1ed1461debace445e09ff2448e8a3cf6d89cbe00f3f2b510d70"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_02_repeat_01/protocol.json",
+      "sha256": "27f7e62c959629372341137f699efab96b0da4b6d102292ecfa27aa0cf01335e"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_03_repeat_01/protocol.json",
+      "sha256": "eb8c51e3fc3ceada4be794b93396ee92cb8c28da4c98ad89b052d1084f36b06c"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_04_repeat_01/protocol.json",
+      "sha256": "9dfbac3b5452fd5c508b9ca6f4272dd41975d87c9251b39d7b1935dd9afd664a"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_05_repeat_01/protocol.json",
+      "sha256": "1685cec78f7ba6f5684d2d9554c0d93db7be55f9f24b8b4172ab64a28637df13"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_06_repeat_01/protocol.json",
+      "sha256": "e016518e77a4d8063f47c60728529aedd7038359fd88303c0377e62de81cf4b9"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_07_repeat_01/protocol.json",
+      "sha256": "951b5c9513ee856994f3f4d553645d0a282968cfc83bc9f365ccb1c329d41267"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_08_repeat_01/protocol.json",
+      "sha256": "4268389cdfc57ed31fdb11063962025652486f049dc8f63097411abac2f1b317"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_00_repeat_01/terrain.npz",
+      "sha256": "db73e534535b79a245fed5fb9d9baf2028c0440bfb3b438ebfb9f4c7bf95f346"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_01_repeat_01/terrain.npz",
+      "sha256": "30dab89c767b61cee51a699a4a8257586a77762754b73e6c156104d0e7fce4df"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_02_repeat_01/terrain.npz",
+      "sha256": "a7f891e0ac3622518a4e7240d8dae8843a279520c192d81f140d37c6a23e9f3c"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_03_repeat_01/terrain.npz",
+      "sha256": "1a23a1cc695a7687bad6291d0d70b6138b245adb82f86302a016611a8d396df6"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_04_repeat_01/terrain.npz",
+      "sha256": "ec469923a565f9793e8ae277f161ceac8a69bc4619d4110f67a04f880ae83734"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_05_repeat_01/terrain.npz",
+      "sha256": "cd914d7c6917ac185772b07cb0d2d3fed65f620a3cae70593cf8d9cc0368d452"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_06_repeat_01/terrain.npz",
+      "sha256": "35506cabc3d8252b889a8ebc1ca31c105313dd1ffa0480cf1fe958c2f5b54a64"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_07_repeat_01/terrain.npz",
+      "sha256": "4a1a13bfffac534ed0ded54b9764cbb9140895a150dc6c6c612fc7fe3064e997"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_08_repeat_01/terrain.npz",
+      "sha256": "19ba072a3bf6f6023383a170c72edd28b6f083d8b2e00a01655c62d7921b2aa4"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/presentation_centro_x10/replay_manifest.json",
+      "sha256": "03369f47b60e36f70205d2ea8a571dc0392b706d332ef75e3cb74ed4aedce460"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/presentation_norte_x10/replay_manifest.json",
+      "sha256": "824a51c68828f438f962ce2f340d8be1469822de875d4702ac0654cd453308a0"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/presentation_sul_x10/replay_manifest.json",
+      "sha256": "581af435abdd4cb1336a1ae7beb60fe75712519aa138a2f726fe067f1fcc9def"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/presentation_centro_x10/comparacao_lado_a_lado.ttt",
+      "sha256": "fc1be28b7289d8eab2f4d2bd98054f97870f650acee69b007d048fb747bb4a42"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/presentation_norte_x10/comparacao_lado_a_lado.ttt",
+      "sha256": "c3be79165b134646377db3217f38eba5e8c635875bbb897a7a374f02e7fff09e"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/presentation_sul_x10/comparacao_lado_a_lado.ttt",
+      "sha256": "35148452b5d58eb692ac42ce8185c420a3dc52c439a4ce0c5929fa9179a7d9ad"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_00_repeat_01/runs/referencia_2d_20261029T174558669723Z/telemetry.csv",
+      "sha256": "5a2cfb6adec490214581f01cfc81eda4b41ab3dcd6c5af314e0b8727b0bc3bc5"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_00_repeat_01/runs/referencia_2d_20261029T174558669723Z/energy/energy_timeseries.csv",
+      "sha256": "04f9faf1c54b5e910e40350536919d2e15ae9108079e05240c0ae2a5ccfd905d"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_00_repeat_01/runs/proposta_subida_orientacao_20261029T174802079876Z/telemetry.csv",
+      "sha256": "8883091da21222ebefdf8a0e84fda99fac69d6d110ae8d2afd7f68147ca4c465"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_00_repeat_01/runs/proposta_subida_orientacao_20261029T174802079876Z/energy/energy_timeseries.csv",
+      "sha256": "ed291246d099c68bca14b3c89741c4ca8407ac08c71f4da9fe56a98a8e59a749"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_01_repeat_01/runs/proposta_subida_orientacao_20261029T174941028557Z/telemetry.csv",
+      "sha256": "b1e696a36b366040eb498260355fd25afd4e3714171b7dcc48871b691ebdcee1"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_01_repeat_01/runs/proposta_subida_orientacao_20261029T174941028557Z/energy/energy_timeseries.csv",
+      "sha256": "4ac2001fcc9c71369b7e2d05cbb371bde447ee16d6d25d7e470b0187f8768ab8"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_01_repeat_01/runs/referencia_2d_20261029T175046844305Z/telemetry.csv",
+      "sha256": "a0f4e74332cfa4d4ef4ec3cb1bcded79c2f24d449f48a5b8b9afb633794fab3f"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_01_repeat_01/runs/referencia_2d_20261029T175046844305Z/energy/energy_timeseries.csv",
+      "sha256": "3e5d99510b4c668d9c0040b3e78e776a1368f66f01e615a42336a2ea3aa1c54a"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_02_repeat_01/runs/referencia_2d_20261029T175150626241Z/telemetry.csv",
+      "sha256": "05cb62a68e30ebdeee0405052bb77b97eb4aa11c659cfc0246bdd9421ce55bdb"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_02_repeat_01/runs/referencia_2d_20261029T175150626241Z/energy/energy_timeseries.csv",
+      "sha256": "21aaa37d33e6ca1c03cf5f6d112782ba4dab7b306c716b231ac5c197a92d8540"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_02_repeat_01/runs/proposta_subida_orientacao_20261029T175309348832Z/telemetry.csv",
+      "sha256": "4d83f69a05a6ffbdcbfc6e334a74a19d1ac790ed5ab9692710013912342e01e7"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_02_repeat_01/runs/proposta_subida_orientacao_20261029T175309348832Z/energy/energy_timeseries.csv",
+      "sha256": "412c90340ee58687137a9a80eeacf8649ca76eed4a4c395e69ca93f6c3586343"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_03_repeat_01/runs/proposta_subida_orientacao_20261029T175507091846Z/telemetry.csv",
+      "sha256": "fa85637163544e6b09aea404952d79d6e0ee6a9c6b9de96da806cdf440cc4b38"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_03_repeat_01/runs/proposta_subida_orientacao_20261029T175507091846Z/energy/energy_timeseries.csv",
+      "sha256": "ec7fe3e828c131e2e782838b81e417f200772b45bf48c7d720b62de49bc81a75"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_03_repeat_01/runs/referencia_2d_20261029T175641588584Z/telemetry.csv",
+      "sha256": "d86735d556f3e4a2aba6cc8d1e27284e0c0804d369a9ad3976d3682533b0a97f"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_03_repeat_01/runs/referencia_2d_20261029T175641588584Z/energy/energy_timeseries.csv",
+      "sha256": "3db6779283570c3b80313d15941c3a0b0d561d5b2dbd346ea29888ce24f68641"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_04_repeat_01/runs/referencia_2d_20261029T175757881434Z/telemetry.csv",
+      "sha256": "840cdb70e9d9e0a04de2cc10c3d1d3964a50a2ae018c4aabfb97b0dd3f1f0905"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_04_repeat_01/runs/referencia_2d_20261029T175757881434Z/energy/energy_timeseries.csv",
+      "sha256": "60703ee009e6e0a4d78f30a68ef553bd311d184724e9b51a723af74cc33b16ab"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_04_repeat_01/runs/proposta_subida_orientacao_20261029T175912268173Z/telemetry.csv",
+      "sha256": "0961849b8d3fcdc2ef82726ed97b5bdba9773da0325dd207effa47a117f7adb3"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_04_repeat_01/runs/proposta_subida_orientacao_20261029T175912268173Z/energy/energy_timeseries.csv",
+      "sha256": "792fbf5a3fdf590f2087137c974976f86605f97bc3d6c84209af363e676f728b"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_05_repeat_01/runs/proposta_subida_orientacao_20261029T180046248526Z/telemetry.csv",
+      "sha256": "c65553816db1dbe7a5c49194a5c5a980b7693811783d43a2419a3059676fb196"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_05_repeat_01/runs/proposta_subida_orientacao_20261029T180046248526Z/energy/energy_timeseries.csv",
+      "sha256": "4a5cc3675f8ef5bd17d591b112a2281c6808e84cd00e5808e5fb6fb480cf6efe"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_05_repeat_01/runs/referencia_2d_20261029T180210621361Z/telemetry.csv",
+      "sha256": "243a07df0c1ac21e34a01f2220ee46248a4eca5aaf9a53315acd667d739399ba"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_05_repeat_01/runs/referencia_2d_20261029T180210621361Z/energy/energy_timeseries.csv",
+      "sha256": "26072bd06fc7e4fa0eaac745da3543f02e9f457a09023228c51a7a5992c2d21c"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_06_repeat_01/runs/referencia_2d_20261029T180400803100Z/telemetry.csv",
+      "sha256": "c662286f4fe05f1328b086fb062e1d0da2986910d846ae37dfc0fa421695f5c1"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_06_repeat_01/runs/referencia_2d_20261029T180400803100Z/energy/energy_timeseries.csv",
+      "sha256": "b77535a3f656bc02bd24328e0de46af3a2cde2d636a659c67635f32a0b584382"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_06_repeat_01/runs/proposta_subida_orientacao_20261029T180557055284Z/telemetry.csv",
+      "sha256": "c6160533dc2485b1a93ecb53746d2a9e1ab87dec9caab942f3f0953447a0bfaa"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_06_repeat_01/runs/proposta_subida_orientacao_20261029T180557055284Z/energy/energy_timeseries.csv",
+      "sha256": "ef5e074a9614fe17753b9c3a5278f21ba9dd66e0ea7739ebbb594cc8b21651ae"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_07_repeat_01/runs/proposta_subida_orientacao_20261029T180731582999Z/telemetry.csv",
+      "sha256": "3890b50d229a1fcecac754883fdb3735a1a9041dbdd1ca109f2ef51810311716"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_07_repeat_01/runs/proposta_subida_orientacao_20261029T180731582999Z/energy/energy_timeseries.csv",
+      "sha256": "3852c58e93c5784c953a433765a924a2f42c6f58a76daa1bea4d9332ad240d9d"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_07_repeat_01/runs/referencia_2d_20261029T180902356260Z/telemetry.csv",
+      "sha256": "be87505171999522a70f8822876e871aef68687e52236fb663825b32b97854d9"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_07_repeat_01/runs/referencia_2d_20261029T180902356260Z/energy/energy_timeseries.csv",
+      "sha256": "4b43414d3303f1843f5a996531d4cfa21612a7995ec7cb227ffb4b2fef825d3a"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_08_repeat_01/runs/referencia_2d_20261029T181047028584Z/telemetry.csv",
+      "sha256": "85db01641ad5b6b1484b26246c4f9690bf456019331130336e2099772f21f33e"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_08_repeat_01/runs/referencia_2d_20261029T181047028584Z/energy/energy_timeseries.csv",
+      "sha256": "20b4cf6664d20ff06237b7f20cc7774ffd8a5eee00f17aee5f4a67eff27e3032"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_08_repeat_01/runs/proposta_subida_orientacao_20261029T181236571655Z/telemetry.csv",
+      "sha256": "05a552047603ec9aeac203715dd5ef00caf0a915d76f85641b3055ca6da7be02"
+    },
+    {
+      "path": "output/experiments/conventional_benchmark_20261029/flights/case_08_repeat_01/runs/proposta_subida_orientacao_20261029T181236571655Z/energy/energy_timeseries.csv",
+      "sha256": "b77664d358352395de3374b6a86ece25517b1255b6dfbf11bf520679dbc67559"
+    }
+  ],
+  "exported_assets": [
+    {
+      "file": "energia.png",
+      "sha256": "cff5c61d5214e301ef145d1885c9054f6a2d34fafc7d1029403b7a04fdf3a0a4"
+    },
+    {
+      "file": "energia.svg",
+      "sha256": "6d667eeece1d860746dfc11e62d63cbdec219074930654cd8ccaf508c2199bf5"
+    },
+    {
+      "file": "terrenos.png",
+      "sha256": "d43a7105fb2bac1241f1b12d6badb42509ffed3c6cf5ba66e9ec0e67cad834f2"
+    },
+    {
+      "file": "comparacao.csv",
+      "sha256": "aafe2f587220ea58bb357738ef60ad0669f5abe972d65386a811247f037fc1db"
+    },
+    {
+      "file": "comparacao.json",
+      "sha256": "f9a97cd9529a4ec0eabc9128a6adf462574d4d34b4ce561989c5679c6737c674"
+    },
+    {
+      "file": "niveis.csv",
+      "sha256": "b24b279e6be4f261c31c00fb0b193f839de6a2ec3e27868ccee64d0a5c52bceb"
+    },
+    {
+      "file": "voos.csv",
+      "sha256": "e262f94081765ebd23dbb41a55c519a2fbedaa7ca8dc6369d04130a2f7a7a2f5"
+    },
+    {
+      "file": "verificacao.json",
+      "sha256": "03e416a85a4f8583ecf1d7b04fd300c3aed86ef819678d4076a41a4e0e2cd395"
+    },
+    {
+      "file": "rotas.png",
+      "sha256": "f23d30cbf425b43e09c31cdc83023895c71455207c950042f30e72c88709e4c2"
+    },
+    {
+      "file": "apresentacao.json",
+      "sha256": "a5046a8b5b74237c464b72eb79394935a06c21e753d87b96cf93aecf1637aca2"
+    },
+    {
+      "file": "auditoria_protocolo.json",
+      "sha256": "1a1f30c9f20b9e469f76f8d26704a15d849df520f86c0c0a3f6fe3b292a9c3a1"
+    },
+    {
+      "file": "relatorio.html",
+      "sha256": "3a0a1c62a8c388ae4cee09c9ac1f5b4df01127b17d9c3800103c10e58f9ff34d"
+    }
+  ]
+}
