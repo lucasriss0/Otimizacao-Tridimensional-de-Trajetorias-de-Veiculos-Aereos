@@ -5,13 +5,14 @@ import csv
 import numpy as np
 
 from src.astar import Position, is_traversable
+from src.terrain import elevation_at
 
 
 @dataclass(frozen=True)
 class Waypoint3D:
     sequence: int
-    grid_row: int
-    grid_column: int
+    grid_row: float
+    grid_column: float
     x_m: float
     y_m: float
     z_m: float
@@ -45,7 +46,7 @@ def grid_path_to_waypoints_3d(
     for sequence, (row, column) in enumerate(path):
         if not (0 <= row < rows and 0 <= column < columns):
             raise ValueError(f"A posição {(row, column)} está fora do terreno.")
-        elevation = float(terrain[row, column])
+        elevation = elevation_at(terrain, (row, column))
         if not np.isfinite(elevation):
             raise ValueError(f"A posição {(row, column)} não possui elevação válida.")
 

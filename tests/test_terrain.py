@@ -37,6 +37,28 @@ def test_load_topodata_reduces_geotiff(tmp_path: Path):
     assert np.all(np.isfinite(result.elevation))
 
 
+def test_vertical_exaggeration_preserves_xy_source_and_minimum(tmp_path):
+    path = tmp_path / "terrain.tif"
+    write_geotiff(path, np.arange(100, dtype=np.float32).reshape(10, 10) + 400)
+    original = load_topodata(path, target_size=5)
+    amplified = load_topodata(path, target_size=5, height_scale=10)
+    minimum = original.elevation.min()
+    assert amplified.elevation.min() == minimum
+    assert np.allclose(amplified.elevation - minimum, (original.elevation - minimum) * 10)
+    assert amplified.bounds == original.bounds
+    assert amplified.pixel_size == original.pixel_size
+    assert amplified.source_path == original.source_path
+    assert amplified.height_scale == 10
+
+
+@pytest.mark.parametrize("factor", [0, -1, float("nan"), float("inf"), True])
+def test_invalid_vertical_exaggeration_is_rejected(tmp_path, factor):
+    path = tmp_path / "terrain.tif"
+    write_geotiff(path, np.zeros((4, 4), dtype=np.float32))
+    with pytest.raises(ValueError, match="fator de relevo"):
+        load_topodata(path, height_scale=factor)
+
+
 def test_load_topodata_rejects_missing_file(tmp_path: Path):
     with pytest.raises(FileNotFoundError):
         load_topodata(tmp_path / "missing.tif")

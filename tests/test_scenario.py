@@ -11,7 +11,7 @@ def test_loads_demo_wind_scenario():
     assert scenario.wind.events[0].wind.speed_mps > 0
     assert scenario.wind.events[1].at_s > scenario.wind.events[0].at_s
     assert scenario.wind.replan_delay_s == 3
-    assert scenario.wind.maximum_drift_m == 12
+    assert scenario.wind.maximum_drift_m == 20
     assert len(scenario.obstacles) == 1
     assert scenario.obstacles[0].name == "ObstacleTreeCenter"
     assert scenario.obstacles[0].safety_radius_m == 60

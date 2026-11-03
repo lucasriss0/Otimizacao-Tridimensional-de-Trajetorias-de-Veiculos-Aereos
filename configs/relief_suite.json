@@ -1,0 +1,24 @@
+{
+  "base_scenario": "demo_relief.yaml",
+  "energy_model": "energy_reference.json",
+  "scope": "Teste controlado de relevo: TOPODATA original em x1 e versões sintéticas com diferenças de altitude ampliadas em x5 e x10, preservando XY e o datum mínimo. Não são novos terrenos reais.",
+  "selection_rule": "Os três recortes já usados e fatores fixos [1,5,10], definidos antes dos novos voos, sem seleção por energia. Uma repetição por caso: os voos anteriores foram determinísticos.",
+  "common_flight_regime": "4 m/s, altura-alvo100 m, mínimo55 m, largura120 m, espaçamento90 m para todos os fatores e métodos. O regime mais conservador foi escolhido antes dos resultados para testar declives acentuados dentro do envelope vertical5 m/s. O x1 será reexecutado nesse mesmo regime.",
+  "repetitions": 1,
+  "ablation": false,
+  "baseline_planner": "parallel_geometric_v1",
+  "method_order": "balanced_rotation",
+  "minimum_executed_coverage_percent": 100.0,
+  "maximum_telemetry_gap_s": 1.0,
+  "locations": [
+    {"id": "centro_x1", "geographic_origin": "centro", "height_scale": 1, "center_lat": -22.48196, "center_lon": -47.26397},
+    {"id": "norte_x1", "geographic_origin": "norte", "height_scale": 1, "center_lat": -22.46196, "center_lon": -47.26397},
+    {"id": "sul_x1", "geographic_origin": "sul", "height_scale": 1, "center_lat": -22.50196, "center_lon": -47.26397},
+    {"id": "centro_x5", "geographic_origin": "centro", "height_scale": 5, "center_lat": -22.48196, "center_lon": -47.26397},
+    {"id": "norte_x5", "geographic_origin": "norte", "height_scale": 5, "center_lat": -22.46196, "center_lon": -47.26397},
+    {"id": "sul_x5", "geographic_origin": "sul", "height_scale": 5, "center_lat": -22.50196, "center_lon": -47.26397},
+    {"id": "centro_x10", "geographic_origin": "centro", "height_scale": 10, "center_lat": -22.48196, "center_lon": -47.26397},
+    {"id": "norte_x10", "geographic_origin": "norte", "height_scale": 10, "center_lat": -22.46196, "center_lon": -47.26397},
+    {"id": "sul_x10", "geographic_origin": "sul", "height_scale": 10, "center_lat": -22.50196, "center_lon": -47.26397}
+  ]
+}

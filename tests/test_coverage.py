@@ -20,6 +20,15 @@ def test_generates_alternating_stripes():
     ]
 
 
+def test_physical_terrain_padding_does_not_change_mission_window():
+    mission = CoverageWindow(1, 1, 4, 4)
+    assert mission.expanded(3, (6, 6)) == CoverageWindow(0, 0, 5, 5)
+    assert mission == CoverageWindow(1, 1, 4, 4)
+    assert mission.expanded(0, (6, 6)) == mission
+    with pytest.raises(ValueError, match="borda do terreno"):
+        mission.expanded(-1, (6, 6))
+
+
 def test_avoids_redundant_last_stripe_when_border_is_already_covered():
     terrain = np.zeros((6, 3))
     waypoints = generate_boustrophedon_waypoints(terrain, 2)

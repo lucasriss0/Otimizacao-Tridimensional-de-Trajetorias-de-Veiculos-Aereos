@@ -6,6 +6,7 @@ import csv
 import numpy as np
 
 from src.astar import Position
+from src.terrain import elevation_at
 
 
 @dataclass(frozen=True)
@@ -53,7 +54,7 @@ def calculate_path_metrics(
             column_delta * cell_size_x_m,
             row_delta * cell_size_y_m,
         )
-        elevation_delta = float(terrain[neighbor] - terrain[current])
+        elevation_delta = elevation_at(terrain, neighbor) - elevation_at(terrain, current)
 
         horizontal_distance += horizontal
         distance_3d += sqrt(horizontal**2 + elevation_delta**2)

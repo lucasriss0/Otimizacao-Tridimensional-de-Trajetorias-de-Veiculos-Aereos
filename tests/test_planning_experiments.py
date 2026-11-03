@@ -29,6 +29,21 @@ def test_horizontal_baseline_ignores_height_but_3d_route_avoids_peak():
     assert (2, 2) not in spatial.path
 
 
+def test_stripe_overlap_changes_spacing_without_inflating_application_width():
+    case = PlanningCase("flat", np.zeros((10, 10)), 30, 30, 120,
+                        CoverageWindow(0, 0, 9, 9), np.zeros((10, 10), bool), (0, 0))
+    original = compare_planners(case, (10,))
+    overlap_case = replace(case, stripe_spacing_m=90)
+    overlap = compare_planners(overlap_case, (10,))
+    assert overlap_case.swath_m == case.swath_m == 120
+    assert all(t.eligible and t.coverage_percent == 100 for t in overlap)
+    baseline = next(t for t in original if t.method == "horizontal_2d")
+    with_overlap = next(t for t in overlap if t.method == "horizontal_2d")
+    assert len(with_overlap.path) > len(baseline.path)
+    with pytest.raises(ValueError, match="Espaçamento"):
+        compare_planners(replace(case, stripe_spacing_m=121))
+
+
 @pytest.mark.parametrize("mode,weight", [("horizontal", 0), ("3d", 0), ("3d", 10)])
 def test_astar_matches_dijkstra_with_obstacles_and_rectangular_cells(mode, weight):
     terrain = np.random.default_rng(7).uniform(0, 30, (6, 8))
@@ -124,3 +139,29 @@ def test_suite_is_fixed_and_export_preserves_inputs_failures_and_routes(tmp_path
 def test_invalid_protocol_is_rejected(kwargs):
     with pytest.raises(ValueError):
         compare_planners(small_case(), **kwargs)
+
+
+def test_relief_suite_routes_fit_the_configured_physical_terrain(tmp_path):
+    """Verifica todos os recortes antes de repetir um lote físico demorado."""
+    from pathlib import Path
+    import yaml
+    from src.planning_experiments import case_from_scenario
+    from src.scenario import load_scenario
+
+    manifest = json.loads(Path("configs/relief_suite.json").read_text(encoding="utf-8"))
+    base = Path("configs") / manifest["base_scenario"]
+    for entry in manifest["locations"]:
+        raw = yaml.safe_load(base.read_text(encoding="utf-8"))
+        raw["terrain"].update({key: entry[key] for key in ("center_lat", "center_lon", "height_scale")})
+        raw["terrain"]["topodata"] = str(Path(raw["terrain"]["topodata"]).resolve())
+        path = tmp_path / f"{entry['id']}.yaml"
+        path.write_text(yaml.safe_dump(raw), encoding="utf-8")
+        scenario = load_scenario(path)
+        case = case_from_scenario(path)
+        physical = case.window.expanded(scenario.simulation.terrain_padding_cells, case.terrain.shape)
+        for plan in compare_planners(case, (scenario.coverage.climb_weight,)):
+            if plan.method not in ("horizontal_2d", "climb_orientation"):
+                continue
+            assert all(physical.row_start <= row <= physical.row_end
+                       and physical.col_start <= col <= physical.col_end
+                       for row, col in plan.path), (entry["id"], plan.method)

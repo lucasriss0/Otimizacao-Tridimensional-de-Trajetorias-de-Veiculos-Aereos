@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
+from math import isfinite
 from typing import Any
 
 import yaml
@@ -18,6 +19,7 @@ class TerrainScenario:
     center_lon: float
     area_m: float = 1500.0
     size: int = 50
+    height_scale: float = 1.
 
 
 @dataclass(frozen=True)
@@ -26,6 +28,7 @@ class CoverageScenario:
     clearance_m: float = 60.0
     climb_weight: float = 10.0
     window: CoverageWindow | None = None
+    stripe_spacing_m: float | None = None
 
 
 @dataclass(frozen=True)
@@ -41,6 +44,7 @@ class SimulationScenario:
     drone: str = "/Drone"
     body: str = "auto"
     apply_visual_force: bool = True
+    terrain_padding_cells: int = 0
 
 
 @dataclass(frozen=True)
@@ -120,12 +124,15 @@ def load_scenario(path: str | Path) -> MissionScenario:
             center_lon=float(terrain_raw["center_lon"]),
             area_m=float(terrain_raw.get("area_m", 1500)),
             size=int(terrain_raw.get("size", 50)),
+            height_scale=float(terrain_raw.get("height_scale", 1.)),
         ),
         coverage=CoverageScenario(
             swath_m=float(coverage_raw.get("swath_m", 120)),
             clearance_m=float(coverage_raw.get("clearance_m", 60)),
             climb_weight=float(coverage_raw.get("climb_weight", 10)),
             window=window,
+            stripe_spacing_m=(float(coverage_raw["stripe_spacing_m"])
+                              if coverage_raw.get("stripe_spacing_m") is not None else None),
         ),
         simulation=SimulationScenario(
             scale=float(simulation_raw.get("scale", 0.01)),
@@ -139,6 +146,7 @@ def load_scenario(path: str | Path) -> MissionScenario:
             drone=str(simulation_raw.get("drone", "/Drone")),
             body=str(simulation_raw.get("body", "auto")),
             apply_visual_force=bool(simulation_raw.get("apply_visual_force", True)),
+            terrain_padding_cells=simulation_raw.get("terrain_padding_cells", 0),
         ),
         wind=WindScenario(
             events=events,
@@ -157,12 +165,21 @@ def load_scenario(path: str | Path) -> MissionScenario:
     )
     if scenario.simulation.scale <= 0 or scenario.simulation.speed_mps <= 0:
         raise ValueError("Escala e velocidade da simulação precisam ser positivas.")
+    if not isfinite(scenario.terrain.height_scale) or scenario.terrain.height_scale <= 0:
+        raise ValueError("O fator de relevo deve ser finito e positivo.")
+    padding = scenario.simulation.terrain_padding_cells
+    if isinstance(padding, bool) or not isinstance(padding, int) or padding < 0:
+        raise ValueError("A borda do terreno deve ser um inteiro não negativo.")
     if not 0 < scenario.simulation.minimum_clearance_m <= scenario.coverage.clearance_m:
         raise ValueError(
             "A margem mínima precisa ser positiva e não pode exceder a altura-alvo."
         )
     if scenario.coverage.swath_m <= 0 or scenario.coverage.clearance_m <= 0:
         raise ValueError("Faixa e margem de cobertura precisam ser positivas.")
+    if scenario.coverage.stripe_spacing_m is not None and not (
+        0 < scenario.coverage.stripe_spacing_m <= scenario.coverage.swath_m
+    ):
+        raise ValueError("Espaçamento de faixas deve ser positivo e não exceder a largura de aplicação.")
     scenario.coverage.window and scenario.coverage.window.validate(
         (scenario.terrain.size, scenario.terrain.size)
     )

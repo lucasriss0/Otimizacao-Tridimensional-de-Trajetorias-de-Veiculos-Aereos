@@ -9,6 +9,7 @@ terrain:
 coverage:
   window: [20, 20, 29, 29]
   swath_m: 120
+  stripe_spacing_m: 90
   clearance_m: 60
   climb_weight: 10
 obstacles:

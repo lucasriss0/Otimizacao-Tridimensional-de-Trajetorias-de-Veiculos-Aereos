@@ -36,6 +36,15 @@ class CoverageWindow:
         ):
             raise ValueError(f"Janela de cobertura fora do grid {rows} x {columns}.")
 
+    def expanded(self, cells: int, shape: tuple[int, int]) -> "CoverageWindow":
+        """Entorno físico da lavoura; não aumenta a área de aplicação exigida."""
+        self.validate(shape)
+        if isinstance(cells, bool) or not isinstance(cells, int) or cells < 0:
+            raise ValueError("A borda do terreno deve ser um inteiro não negativo.")
+        return CoverageWindow(max(0, self.row_start - cells), max(0, self.col_start - cells),
+                              min(shape[0] - 1, self.row_end + cells),
+                              min(shape[1] - 1, self.col_end + cells))
+
 
 def generate_boustrophedon_waypoints(
     terrain: np.ndarray,
@@ -157,12 +166,16 @@ def plan_boustrophedon_coverage(
     window: CoverageWindow | None = None,
     wind: WindVector | None = None,
     wind_cost: WindCostParameters | None = None,
+    stripe_spacing_m: float | None = None,
 ) -> CoverageResult:
     """Gera as faixas e usa A* para ligar cada par consecutivo de waypoints."""
     if swath_width_m <= 0:
         return CoverageResult(False, [], [], 0.0, 0, 0.0, 0, "A largura de aplicação deve ser positiva.")
 
-    spacing = max(1, int(round(swath_width_m / cell_size_y_m)))
+    if stripe_spacing_m is not None and not (0 < stripe_spacing_m <= swath_width_m):
+        return CoverageResult(False, [], [], 0., 0, 0., 0, "Espaçamento de faixas inválido.")
+    spacing = max(1, int(stripe_spacing_m / cell_size_y_m) if stripe_spacing_m is not None
+                  else int(round(swath_width_m / cell_size_y_m)))
     try:
         waypoints = generate_boustrophedon_waypoints(terrain, spacing, window)
         targets = generate_boustrophedon_targets(terrain, spacing, window)

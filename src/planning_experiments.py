@@ -37,6 +37,7 @@ class PlanningCase:
     window: CoverageWindow
     obstacle_mask: np.ndarray
     launch: Position
+    stripe_spacing_m: float | None = None
 
     def validate(self) -> None:
         if self.terrain.ndim != 2 or not np.isfinite(self.terrain).all():
@@ -48,6 +49,8 @@ class PlanningCase:
             self.cell_x_m, self.cell_y_m, self.swath_m
         )):
             raise ValueError("Células e faixa devem ter dimensões positivas e finitas.")
+        if self.stripe_spacing_m is not None and not (0 < self.stripe_spacing_m <= self.swath_m):
+            raise ValueError("Espaçamento de faixas deve ser positivo e não exceder a largura de aplicação.")
         row, col = self.launch
         if not (0 <= row < self.terrain.shape[0] and 0 <= col < self.terrain.shape[1]):
             raise ValueError("Origem fora do terreno.")
@@ -83,7 +86,7 @@ def _trial(
     started = perf_counter()
     perpendicular_cell = case.cell_y_m if orientation == "horizontal" else case.cell_x_m
     # Arredondar para cima pode deixar lacunas entre faixas.
-    spacing = max(1, floor(case.swath_m / perpendicular_cell))
+    spacing = max(1, floor((case.stripe_spacing_m or case.swath_m) / perpendicular_cell))
     targets = generate_boustrophedon_targets(
         case.terrain, spacing, case.window, orientation
     )
@@ -196,7 +199,8 @@ def case_from_scenario(path: Path) -> PlanningCase:
     scenario = load_scenario(path)
     spec = scenario.terrain
     terrain = load_topodata(
-        spec.topodata, spec.size, spec.center_lat, spec.center_lon, spec.area_m
+        spec.topodata, spec.size, spec.center_lat, spec.center_lon, spec.area_m,
+        height_scale=spec.height_scale,
     ).elevation
     cell_x, cell_y = spec.area_m / terrain.shape[1], spec.area_m / terrain.shape[0]
     window = scenario.coverage.window or CoverageWindow(0, 0, *(
@@ -211,7 +215,8 @@ def case_from_scenario(path: Path) -> PlanningCase:
     if not free:
         raise ValueError("Cenário sem célula cultivável livre para origem.")
     return PlanningCase(scenario.scenario_id, terrain, cell_x, cell_y,
-                        scenario.coverage.swath_m, window, mask, free[0])
+                        scenario.coverage.swath_m, window, mask, free[0],
+                        scenario.coverage.stripe_spacing_m)
 
 
 def export_results(

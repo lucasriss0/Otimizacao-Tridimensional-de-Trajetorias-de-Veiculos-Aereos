@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from math import cos, radians
+from math import cos, radians, isfinite
 from pathlib import Path
 
 import numpy as np
@@ -14,6 +14,23 @@ class TerrainData:
     pixel_size: tuple[float, float]
     original_shape: tuple[int, int]
     area_size_m: float | None = None
+    height_scale: float = 1.
+
+
+def elevation_at(terrain: np.ndarray, point: tuple[float, float]) -> float:
+    """Altura bilinear para rotas geométricas; centros inteiros são preservados."""
+    row, col = point
+    if not (isfinite(row) and isfinite(col) and 0 <= row <= terrain.shape[0] - 1
+            and 0 <= col <= terrain.shape[1] - 1):
+        raise ValueError(f"A posição {point} está fora do terreno.")
+    r, c = int(row), int(col)
+    dr, dc = row - r, col - c
+    values = terrain[r:min(r+2, terrain.shape[0]), c:min(c+2, terrain.shape[1])]
+    if not np.isfinite(values).all():
+        raise ValueError(f"A posição {point} não possui elevação válida.")
+    r1, c1 = min(r+1, terrain.shape[0]-1), min(c+1, terrain.shape[1]-1)
+    return float((1-dr)*((1-dc)*terrain[r,c]+dc*terrain[r,c1])
+                 + dr*((1-dc)*terrain[r1,c]+dc*terrain[r1,c1]))
 
 
 def load_topodata(
@@ -22,6 +39,7 @@ def load_topodata(
     center_lat: float | None = None,
     center_lon: float | None = None,
     area_size_m: float | None = None,
+    height_scale: float = 1.,
 ) -> TerrainData:
     """Lê e reduz um GeoTIFF TOPODATA para uma matriz quadrada."""
     try:
@@ -37,6 +55,8 @@ def load_topodata(
         raise FileNotFoundError(f"GeoTIFF não encontrado: {path}")
     if target_size < 2:
         raise ValueError("target_size precisa ser pelo menos 2.")
+    if isinstance(height_scale, bool) or not isfinite(height_scale) or height_scale <= 0:
+        raise ValueError("O fator de relevo deve ser finito e positivo.")
 
     crop_values = (center_lat, center_lon, area_size_m)
     if any(value is not None for value in crop_values) and not all(
@@ -109,6 +129,11 @@ def load_topodata(
         elevation = np.asarray(masked, dtype=float)
         if not np.all(np.isfinite(elevation)):
             raise ValueError("O GeoTIFF contém elevações inválidas.")
+        # Exagero vertical declarado: preserva o datum mínimo e o plano XY.
+        # Fator diferente de 1 produz terreno sintético derivado do TOPODATA.
+        if height_scale != 1.:
+            minimum = float(np.min(elevation))
+            elevation = minimum + (elevation - minimum) * height_scale
 
         return TerrainData(
             elevation=elevation,
@@ -121,6 +146,7 @@ def load_topodata(
             ),
             original_shape=original_shape,
             area_size_m=area_size_m,
+            height_scale=height_scale,
         )
 
 
