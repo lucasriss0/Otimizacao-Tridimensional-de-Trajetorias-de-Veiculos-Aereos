@@ -1,0 +1,63 @@
+{
+  "scenes": {
+    "norte": {
+      "source": "C:\\DEV\\fho-ia\\Otimizacao-Tridimensional-de-Trajetorias-de-Veiculos-Aereos\\output\\experiments\\relief_benchmark_20261028_isolated\\flights\\case_07_repeat_01",
+      "scene": "C:\\DEV\\fho-ia\\Otimizacao-Tridimensional-de-Trajetorias-de-Veiculos-Aereos\\output\\experiments\\relief_benchmark_20261028_isolated\\presentation_norte_x10\\comparacao_lado_a_lado.ttt",
+      "sha256": "d4b041ba688aded3100ee99faa05c39bd816a9e61bbff238f76bb77df9bb15ce"
+    },
+    "sul": {
+      "source": "C:\\DEV\\fho-ia\\Otimizacao-Tridimensional-de-Trajetorias-de-Veiculos-Aereos\\output\\experiments\\relief_benchmark_20261028_isolated\\flights\\case_08_repeat_01",
+      "scene": "C:\\DEV\\fho-ia\\Otimizacao-Tridimensional-de-Trajetorias-de-Veiculos-Aereos\\output\\experiments\\relief_benchmark_20261028_isolated\\presentation_sul_x10\\comparacao_lado_a_lado.ttt",
+      "sha256": "3220834d9c05e02c38e85bc03ea99389a95c29d5b140958f4a02326bacfe72cd"
+    },
+    "centro": {
+      "source": "C:\\DEV\\fho-ia\\Otimizacao-Tridimensional-de-Trajetorias-de-Veiculos-Aereos\\output\\experiments\\relief_centro_x10_repair_20261029\\flights",
+      "scene": "C:\\DEV\\fho-ia\\Otimizacao-Tridimensional-de-Trajetorias-de-Veiculos-Aereos\\output\\experiments\\relief_benchmark_20261028_isolated\\presentation_centro_x10\\comparacao_lado_a_lado.ttt",
+      "sha256": "29d45cafe7baf9bb73756b595f9e8c8ec7e297e47aec6125b9f6ad6f786e493a"
+    }
+  },
+  "active_origin": "centro",
+  "height_scale": 10,
+  "selection_rule": "Os três recortes no maior fator; centro ativo pela ordem original do manifesto, sem consultar energia.",
+  "scope": "Replay de telemetrias, sem nova física simultânea ou medição elétrica.",
+  "gui_port": 23020,
+  "active_state": 17,
+  "rendering_enabled": true,
+  "realtime": true,
+  "motion_verification": {
+    "initial": {
+      "time_s": 0.05,
+      "positions": [
+        [
+          -4.450000116,
+          1.349999621,
+          3.195536747
+        ],
+        [
+          1.749999884,
+          1.349999621,
+          3.195536747
+        ]
+      ]
+    },
+    "after_two_seconds": {
+      "time_s": 2.1000000000000005,
+      "positions": [
+        [
+          -4.355490971,
+          1.349463226,
+          3.149889624
+        ],
+        [
+          1.75002245,
+          1.2494281379999999,
+          3.157193638
+        ]
+      ]
+    }
+  },
+  "presentation_source_sha256": "5612780670105773a012faa2150c86dd471ea75fcddc1bf6c7a3e9701029842e",
+  "renderer_log": "[CoppeliaSim:loadinfo]   OpenGL: ATI Technologies Inc., Renderer: Radeon RX 560X, Version: 4.6.0 Compatibility Profile Context 26.5.2.260413",
+  "renderer": "Radeon RX 560X",
+  "renderer_log_file": "C:\\DEV\\fho-ia\\tmp\\relief_presentation_rx_20261029\\simulator_stdout.log"
+}

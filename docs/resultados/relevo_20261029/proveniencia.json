@@ -1,0 +1,534 @@
+{
+  "experiment": "output/experiments/relief_benchmark_20261028_isolated",
+  "collection_dates": [
+    "2026-10-28",
+    "2026-10-29"
+  ],
+  "recorded_flights": 16,
+  "supplemental_recorded_flights": 2,
+  "expected_pairs": 9,
+  "eligible_pairs": 8,
+  "real_battery_saving_proven": false,
+  "source_selection": "Lote isolado completo, nove casos do manifesto; tentativas técnicas anteriores preservadas e não mescladas.",
+  "presentation_selection": "Pares 10× de norte e sul do lote principal e centro do par suplementar. Centro ativo pela ordem geográfica do manifesto, sem consultar economia.",
+  "files": [
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/session.json",
+      "sha256": "19bbbad8d57f2b1d901b7f0193bf746803baf060cc8be8fc8685ccbf1fc82516"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/flights/manifest.json",
+      "sha256": "ee4c676da02ddd5f2377d72bd98b9dc885841c6d1d7c895be9ff26c06ca35d30"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/flights/attempts.json",
+      "sha256": "4f0e73c7cff3dd3e77fdb8206e5797e070592d860e3b99de6b73856840d18943"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/previous_attempts.json",
+      "sha256": "90ff44cd8875678599e2470c01277488c4e2aee9f714a2152cb3b105c4cfcd35"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/relief_report_final/relief_comparison.json",
+      "sha256": "3f13a563b0d3d4bbe883e3b81692c1cd87fec9793774ebb62511829c4e3d540c"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/relief_report_final/relatorio.md",
+      "sha256": "a0a7fd88c495ec494f92729d7bf0a21801f97c4c248e501a6aebbe73cfeca33c"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/implementation/src/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/implementation/src/ablation.py",
+      "sha256": "c0aa15b317ead40d0d04a7ebb43f355d0cc0eac1dbb123bcb0083393684aeed1"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/implementation/src/astar.py",
+      "sha256": "92452c6a22fe6437e458c7dfd616440d6de95731411d1b8872ea34e5062a1abe"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/implementation/src/benchmark.py",
+      "sha256": "ae2dcfad7f596c9c7449c1c06632d1462ce8ffd95880f1cd8ccb20f04d9c558f"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/implementation/src/benchmark_report.py",
+      "sha256": "8c8d2492be63331475150adf6b402f1eea2cbf178c638f11fd9fe8e4ac9b3870"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/implementation/src/comparison_scene.py",
+      "sha256": "fa36756765017b7407c5fb87159b87ecf9e2fcad8971de50d6a4c9f3d9edb3a4"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/implementation/src/coppelia_benchmark.py",
+      "sha256": "8967393ff6f588ca64ba0962e120f68c239c28d35342a3240b40aa17b07f49ef"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/implementation/src/coppelia_scene.py",
+      "sha256": "523cf6470e4c1642b737c08844c2a38851f07ff5e938ff5e8b65296597a5d697"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/implementation/src/coppelia_terrain.py",
+      "sha256": "5991f1cebaca778679404f18a9ee60ee835de1b0a83846a9833dfd6f329f4c48"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/implementation/src/coppeliasim.py",
+      "sha256": "1458560c18e096d11ee87dc536b862525319fc86bbd5f65f909288934e18c928"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/implementation/src/coverage.py",
+      "sha256": "0926391667919fd358804ff8c8d043894b1ea90adb8373dc0d2406282b1fe2ff"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/implementation/src/coverage_comparison.py",
+      "sha256": "b770d0e76b42c729c7b956d04ef119aeb5efabbb20cd906fde748a29faa0f8bf"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/implementation/src/energy.py",
+      "sha256": "2f93d9fdb0bae2c5b13bfa04da83d9eb075621fe770f6628677d4fc99643adce"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/implementation/src/energy_calibration.py",
+      "sha256": "89a10fec86b0f0d12fa44dea7cc69b6c54d50808b9e61f102cfac05452327371"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/implementation/src/energy_sensitivity.py",
+      "sha256": "957e9d23a9b374694ce84653846683badfa2c34f6a03a3ef556f1bd62a4867ac"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/implementation/src/executed_coverage.py",
+      "sha256": "364f5c2ba6ff75c20c049092984858a2d1076e12d29dbda06a0b2dac604cc223"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/implementation/src/experiments.py",
+      "sha256": "d3d8bd627d863dbf3089c1b2a68f5227d799b11f56c9f942311fe3e6a678e543"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/implementation/src/main.py",
+      "sha256": "38ef7078ef006a8ea3d4658250f60a6cccbfb55a6c2a0ed0fa9c48961b71b45a"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/implementation/src/metrics.py",
+      "sha256": "8815072414016ba26b63708294eba5da15879b3ee92a4a100f2ad287afee989a"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/implementation/src/obstacles.py",
+      "sha256": "83f64a97d50d838bfceb97742d789593d1e49b725984e59f5c53181c5062b9e8"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/implementation/src/planning_experiments.py",
+      "sha256": "c6ec2bc605bf11730637f2035d79f9d0940634fcd6ae2fa869ceb5475c3ff979"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/implementation/src/presentation.py",
+      "sha256": "a9429b156947698051d7f46f2c4384a6fc59864dabed2c6071e2e3e10cf6c901"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/implementation/src/relief_report.py",
+      "sha256": "c1b53302ed4136a6e6337e40e2cf83e358a85d479b3a689f23e72758512518a1"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/implementation/src/scenario.py",
+      "sha256": "16a7dd11b35fdf744e1824beeb96bc8cf1dc809c7ae6eae6acec72d858ad344b"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/implementation/src/sync_obstacles.py",
+      "sha256": "a82c975c37e45830b5c2e0bc610aca3480d4920c6b486de635443c822335ef03"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/implementation/src/telemetry_metrics.py",
+      "sha256": "0cd1a17e3d0ea4959b179945cf341fccfbe375d8f230d866e02eae933c89fab6"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/implementation/src/terrain.py",
+      "sha256": "686405119a4999354c05e6677054f108c457a37e393807ab7b56fd0c7f611f1e"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/implementation/src/time_step_check.py",
+      "sha256": "907876b4e1cc4ec6dd7d96fab31da587fdc73a6427c0b7dcad7b868102256d9c"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/implementation/src/validation_suite.py",
+      "sha256": "f1491e4e68eb257e8648b48ac8e1289f1bed75ec570d8df8e61b41fdb7e97aee"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/implementation/src/visualization.py",
+      "sha256": "27747d1f5741d7a9b02f5e8151deb6be6d72787197a17716ca0392785bf85500"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/implementation/src/waypoints.py",
+      "sha256": "5d4320ff7ea6e93da0c3e850bf587e02a81cfda11b710e556de95ba1a3114005"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/implementation/src/wind.py",
+      "sha256": "98c8fffe3f76ececf91582b3ce1fc89fc61db095d488be2120584e1fcd6e3d43"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/implementation/src/wind_comparison.py",
+      "sha256": "30807d0a820bda0b4970fd76d531e02fe30f311de9c1c5b238794156307abe42"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/implementation/configs/demo_coverage.yaml",
+      "sha256": "34e5eb07e6a2b91d3fabb7b2ae8842990813a28caf2c19bad10972d41e7b3fa7"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/implementation/configs/demo_relief.yaml",
+      "sha256": "aa947a9b52759374ece4fdfa55bf046f30a3fa2ddca6f24ef9d20543e0450394"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/implementation/configs/demo_wind.yaml",
+      "sha256": "228f88130bbc4dcfa0a93290b9ad49ffe7170945448ffcfab40e0903104739a6"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/implementation/configs/energy_reference.json",
+      "sha256": "c43c536526860617461484b9ea429ec2ac5ea97cf6c5ff0a96635320c1c05be5"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/implementation/configs/relief_suite.json",
+      "sha256": "9b7e4dae923eed8a10b6199c737d5c5d5c13b23ccfe1b37e243268fa72273662"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/implementation/configs/validation_suite.json",
+      "sha256": "9622a59729a4704711c7ab4468a2d1d57b34789946fb4f34707faed30ef1fd85"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/relief_report_final/analysis_sources/benchmark_report.py",
+      "sha256": "8c8d2492be63331475150adf6b402f1eea2cbf178c638f11fd9fe8e4ac9b3870"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/relief_report_final/analysis_sources/relief_report.py",
+      "sha256": "c710ff035bbf242a0bcfc8572a6c4e8ccc1470c2cea1d11d61a79264c605a73b"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/flights/case_00_repeat_01/protocol.json",
+      "sha256": "b8e7fba241f085dfa459bd34bc5e8f39ffe49f7510dfbf1e8b26c315508bbd3b"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/flights/case_01_repeat_01/protocol.json",
+      "sha256": "18605bf2a9b944e8086ce9b6838f7c00f2d909f530b98499c0a90f402e100d1d"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/flights/case_02_repeat_01/protocol.json",
+      "sha256": "a0d2fb23e3e03ca06d7b526f846f687d0fc20fcc7cc7f28184d7b048ce6b61e9"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/flights/case_03_repeat_01/protocol.json",
+      "sha256": "ceaa2a51bb768abeb795727fae767c510ae5251c6fea6596e59eb000066bbc2e"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/flights/case_04_repeat_01/protocol.json",
+      "sha256": "7aa12b19f421ab4d9704d1bfc7cab82ca07a9a28cf3818d3dbfe281bbbca8da1"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/flights/case_05_repeat_01/protocol.json",
+      "sha256": "562a5783578941ce64e59e3b2bdafece955f7613365fe9eea3996d1db8f1b9df"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/flights/case_07_repeat_01/protocol.json",
+      "sha256": "53b6ea62d2e644dadde484e83d889334e65c9404046bb21de0accc0b27f53413"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/flights/case_08_repeat_01/protocol.json",
+      "sha256": "ec212059d8ebbe7d96d550c1af2b4b3fa5bcdc42acf0904d93b4c006b4a33ca4"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/flights/case_00_repeat_01/terrain.npz",
+      "sha256": "db73e534535b79a245fed5fb9d9baf2028c0440bfb3b438ebfb9f4c7bf95f346"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/flights/case_01_repeat_01/terrain.npz",
+      "sha256": "30dab89c767b61cee51a699a4a8257586a77762754b73e6c156104d0e7fce4df"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/flights/case_02_repeat_01/terrain.npz",
+      "sha256": "a7f891e0ac3622518a4e7240d8dae8843a279520c192d81f140d37c6a23e9f3c"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/flights/case_03_repeat_01/terrain.npz",
+      "sha256": "1a23a1cc695a7687bad6291d0d70b6138b245adb82f86302a016611a8d396df6"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/flights/case_04_repeat_01/terrain.npz",
+      "sha256": "ec469923a565f9793e8ae277f161ceac8a69bc4619d4110f67a04f880ae83734"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/flights/case_05_repeat_01/terrain.npz",
+      "sha256": "cd914d7c6917ac185772b07cb0d2d3fed65f620a3cae70593cf8d9cc0368d452"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/flights/case_07_repeat_01/terrain.npz",
+      "sha256": "4a1a13bfffac534ed0ded54b9764cbb9140895a150dc6c6c612fc7fe3064e997"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/flights/case_08_repeat_01/terrain.npz",
+      "sha256": "19ba072a3bf6f6023383a170c72edd28b6f083d8b2e00a01655c62d7921b2aa4"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/presentation_source.py",
+      "sha256": "5612780670105773a012faa2150c86dd471ea75fcddc1bf6c7a3e9701029842e"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/presentation_status.json",
+      "sha256": "f807daef1ef6a2c0a96f84ef459fc3e4e3195173f3b5c6ab342c39bc2a4af719"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/presentation_renderer.log",
+      "sha256": "8fd91b3f75e1a0bd8d3a367db4d242c4ccda203c0c82b39fd3491f0625f819c0"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/export_findings.py",
+      "sha256": "f330df061b9f38436d4a441749cb38fcadf4803d49646306aaa0fa13c90d5eb0"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/presentation_centro_x10/replay_manifest.json",
+      "sha256": "8c6128cfc39858a0a6f4c851abc5d2210a2b85f7af43bd47526793484695ca2a"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/presentation_norte_x10/replay_manifest.json",
+      "sha256": "7a75f78bf9601faf3e76dc9cd15d52143234acbf56b22bcbed1422bbf2d56dcd"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/presentation_sul_x10/replay_manifest.json",
+      "sha256": "305699891942c461b54950171c807b37fa86e5ca98b1bf9e9a7aa44eb394ae00"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/presentation_centro_x10/replay.lua",
+      "sha256": "96db33e446304bd06965dba57aaee59a0697b14dc695e2590df0312f9e5409e6"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/presentation_norte_x10/replay.lua",
+      "sha256": "ff55ccc8093ea304490af22469b53bb09ee7c3ab73dd2ffb16e5f7eb5701233b"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/presentation_sul_x10/replay.lua",
+      "sha256": "ecb591c77cefd33a81d08a26eb8a6762e651009b5a468e6121722bf8eb1bc4b8"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/presentation_centro_x10/comparacao_lado_a_lado.ttt",
+      "sha256": "29d45cafe7baf9bb73756b595f9e8c8ec7e297e47aec6125b9f6ad6f786e493a"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/presentation_norte_x10/comparacao_lado_a_lado.ttt",
+      "sha256": "d4b041ba688aded3100ee99faa05c39bd816a9e61bbff238f76bb77df9bb15ce"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/presentation_sul_x10/comparacao_lado_a_lado.ttt",
+      "sha256": "3220834d9c05e02c38e85bc03ea99389a95c29d5b140958f4a02326bacfe72cd"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/flights/case_00_repeat_01/runs/referencia_2d_20261029T023654338227Z/telemetry.csv",
+      "sha256": "8883091da21222ebefdf8a0e84fda99fac69d6d110ae8d2afd7f68147ca4c465"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/flights/case_00_repeat_01/runs/referencia_2d_20261029T023654338227Z/energy/energy_timeseries.csv",
+      "sha256": "ed291246d099c68bca14b3c89741c4ca8407ac08c71f4da9fe56a98a8e59a749"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/flights/case_00_repeat_01/runs/proposta_subida_orientacao_20261029T023816024266Z/telemetry.csv",
+      "sha256": "8883091da21222ebefdf8a0e84fda99fac69d6d110ae8d2afd7f68147ca4c465"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/flights/case_00_repeat_01/runs/proposta_subida_orientacao_20261029T023816024266Z/energy/energy_timeseries.csv",
+      "sha256": "ed291246d099c68bca14b3c89741c4ca8407ac08c71f4da9fe56a98a8e59a749"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/flights/case_01_repeat_01/runs/proposta_subida_orientacao_20261029T024215578354Z/telemetry.csv",
+      "sha256": "b1e696a36b366040eb498260355fd25afd4e3714171b7dcc48871b691ebdcee1"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/flights/case_01_repeat_01/runs/proposta_subida_orientacao_20261029T024215578354Z/energy/energy_timeseries.csv",
+      "sha256": "4ac2001fcc9c71369b7e2d05cbb371bde447ee16d6d25d7e470b0187f8768ab8"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/flights/case_01_repeat_01/runs/referencia_2d_20261029T024440159720Z/telemetry.csv",
+      "sha256": "5c2c6b349d8071582719a56a83ec964732f870e045fcc151f322348cd7c5af34"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/flights/case_01_repeat_01/runs/referencia_2d_20261029T024440159720Z/energy/energy_timeseries.csv",
+      "sha256": "c01db33d08f06485aa0f05f50085af404125d5074e27b516a6a513c2b7788af2"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/flights/case_02_repeat_01/runs/referencia_2d_20261029T024602687978Z/telemetry.csv",
+      "sha256": "4d83f69a05a6ffbdcbfc6e334a74a19d1ac790ed5ab9692710013912342e01e7"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/flights/case_02_repeat_01/runs/referencia_2d_20261029T024602687978Z/energy/energy_timeseries.csv",
+      "sha256": "412c90340ee58687137a9a80eeacf8649ca76eed4a4c395e69ca93f6c3586343"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/flights/case_02_repeat_01/runs/proposta_subida_orientacao_20261029T024910089301Z/telemetry.csv",
+      "sha256": "4d83f69a05a6ffbdcbfc6e334a74a19d1ac790ed5ab9692710013912342e01e7"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/flights/case_02_repeat_01/runs/proposta_subida_orientacao_20261029T024910089301Z/energy/energy_timeseries.csv",
+      "sha256": "412c90340ee58687137a9a80eeacf8649ca76eed4a4c395e69ca93f6c3586343"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/flights/case_03_repeat_01/runs/proposta_subida_orientacao_20261029T025225479594Z/telemetry.csv",
+      "sha256": "fa85637163544e6b09aea404952d79d6e0ee6a9c6b9de96da806cdf440cc4b38"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/flights/case_03_repeat_01/runs/proposta_subida_orientacao_20261029T025225479594Z/energy/energy_timeseries.csv",
+      "sha256": "ec7fe3e828c131e2e782838b81e417f200772b45bf48c7d720b62de49bc81a75"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/flights/case_03_repeat_01/runs/referencia_2d_20261029T025533181286Z/telemetry.csv",
+      "sha256": "ac679f8cb1304fcbc728c7083b52f0f18cbc0a5d1b7f890c4b50d1fd15ab8bdb"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/flights/case_03_repeat_01/runs/referencia_2d_20261029T025533181286Z/energy/energy_timeseries.csv",
+      "sha256": "26486b8cab42cc6260d00f04743d8343c1b8dffeaf2634eb6a290b96f0d55ffd"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/flights/case_04_repeat_01/runs/referencia_2d_20261029T025800297336Z/telemetry.csv",
+      "sha256": "0b72eb3ba70b00c175b683652f877508182c66b136b1e5600800bd6f35468805"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/flights/case_04_repeat_01/runs/referencia_2d_20261029T025800297336Z/energy/energy_timeseries.csv",
+      "sha256": "eeece8bea5ee6807da0e2ff4bdbb571d1e50f234eaa643c174d138d2e2cba3cf"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/flights/case_04_repeat_01/runs/proposta_subida_orientacao_20261029T030011111144Z/telemetry.csv",
+      "sha256": "0961849b8d3fcdc2ef82726ed97b5bdba9773da0325dd207effa47a117f7adb3"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/flights/case_04_repeat_01/runs/proposta_subida_orientacao_20261029T030011111144Z/energy/energy_timeseries.csv",
+      "sha256": "792fbf5a3fdf590f2087137c974976f86605f97bc3d6c84209af363e676f728b"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/flights/case_05_repeat_01/runs/proposta_subida_orientacao_20261029T030228120369Z/telemetry.csv",
+      "sha256": "c65553816db1dbe7a5c49194a5c5a980b7693811783d43a2419a3059676fb196"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/flights/case_05_repeat_01/runs/proposta_subida_orientacao_20261029T030228120369Z/energy/energy_timeseries.csv",
+      "sha256": "4a5cc3675f8ef5bd17d591b112a2281c6808e84cd00e5808e5fb6fb480cf6efe"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/flights/case_05_repeat_01/runs/referencia_2d_20261029T030655385965Z/telemetry.csv",
+      "sha256": "c65553816db1dbe7a5c49194a5c5a980b7693811783d43a2419a3059676fb196"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/flights/case_05_repeat_01/runs/referencia_2d_20261029T030655385965Z/energy/energy_timeseries.csv",
+      "sha256": "4a5cc3675f8ef5bd17d591b112a2281c6808e84cd00e5808e5fb6fb480cf6efe"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/flights/case_07_repeat_01/runs/proposta_subida_orientacao_20261029T031031111511Z/telemetry.csv",
+      "sha256": "3890b50d229a1fcecac754883fdb3735a1a9041dbdd1ca109f2ef51810311716"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/flights/case_07_repeat_01/runs/proposta_subida_orientacao_20261029T031031111511Z/energy/energy_timeseries.csv",
+      "sha256": "3852c58e93c5784c953a433765a924a2f42c6f58a76daa1bea4d9332ad240d9d"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/flights/case_07_repeat_01/runs/referencia_2d_20261029T031419544876Z/telemetry.csv",
+      "sha256": "96b63a98bf566ea1c7b1d3bb84b485e654f2e38216fa112eb86cf6f92cbf6dc8"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/flights/case_07_repeat_01/runs/referencia_2d_20261029T031419544876Z/energy/energy_timeseries.csv",
+      "sha256": "f0b55fdd3160dcbd16cb13e6bb4a47e4d24fa03476937b5bbebc18b6908681a4"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/flights/case_08_repeat_01/runs/referencia_2d_20261029T031916616654Z/telemetry.csv",
+      "sha256": "05a552047603ec9aeac203715dd5ef00caf0a915d76f85641b3055ca6da7be02"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/flights/case_08_repeat_01/runs/referencia_2d_20261029T031916616654Z/energy/energy_timeseries.csv",
+      "sha256": "b77664d358352395de3374b6a86ece25517b1255b6dfbf11bf520679dbc67559"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/flights/case_08_repeat_01/runs/proposta_subida_orientacao_20261029T032205234955Z/telemetry.csv",
+      "sha256": "05a552047603ec9aeac203715dd5ef00caf0a915d76f85641b3055ca6da7be02"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/flights/case_08_repeat_01/runs/proposta_subida_orientacao_20261029T032205234955Z/energy/energy_timeseries.csv",
+      "sha256": "b77664d358352395de3374b6a86ece25517b1255b6dfbf11bf520679dbc67559"
+    },
+    {
+      "path": "output/experiments/relief_centro_x10_repair_20261029/session.json",
+      "sha256": "eaaff4fce1d48f8e5844f09a56082a762daa76c396a52f9b0808413d09c112d0"
+    },
+    {
+      "path": "output/experiments/relief_centro_x10_repair_20261029/flights/protocol.json",
+      "sha256": "4fb00e61af57032fa5e4975f68a204e2c8a750dd0fd67af0c5946daee1353ed8"
+    },
+    {
+      "path": "output/experiments/relief_benchmark_20261028_isolated/repair_protocol.json",
+      "sha256": "b8b2442432f63c7868fce5d931f0d01a57dcb5b15a70945998783636eda7cb23"
+    },
+    {
+      "path": "output/experiments/relief_centro_x10_repair_20261029/flights/runs/referencia_2d_20261029T031437173547Z/telemetry.csv",
+      "sha256": "d08c79d6b0b541fc7e773df2e3102f95cb746cf7db90f977b67c5339046c11c0"
+    },
+    {
+      "path": "output/experiments/relief_centro_x10_repair_20261029/flights/runs/referencia_2d_20261029T031437173547Z/energy/energy_timeseries.csv",
+      "sha256": "cac8cb0af5dc66bbb19565fa1577f50109a247327b8c406e2c132e4e15117dc5"
+    },
+    {
+      "path": "output/experiments/relief_centro_x10_repair_20261029/flights/runs/proposta_subida_orientacao_20261029T031946031648Z/telemetry.csv",
+      "sha256": "c6160533dc2485b1a93ecb53746d2a9e1ab87dec9caab942f3f0953447a0bfaa"
+    },
+    {
+      "path": "output/experiments/relief_centro_x10_repair_20261029/flights/runs/proposta_subida_orientacao_20261029T031946031648Z/energy/energy_timeseries.csv",
+      "sha256": "ef5e074a9614fe17753b9c3a5278f21ba9dd66e0ea7739ebbb594cc8b21651ae"
+    }
+  ],
+  "exported_assets": [
+    {
+      "file": "energia.png",
+      "sha256": "ef1eecfe192b31d40e1237299ee96ad8b8a54fd81a5c270a3515062563f5fd06"
+    },
+    {
+      "file": "energia.svg",
+      "sha256": "03aba826d1b48820852dd218409763bbc93a2c3f43d087b966400c216572f41d"
+    },
+    {
+      "file": "terrenos.png",
+      "sha256": "693fde51aac9cd2a81a1be7c5d26e1a5195f9ef422e12a826ce15e3bcf972cec"
+    },
+    {
+      "file": "comparacao.csv",
+      "sha256": "eb0c22a284bb83c6feb4cbe2b25d4b8e5c5ccd2c58a7941add8f724f3ddc2802"
+    },
+    {
+      "file": "resumo_niveis.csv",
+      "sha256": "8a2561eba7c70602ebaad09ad2ec64b820c680c71183845b6dc8584f8394bb6f"
+    },
+    {
+      "file": "comparacao.json",
+      "sha256": "3f13a563b0d3d4bbe883e3b81692c1cd87fec9793774ebb62511829c4e3d540c"
+    },
+    {
+      "file": "voos.csv",
+      "sha256": "02b70eb125feb4935637780d446852fa3e19c5bf07960a028ad1e0735b8345f0"
+    },
+    {
+      "file": "tentativas_anteriores.json",
+      "sha256": "90ff44cd8875678599e2470c01277488c4e2aee9f714a2152cb3b105c4cfcd35"
+    },
+    {
+      "file": "verificacao.json",
+      "sha256": "32f7cdceaaf2e97c02fd0713ab227aa135e1b7d9211e9620391d46d2a9f264ad"
+    },
+    {
+      "file": "reparo_centro_x10.json",
+      "sha256": "b8b2442432f63c7868fce5d931f0d01a57dcb5b15a70945998783636eda7cb23"
+    },
+    {
+      "file": "auditoria_terreno.json",
+      "sha256": "9cc1a59dcc11d34cf4c8f6cf267068a2a4a795f56cce59d36cfa05da07a6fc03"
+    },
+    {
+      "file": "suplemento_centro_x10.csv",
+      "sha256": "1a92c54d9e840165b9ddbf314dedb56769b4a6e756ed2ec3bf0d579395f51696"
+    },
+    {
+      "file": "suplemento_centro_x10.json",
+      "sha256": "fb2cf9232274c1096977010122a79a04498a7dc22e1896db254db27f2334c4bb"
+    },
+    {
+      "file": "apresentacao.json",
+      "sha256": "f807daef1ef6a2c0a96f84ef459fc3e4e3195173f3b5c6ab342c39bc2a4af719"
+    }
+  ]
+}

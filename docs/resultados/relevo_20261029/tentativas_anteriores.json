@@ -1,0 +1,37 @@
+{
+  "scope": "Histórico técnico preservado. Resultados parciais anteriores não entram nas médias da coleta isolada completa. Nenhuma seleção por redução de energia.",
+  "attempts": [
+    {
+      "experiment": "relief_benchmark_20261028",
+      "status": "interrupted_scene_setup",
+      "reason": "Coleta interrompida antes de um par completo: herdou scripts e modo de tempo real do replay. Tentativa mantida, sem resultado de economia. Nova coleta usará template limpo e tempo livre.",
+      "recorded_flight_rows": 0,
+      "successful_rows": 0,
+      "session_sha256": "cddee4775ec8ae21dc88874d8ffdf1a13c68140c9e992f32fc830908be7a8908"
+    },
+    {
+      "experiment": "relief_benchmark_20261028_clean",
+      "status": "interrupted_rpc",
+      "reason": "API deixou de responder. Lote parcial preservado, sem substituir falhas por resultados favoráveis. A nova coleta reinicia todos os nove casos com conexão compartilhada e timeout de comunicação.",
+      "recorded_flight_rows": 7,
+      "successful_rows": 5,
+      "session_sha256": "9b955e8e33b77a1da04c4d665872fae1c642a063445c27a7f765e5771d59aa63"
+    },
+    {
+      "experiment": "relief_benchmark_20261028_final",
+      "status": "failed",
+      "reason": "Operation cannot be accomplished in current state",
+      "recorded_flight_rows": 2,
+      "successful_rows": 2,
+      "session_sha256": "8503e4589654ba4a15ccbadd7aca13109a1e48da977456eb63e6c0393028ccc8"
+    },
+    {
+      "experiment": "relief_benchmark_20261028_headless",
+      "status": "failed",
+      "reason": "354: in sim.setBoolParam: cannot set/get parameter: simulator window initialization state is wrong.",
+      "recorded_flight_rows": 0,
+      "successful_rows": 0,
+      "session_sha256": "b3a0f710a7fa26f4bd8e488a25cdce3be83b02b7907cc6b203f00e007ae09177"
+    }
+  ]
+}

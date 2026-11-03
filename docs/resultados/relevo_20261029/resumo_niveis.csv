@@ -1,0 +1,4 @@
+﻿height_scale,expected_pairs,eligible_pairs,mean_estimated_energy_reduction_percent,minimum_estimated_energy_reduction_percent,maximum_estimated_energy_reduction_percent,positive_pairs,negative_pairs,tied_pairs
+1.0,3,3,0.03580812436951296,0.0,0.10742437310853888,1,0,2
+5.0,3,3,-1.209100794653116,-4.568139501660864,0.9408371177015159,1,1,1
+10.0,3,2,1.340531342563409,0.0,2.681062685126818,1,0,1

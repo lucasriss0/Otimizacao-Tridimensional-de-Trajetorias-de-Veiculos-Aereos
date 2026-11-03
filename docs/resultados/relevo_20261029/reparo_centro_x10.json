@@ -1,0 +1,10 @@
+{
+  "reason": "A rota proposta do centro10× chega à linha16, fora do terreno de linhas17..32. Bloqueio anterior à execução; nenhuma energia medida nesse par.",
+  "changed_field": "simulation.terrain_padding_cells",
+  "previous": 3,
+  "repaired": 4,
+  "unchanged": "Algoritmo, peso10, rotas, modelo de energia, velocidade4 m/s, altura100 m, mínimo55 m, terreno1:100, missão e cobertura.",
+  "scope": "Par suplementar separado; não apaga a falha nem preenche médias do lote principal.",
+  "pair_source": "output/experiments/relief_centro_x10_repair_20261029",
+  "presentation_only_after_physical_flights": true
+}

@@ -1,0 +1,96 @@
+{
+  "routes": [
+    {
+      "scenario": "scenario_00.yaml",
+      "method": "horizontal_2d",
+      "required_padding_cells": 0
+    },
+    {
+      "scenario": "scenario_00.yaml",
+      "method": "climb_orientation",
+      "required_padding_cells": 0
+    },
+    {
+      "scenario": "scenario_01.yaml",
+      "method": "horizontal_2d",
+      "required_padding_cells": 0
+    },
+    {
+      "scenario": "scenario_01.yaml",
+      "method": "climb_orientation",
+      "required_padding_cells": 0
+    },
+    {
+      "scenario": "scenario_02.yaml",
+      "method": "horizontal_2d",
+      "required_padding_cells": 0
+    },
+    {
+      "scenario": "scenario_02.yaml",
+      "method": "climb_orientation",
+      "required_padding_cells": 0
+    },
+    {
+      "scenario": "scenario_03.yaml",
+      "method": "horizontal_2d",
+      "required_padding_cells": 0
+    },
+    {
+      "scenario": "scenario_03.yaml",
+      "method": "climb_orientation",
+      "required_padding_cells": 3
+    },
+    {
+      "scenario": "scenario_04.yaml",
+      "method": "horizontal_2d",
+      "required_padding_cells": 0
+    },
+    {
+      "scenario": "scenario_04.yaml",
+      "method": "climb_orientation",
+      "required_padding_cells": 0
+    },
+    {
+      "scenario": "scenario_05.yaml",
+      "method": "horizontal_2d",
+      "required_padding_cells": 0
+    },
+    {
+      "scenario": "scenario_05.yaml",
+      "method": "climb_orientation",
+      "required_padding_cells": 0
+    },
+    {
+      "scenario": "scenario_06.yaml",
+      "method": "horizontal_2d",
+      "required_padding_cells": 0
+    },
+    {
+      "scenario": "scenario_06.yaml",
+      "method": "climb_orientation",
+      "required_padding_cells": 4
+    },
+    {
+      "scenario": "scenario_07.yaml",
+      "method": "horizontal_2d",
+      "required_padding_cells": 0
+    },
+    {
+      "scenario": "scenario_07.yaml",
+      "method": "climb_orientation",
+      "required_padding_cells": 0
+    },
+    {
+      "scenario": "scenario_08.yaml",
+      "method": "horizontal_2d",
+      "required_padding_cells": 0
+    },
+    {
+      "scenario": "scenario_08.yaml",
+      "method": "climb_orientation",
+      "required_padding_cells": 0
+    }
+  ],
+  "required_uniform_padding": 4,
+  "scope": "Auditoria geom\u00e9trica de rotas; n\u00e3o usa consumo ou resultados de energia."
+}

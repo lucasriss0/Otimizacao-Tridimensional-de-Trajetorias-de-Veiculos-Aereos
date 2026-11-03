@@ -1,0 +1,20 @@
+{
+  "recorded_at": "2026-10-29T09:19:29.463104-03:00",
+  "command": ".venv/Scripts/python.exe -X utf8 -m pytest -q --basetemp output/experiments/pytest_final_relief_20261029",
+  "passed": 207,
+  "warnings": 46,
+  "duration_s": 72.97,
+  "warnings_scope": "PendingDeprecationWarning de rasterio/Affine",
+  "git_commit_or_push_performed": false,
+  "physical_flights_audit": {
+    "primary_recorded": 16,
+    "supplemental_recorded": 2,
+    "all_100_percent_coverage": true,
+    "all_zero_collisions_and_clearance_violations": true,
+    "all_inside_energy_envelope": true,
+    "same_energy_model_sha256": "edc3b98c6fc1abfbca6ff671526f555cbc3467309a77f90292e0bddf671c37dd",
+    "time_step_s": 0.05,
+    "minimum_clearance_primary_m": 85.57023017457033,
+    "minimum_clearance_supplement_m": 73.65554842722099
+  }
+}

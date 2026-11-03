@@ -1,0 +1,124 @@
+{
+  "schema_version": 1,
+  "reference_method": "referencia_2d",
+  "proposed_method": "proposta_subida_orientacao",
+  "evidence_kind": "simulator_trajectory_with_estimated_energy",
+  "real_battery_saving_proven": false,
+  "summary": {
+    "expected_pairs": 1,
+    "eligible_pairs": 1,
+    "ineligible_or_missing_pairs": 0,
+    "recorded_flights_in_target_pairs": 2,
+    "all_pairs_eligible": true,
+    "positive_pairs": 0,
+    "negative_pairs": 1,
+    "tied_pairs": 0,
+    "mean_estimated_energy_reduction_percent": -3.9178970154026125,
+    "sample_sd_estimated_energy_reduction_percent": null,
+    "minimum_estimated_energy_reduction_percent": -3.9178970154026125,
+    "maximum_estimated_energy_reduction_percent": -3.9178970154026125,
+    "total_reference_estimated_energy_wh": 240.26526705072223,
+    "total_proposed_estimated_energy_wh": 249.6786127775516,
+    "pooled_estimated_energy_reduction_percent": -3.9178970154026125,
+    "case_mean_estimated_energy_reduction_percent": -3.9178970154026125,
+    "geographic_cases_with_eligible_pairs": 1,
+    "observed_mean_estimated_energy_saving": false,
+    "real_battery_saving_proven": false
+  },
+  "cases": [
+    {
+      "geographic_case": "centro_x10_suporte4_sem_vento",
+      "expected_pairs": 1,
+      "eligible_pairs": 1,
+      "mean_estimated_energy_reduction_percent": -3.9178970154026125
+    }
+  ],
+  "pairs": [
+    {
+      "geographic_case": "centro_x10_suporte4_sem_vento",
+      "repetition": 1,
+      "attempt_status": "recorded",
+      "attempt_error": "",
+      "reference": {
+        "method": "referencia_2d",
+        "estimated_energy_wh": 240.26526705072223,
+        "executed_coverage_percent": 100.0,
+        "cultivable_area_m2": 79200.0,
+        "covered_area_m2": 79200.0,
+        "observed_duration_s": 495.6000000000784,
+        "distance_3d_m": 1960.8789001698167,
+        "elevation_gain_m": 361.39471514967875,
+        "mission_completed_safely": true,
+        "run_directory": "C:\\DEV\\fho-ia\\Otimizacao-Tridimensional-de-Trajetorias-de-Veiculos-Aereos\\output\\experiments\\relief_centro_x10_repair_20261029\\flights\\runs\\referencia_2d_20261029T031437173547Z",
+        "energy_model": "zeng_level_plus_climb_v1",
+        "energy_model_sha256": "edc3b98c6fc1abfbca6ff671526f555cbc3467309a77f90292e0bddf671c37dd",
+        "energy_parameter_fit_available": false
+      },
+      "proposed": {
+        "method": "proposta_subida_orientacao",
+        "estimated_energy_wh": 249.6786127775516,
+        "executed_coverage_percent": 100.0,
+        "cultivable_area_m2": 79200.0,
+        "covered_area_m2": 79200.0,
+        "observed_duration_s": 518.8500000000759,
+        "distance_3d_m": 2055.4506300472017,
+        "elevation_gain_m": 334.32224781233185,
+        "mission_completed_safely": true,
+        "run_directory": "C:\\DEV\\fho-ia\\Otimizacao-Tridimensional-de-Trajetorias-de-Veiculos-Aereos\\output\\experiments\\relief_centro_x10_repair_20261029\\flights\\runs\\proposta_subida_orientacao_20261029T031946031648Z",
+        "energy_model": "zeng_level_plus_climb_v1",
+        "energy_model_sha256": "edc3b98c6fc1abfbca6ff671526f555cbc3467309a77f90292e0bddf671c37dd",
+        "energy_parameter_fit_available": false
+      },
+      "comparable": true,
+      "reference_exclusion_reasons": [],
+      "proposed_exclusion_reasons": [],
+      "pair_exclusion_reasons": [],
+      "estimated_energy_reduction_percent": -3.9178970154026125
+    }
+  ],
+  "energy_model": {
+    "model": "zeng_level_plus_climb_v1",
+    "parameters": {
+      "weight_n": 100.0,
+      "air_density_kg_m3": 1.225,
+      "rotor_radius_m": 0.5,
+      "tip_speed_mps": 200.0,
+      "rotor_solidity": 0.05,
+      "fuselage_drag_ratio": 0.3,
+      "blade_profile_drag": 0.012,
+      "induced_correction": 0.1,
+      "electrical_efficiency": 0.8,
+      "climb_efficiency": 0.8,
+      "auxiliary_power_w": 0.0,
+      "maximum_horizontal_speed_mps": 60.0,
+      "maximum_vertical_speed_mps": 5.0
+    },
+    "source": "https://arxiv.org/abs/1804.02238",
+    "calibrated_for_project_drone": false,
+    "parameter_fit_available": false,
+    "calibration": null,
+    "scope": "Referência teórica de voo horizontal; extensão de subida e eficiências são hipóteses do projeto. Não é bateria medida nem modelo 3D calibrado."
+  },
+  "benchmark_definition": {},
+  "method_comparisons": [],
+  "time_step_check": null,
+  "source_files": [
+    {
+      "path": "C:\\DEV\\fho-ia\\Otimizacao-Tridimensional-de-Trajetorias-de-Veiculos-Aereos\\output\\experiments\\relief_centro_x10_repair_20261029\\flights\\comparison.csv",
+      "sha256": "1a92c54d9e840165b9ddbf314dedb56769b4a6e756ed2ec3bf0d579395f51696"
+    },
+    {
+      "path": "C:\\DEV\\fho-ia\\Otimizacao-Tridimensional-de-Trajetorias-de-Veiculos-Aereos\\output\\experiments\\relief_centro_x10_repair_20261029\\flights\\protocol.json",
+      "sha256": "4fb00e61af57032fa5e4975f68a204e2c8a750dd0fd67af0c5946daee1353ed8"
+    }
+  ],
+  "limitations": [
+    "O modelo de energia não substitui tensão e corrente medidas em um drone real; não há prova de bateria física.",
+    "A comparação usa elegibilidade registrada e verifica segurança, cobertura, lacunas e envelope energético; não refaz a simulação.",
+    "Repetições do mesmo terreno não são novos terrenos independentes. Não foram calculados valores-p ou intervalos de confiança de generalização.",
+    "Médias são descritivas dos pares elegíveis. Falhas e pares ausentes são mostrados e permanecem no total previsto.",
+    "Redução percentual média, média por terreno e redução na soma dos Wh têm ponderações diferentes.",
+    "Amostragem, massa, carga, vento, velocidade, controle e critérios devem ser fixados antes de comparar métodos.",
+    "Cobertura é geométrica dos centros de células e não comprova dose ou qualidade agronômica."
+  ]
+}

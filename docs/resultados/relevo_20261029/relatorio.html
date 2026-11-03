@@ -1,0 +1,98 @@
+<!doctype html><html lang='pt-BR'><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width'><title>Relatório comparativo — relevo ampliado</title>
+<style>body{font:16px system-ui;max-width:1300px;margin:36px auto;padding:0 24px;line-height:1.6;color:#172b3a}h1{line-height:1.25}h2{margin-top:2em}table{border-collapse:collapse;width:100%;font-size:14px}td,th{border:1px solid #cbd5e1;padding:7px;text-align:left}th{background:#edf2f7}img{max-width:100%}.scroll{overflow-x:auto}code{overflow-wrap:anywhere;font-size:.9em}a{color:#075985}@media print{body{margin:0;font-size:11px}h2{break-after:avoid}tr,img{break-inside:avoid}}</style>
+<aside style='padding:16px;background:#fff3cd'><b>Resultado histórico:</b> este lote comparava A* nos dois lados. Não representa o comparativo com referência convencional sem A*. Consulte a revisão de 29/10/2026.</aside><h1>Resultado comparativo do relevo ampliado — 28–29/10/2026</h1>
+<p>O lote principal registrou 16 voos físicos no CoppeliaSim, com 8/9 pares elegíveis. A comparação registrou reduções em 3 pares, empates em 4 e aumentos em 1. O centro 10× foi bloqueado antes da execução por falta de suporte físico de uma célula do trajeto. Esse par foi executado em separado, com terreno de suporte maior; sua falha original continua no denominador. Aumentar o relevo não demonstrou uma vantagem geral do algoritmo atual.</p>
+<p>Foram testados os mesmos três recortes com fatores verticais de 1×, 5× e 10×. Apenas 1× representa o TOPODATA original; os demais são terrenos sintéticos derivados.</p>
+<p>O cenário 1× foi reexecutado no mesmo regime dos demais: 4.0 m/s, altura-alvo de 100.0 m, largura de aplicação de 120.0 m e faixas a cada 90.0 m. Os dois métodos usam a mesma origem, retorno, controlador, terreno e modelo de energia. Passos temporais registrados: 0.050 s.</p>
+<h2>Comparação por missão</h2>
+<div class='scroll'><table>
+<tr><th>Recorte</th><th>Fator</th><th>Desnível (m)</th><th>Referência (Wh)</th><th>Proposta (Wh)</th><th>Redução estimada (%)</th><th>Cobertura ref./prop. (%)</th><th>Par válido</th></tr>
+<tr><td>centro</td><td>1×</td><td>19.1</td><td>204.589</td><td>204.589</td><td>0.000</td><td>100.0/100.0</td><td>Sim</td></tr>
+<tr><td>norte</td><td>1×</td><td>10.3</td><td>203.965</td><td>203.746</td><td>0.107</td><td>100.0/100.0</td><td>Sim</td></tr>
+<tr><td>sul</td><td>1×</td><td>24.9</td><td>204.696</td><td>204.696</td><td>0.000</td><td>100.0/100.0</td><td>Sim</td></tr>
+<tr><td>centro</td><td>5×</td><td>95.4</td><td>215.854</td><td>225.714</td><td>-4.568</td><td>100.0/100.0</td><td>Sim</td></tr>
+<tr><td>norte</td><td>5×</td><td>51.3</td><td>208.317</td><td>206.357</td><td>0.941</td><td>100.0/100.0</td><td>Sim</td></tr>
+<tr><td>sul</td><td>5×</td><td>124.3</td><td>216.267</td><td>216.267</td><td>0.000</td><td>100.0/100.0</td><td>Sim</td></tr>
+<tr><td>centro</td><td>10×</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—/—</td><td>Não</td></tr>
+<tr><td>norte</td><td>10×</td><td>102.5</td><td>217.725</td><td>211.888</td><td>2.681</td><td>100.0/100.0</td><td>Sim</td></tr>
+<tr><td>sul</td><td>10×</td><td>248.7</td><td>241.795</td><td>241.795</td><td>0.000</td><td>100.0/100.0</td><td>Sim</td></tr>
+</table></div>
+<h2>Tentativas inelegíveis</h2>
+<div class='scroll'><table>
+<tr><th>Caso</th><th>Estado</th><th>Erro de execução</th><th>Motivos de exclusão</th></tr>
+<tr><td>centro_x10</td><td>failed</td><td>A rota sai do terreno físico. Aumente terrain_padding_cells antes da coleta.</td><td>voo_ausente;voo_ausente</td></tr>
+</table></div>
+<h2>Resultado por nível de relevo</h2>
+<div class='scroll'><table>
+<tr><th>Fator</th><th>Pares válidos/previstos</th><th>Redução média por recorte (%)</th><th>Reduções / empates / aumentos</th></tr>
+<tr><td>1×</td><td>3/3</td><td>0.036</td><td>1 / 2 / 0</td></tr>
+<tr><td>5×</td><td>3/3</td><td>-1.209</td><td>1 / 1 / 1</td></tr>
+<tr><td>10×</td><td>2/3</td><td>1.341</td><td>1 / 1 / 0</td></tr>
+</table></div>
+<p>Se os conjuntos elegíveis diferirem entre os fatores, as médias agregadas não constituem uma comparação completa do efeito do relevo. A leitura principal deve acompanhar a mesma origem nos três níveis.</p>
+<h2>Distância, duração e subida executadas</h2>
+<div class='scroll'><table>
+<tr><th>Recorte</th><th>Fator</th><th>Distância ref./prop. (m)</th><th>Duração ref./prop. (s)</th><th>Subida ref./prop. (m)</th></tr>
+<tr><td>centro</td><td>1×</td><td>1767.8/1767.8</td><td>445.9/445.9</td><td>36.6/36.6</td></tr>
+<tr><td>norte</td><td>1×</td><td>1766.2/1766.0</td><td>445.8/445.8</td><td>20.0/13.7</td></tr>
+<tr><td>sul</td><td>1×</td><td>1767.7/1767.7</td><td>445.8/445.8</td><td>41.1/41.1</td></tr>
+<tr><td>centro</td><td>5×</td><td>1818.6/1909.6</td><td>458.6/481.3</td><td>180.6/168.6</td></tr>
+<tr><td>norte</td><td>5×</td><td>1782.0/1774.5</td><td>449.2/447.4</td><td>97.7/66.2</td></tr>
+<tr><td>sul</td><td>5×</td><td>1817.1/1817.1</td><td>457.9/457.9</td><td>203.0/203.0</td></tr>
+<tr><td>centro</td><td>10×</td><td>—/—</td><td>—/—</td><td>—/—</td></tr>
+<tr><td>norte</td><td>10×</td><td>1829.6/1800.2</td><td>461.4/454.0</td><td>194.8/131.7</td></tr>
+<tr><td>sul</td><td>10×</td><td>1961.1/1961.1</td><td>495.5/495.5</td><td>406.0/406.0</td></tr>
+</table></div>
+<h2>Segurança e limites do modelo energético</h2>
+<div class='scroll'><table>
+<tr><th>Recorte</th><th>Fator</th><th>Colisões ref./prop.</th><th>Violações de altura ref./prop.</th><th>Menor altura ref./prop. (m)</th><th>Intervalos fora do envelope ref./prop.</th></tr>
+<tr><td>centro</td><td>1×</td><td>0/0</td><td>0/0</td><td>98.0/98.0</td><td>0/0</td></tr>
+<tr><td>norte</td><td>1×</td><td>0/0</td><td>0/0</td><td>99.5/99.7</td><td>0/0</td></tr>
+<tr><td>sul</td><td>1×</td><td>0/0</td><td>0/0</td><td>99.1/99.1</td><td>0/0</td></tr>
+<tr><td>centro</td><td>5×</td><td>0/0</td><td>0/0</td><td>88.1/87.2</td><td>0/0</td></tr>
+<tr><td>norte</td><td>5×</td><td>0/0</td><td>0/0</td><td>94.9/96.3</td><td>0/0</td></tr>
+<tr><td>sul</td><td>5×</td><td>0/0</td><td>0/0</td><td>92.9/92.9</td><td>0/0</td></tr>
+<tr><td>centro</td><td>10×</td><td>—/—</td><td>—/—</td><td>—/—</td><td>—/—</td></tr>
+<tr><td>norte</td><td>10×</td><td>0/0</td><td>0/0</td><td>89.4/92.0</td><td>0/0</td></tr>
+<tr><td>sul</td><td>10×</td><td>0/0</td><td>0/0</td><td>85.6/85.6</td><td>0/0</td></tr>
+</table></div>
+<p>As métricas de voos inelegíveis podem ser parciais. Elas ficam identificadas na primeira tabela e não sustentam comparação de economia.</p>
+<h2>A vantagem cresceu com o relevo?</h2>
+<p>Em centro, faltou um par elegível em pelo menos um nível; a tendência completa permanece indeterminada. Em norte, a vantagem estimada cresceu com o relevo. A mudança entre o último e o primeiro nível foi de 2.574 pontos percentuais. Em sul, o resultado do último nível empatou com o controle 1×. A mudança entre o último e o primeiro nível foi de 0.000 pontos percentuais.</p>
+<p>A referência mantém faixas horizontais; a proposta escolhe entre horizontal e vertical pelo custo de distância e subida. As orientações e os custos planejados de cada caso estão no CSV. O peso de subida e o modelo energético permaneceram iguais em todos os níveis; não foram ajustados para produzir ganho.</p>
+<p>O custo de distância 3D + peso × subida não é energia em Wh. Uma rota com menos subida pode gastar mais se aumentar distância ou duração. A escolha atual minimiza esse custo auxiliar, não diretamente a energia estimada do voo.</p>
+<img alt='Comparação de energia por relevo' src='energia.png'>
+<img alt='Desníveis dos terrenos' src='terrenos.png'>
+<h2>Interpretação e limites</h2>
+<p>Reduções positivas favorecem a proposta; negativas representam piora. Falhas e cobertura insuficiente ficam no denominador, com redução em branco. O CSV contém também distância, duração e subida acumulada. Valores de energia de voos inelegíveis são parciais e não podem ser usados para anunciar economia.</p>
+<p>Os fatores foram definidos antes da coleta; não se escolheu apenas o terreno favorável. As versões ampliadas são variações dos mesmos recortes, não novas fazendas independentes. Este teste mostra como o comportamento muda com o relevo nas condições registradas.</p>
+<p>A energia é estimada por um modelo teórico não calibrado. O benchmark anterior encontrou falha do controlador ao alterar o passo para 0,025 s. O presente experimento mantém 0,05 s e não resolve essa limitação. Não comprova economia real de bateria nem generalização.</p>
+<p>O comparativo anterior usava 8 m/s e altura-alvo de 60 m. Seus Wh não devem ser comparados diretamente aos atuais para atribuir a diferença exclusivamente ao relevo; use o controle 1× desta coleta.</p>
+<p>Consulte paired/index.html para os pares individuais, inclusive motivos de exclusão e rastreabilidade. As versões com relevo maior são identificadas no painel do CoppeliaSim.</p>
+<h2>Par suplementar: centro 10×</h2>
+<p>O planejador levou a proposta até a linha 16 do grid, enquanto o terreno físico do lote principal começava na linha 17. A checagem recusou o voo antes da execução. O suplemento aumenta apenas o entorno de três para quatro células, mantendo missão, rotas, algoritmo, modelo energético, velocidade, altura e critérios. Os dois métodos usam o mesmo suporte ampliado. Ele não substitui a tentativa original nem entra nas médias por fator acima. Para futuras coletas completas, a configuração foi corrigida para quatro células em todos os casos e recebeu uma regressão geométrica dos nove pares.</p>
+<div class='scroll'><table>
+<tr><th>Desnível</th><th>Referência (Wh)</th><th>Proposta (Wh)</th><th>Redução estimada (%)</th><th>Cobertura ref./prop. (%)</th><th>Par elegível</th></tr>
+<tr><td>190,873 m</td><td>240.265</td><td>249.679</td><td>-3.918</td><td>100.000/100.000</td><td>Sim</td></tr>
+</table></div>
+<div class='scroll'><table>
+<tr><th>Métrica do centro10×</th><th>Referência</th><th>Proposta</th></tr>
+<tr><td>Distância executada (m)</td><td>1960.879</td><td>2055.451</td></tr>
+<tr><td>Duração observada (s)</td><td>495.600</td><td>518.850</td></tr>
+<tr><td>Subida executada (m)</td><td>361.395</td><td>334.322</td></tr>
+<tr><td>Custo auxiliar planejado (não é Wh)</td><td>5611.289</td><td>5419.074</td></tr>
+<tr><td>Energia de voo horizontal/sustentação estimada (Wh)</td><td>227.717</td><td>238.070</td></tr>
+<tr><td>Energia adicional de subida estimada (Wh)</td><td>12.548</td><td>11.608</td></tr>
+</table></div>
+<p>No suplemento, a proposta reduziu a subida, mas percorreu aproximadamente 94,6 m e 23,3 s a mais. A economia no componente de subida foi menor que o acréscimo de sustentação e voo horizontal. O custo auxiliar planejado caiu enquanto a energia estimada aumentou.</p>
+<p>O protocolo da intervenção e os dados ficam em <a href="reparo_centro_x10.json">registro do reparo</a>, <a href="suplemento_centro_x10.csv">voos suplementares</a> e <a href="suplemento_centro_x10.json">auditoria pareada</a>. O relatório completo do suplemento é <code>output/experiments/relief_centro_x10_repair_20261029/report/index.html</code>.</p>
+<h2>Coleta e apresentação preservadas</h2>
+<p>A coleta final usou uma instância isolada do mesmo CoppeliaSim, sem janela, com física, controlador e passo temporal comuns. A interface de apresentação usa a Radeon RX 560X, confirmada no log do OpenGL. O par suplementar foi coletado em uma instância com janela, com a renderização desativada durante os voos. As tentativas anteriores com interrupção de scripts ou comunicação estão no histórico técnico; seus resultados parciais não foram mesclados aos deste lote.</p>
+<p>Os dados integrais estão em <code>output/experiments/relief_benchmark_20261028_isolated/</code>. O relatório HTML é <code>relief_report_final/index.html</code>. Foram salvas cenas nativas <code>presentation_centro_x10/comparacao_lado_a_lado.ttt</code>, <code>presentation_norte_x10/comparacao_lado_a_lado.ttt</code> e <code>presentation_sul_x10/comparacao_lado_a_lado.ttt</code>. O centro 10× fica ativo pela ordem do manifesto. A visualização reproduz telemetrias registradas, em loop a 4×, sem nova física simultânea.</p>
+<p>Este resumo conserva <a href="voos.csv">todos os voos</a>, <a href="comparacao.csv">a comparação por par</a>, <a href="resumo_niveis.csv">os níveis</a>, <a href="tentativas_anteriores.json">as tentativas técnicas anteriores</a> e <a href="proveniencia.json">a proveniência com hashes</a>.</p>
+<p>A suíte automatizada passou com 207 testes e 46 avisos de descontinuação da dependência rasterio/Affine. O <a href="verificacao.json">registro da verificação</a> identifica o comando utilizado; a validação por testes não substitui as limitações físicas expostas acima. A regressão adicional verifica o suporte físico dos nove recortes antes de qualquer novo voo.</p>
+<h2>Consequência para o desenvolvimento</h2>
+<p>A função atual de distância mais penalização de subida não minimiza os Wh estimados do voo. O próximo experimento deve desenvolver uma seleção de rota por custo energético coerente com duração, voo horizontal e subida, usando terrenos de desenvolvimento. Congelar a nova regra antes de testar outros recortes, mantendo estes resultados como referência histórica. Não reajustar o avaliador ou selecionar apenas um relevo que produza ganho.</p>
+<p>Em paralelo, corrigir e validar o controlador e a resolução temporal, depois calibrar e avaliar o consumo com medições elétricas independentes. O planejador implementado usa busca heurística A* em 2,5D e escolha de orientação; não contém um modelo aprendido. A referência também usa A*. Uma conclusão sobre aprendizado ou economia real de bateria exige essas implementações e evidências adicionais.</p>
+</html>
