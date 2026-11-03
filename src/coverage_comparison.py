@@ -49,6 +49,7 @@ def compare_coverage_flights(
     executor: str = "python",
     disable_rendering: bool = False,
     time_step_s: float | None = None,
+    energy_planning: bool = False,
 ) -> Path:
     """A proposta usa subida e seleção horizontal/vertical; não mede bateria.
 
@@ -57,6 +58,8 @@ def compare_coverage_flights(
     """
     if output.exists():
         raise FileExistsError(f"Escolha uma pasta nova: {output}")
+    if energy_planning and ablation:
+        raise ValueError("Seleção energética e ablação histórica são experimentos separados.")
     if executor not in ("python", "lua"):
         raise ValueError("Executor deve ser python ou lua.")
     if time_step_s is not None and (not isfinite(time_step_s) or not 0 < time_step_s <= .2):
@@ -85,6 +88,15 @@ def compare_coverage_flights(
     if ablation:
         plans = select_ablation_plans(case, scenario.coverage.climb_weight)
     labels = [p.method for p in plans] if ablation else ["referencia_2d", "proposta_subida_orientacao"]
+    physical_window = case.window.expanded(scenario.simulation.terrain_padding_cells, case.terrain.shape)
+    energy_selection = None
+    if energy_planning:
+        from src.energy_planning import select_energy_plan
+        energy_selection = select_energy_plan(case, energy_model,
+            scenario.simulation.speed_mps, scenario.coverage.climb_weight, physical_window,
+            scenario.coverage.clearance_m, scenario.simulation.minimum_clearance_m)
+        plans.append(energy_selection.plan)
+        labels.append("proposta_energia")
     if method_order is not None and (len(method_order) != len(labels) or set(method_order) != set(labels)):
         raise ValueError("A ordem dos métodos deve ser uma permutação exata dos métodos comparados.")
     execution_order = list(method_order or labels)
@@ -121,6 +133,7 @@ def compare_coverage_flights(
         "requested_time_step_s": time_step_s,
         "baseline_planner": BASELINE_VERSION,
         "baseline_description": BASELINE_DESCRIPTION,
+        "energy_planning": energy_selection.manifest() if energy_selection else None,
         "method_plan_mapping": dict(zip(labels,[p.method for p in plans])),
         "comparison_scope": "Referência operacional geométrica sem A* versus proposta A*. Não reproduz o algoritmo interno de um fabricante.",
         "collision_monitoring": "Obrigatório, coleção de todas as shapes do drone contra terreno e obstáculos; falha de leitura invalida o voo.",
@@ -269,6 +282,7 @@ def main() -> None:
     parser.add_argument("--port", type=int, default=23000)
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--ablation", action="store_true", help="Compara as cinco variantes para isolar contribuições.")
+    parser.add_argument("--energy-planning", action="store_true", help="Acrescenta seleção por Wh previstos e conexões refinadas; teste de desenvolvimento.")
     parser.add_argument("--minimum-executed-coverage", type=float, default=100.)
     parser.add_argument("--maximum-telemetry-gap", type=float, default=1.)
     parser.add_argument("--energy-model", type=Path, default=Path("configs/energy_reference.json"))
@@ -280,6 +294,7 @@ def main() -> None:
     result = compare_coverage_flights(args.scenario, output, args.scene, args.host,
                                      args.port, args.dry_run, energy_model_path=args.energy_model,
                                      ablation=args.ablation,
+                                     energy_planning=args.energy_planning,
                                      minimum_executed_coverage=args.minimum_executed_coverage,
                                      maximum_telemetry_gap_s=args.maximum_telemetry_gap,
                                      executor=args.executor, disable_rendering=args.disable_rendering,
