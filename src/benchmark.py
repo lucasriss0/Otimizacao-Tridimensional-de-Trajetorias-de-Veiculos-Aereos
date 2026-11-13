@@ -1,6 +1,7 @@
 """Executa voos, gera relatório e prepara a comparação visual no CoppeliaSim."""
 
 import argparse
+import csv
 from datetime import datetime
 import hashlib
 import json
@@ -20,6 +21,39 @@ def check_simulator(host="127.0.0.1", port=23000):
             pass
     except OSError as error:
         raise RuntimeError(f"Abra o CoppeliaSim e deixe a simulação parada. API {host}:{port}: {error}") from error
+
+
+def find_saved_replay(root: Path, scenario: Path) -> Path | None:
+    scenario_hash = hashlib.sha256(scenario.read_bytes()).hexdigest()
+    sessions = sorted(root.glob("*/session.json"),
+                      key=lambda path: path.stat().st_mtime, reverse=True)
+    for path in sessions:
+        session = json.loads(path.read_text(encoding="utf-8"))
+        hashes = session.get("source_sha256", {})
+        if session.get("status") != "finished" or hashes.get(f"configs/{scenario.name}") != scenario_hash:
+            continue
+        if not session.get("scene"):
+            continue
+        scene = Path(session["scene"])
+        if not scene.is_file():
+            continue
+        manifest_path = scene.with_name("replay_manifest.json")
+        if not manifest_path.is_file():
+            continue
+        replay = json.loads(manifest_path.read_text(encoding="utf-8"))
+        pair = Path(replay["source"])
+        comparison = pair / "comparison.csv"
+        if pair != path.parent / "flights" or not comparison.is_file():
+            continue
+        offsets = {flight["method"]: flight["visual_offset_scene_units"] for flight in replay["flights"]}
+        if not offsets.get("proposta_subida_orientacao", 0) < 0 < offsets.get("referencia_2d", 0):
+            continue
+        with comparison.open(encoding="utf-8-sig", newline="") as stream:
+            completed = {row["method"] for row in csv.DictReader(stream)
+                         if row["mission_completed"] == "True"}
+        if {"referencia_2d", "proposta_subida_orientacao"} <= completed:
+            return scene
+    return None
 
 
 def run_benchmark(output: Path, manifest: Path | None = Path("configs/validation_suite.json"),
@@ -91,7 +125,6 @@ def run_benchmark(output: Path, manifest: Path | None = Path("configs/validation
         pair = flights
         location_pairs = {}
         if not scenario:
-            import csv
             attempts = json.loads((flights / "attempts.json").read_text(encoding="utf-8"))
             if relief_study:
                 factors = {entry["id"]: float(entry.get("height_scale", 1.))
@@ -153,11 +186,28 @@ def main():
     parser.add_argument("--port", type=int, default=23000)
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--no-scene", action="store_true")
+    parser.add_argument("--reuse-replay", action="store_true",
+                        help="Abre uma comparação completa já salva para o cenário; coleta novos voos se necessário.")
     parser.add_argument("--executor", choices=("python", "lua"), default="lua")
     parser.add_argument("--disable-rendering", action="store_true")
     parser.add_argument("--status", action="store_true", help="Consulta o estado atual do simulador sem iniciar voos.")
     parser.add_argument("--stop", action="store_true", help="Interrompe a execução física atual; o coletor preserva os dados como falha.")
     args = parser.parse_args()
+    if args.reuse_replay:
+        if not args.scenario or args.dry_run or args.no_scene or args.status or args.stop:
+            parser.error("--reuse-replay exige --scenario e uma execução com cena.")
+        scene = find_saved_replay(Path("output/experiments").resolve(), args.scenario)
+        if scene is not None:
+            check_simulator(args.host, args.port)
+            from coppeliasim_zmqremoteapi_client import RemoteAPIClient
+            sim = RemoteAPIClient(host=args.host, port=args.port).require("sim")
+            if sim.getSimulationState() != sim.simulation_stopped:
+                raise RuntimeError("Clique em Stop no CoppeliaSim antes de abrir a comparação.")
+            sim.loadScene(scene.as_posix())
+            print(f"Cena dos voos registrados: {scene}")
+            print("Aperte Play para reproduzir as duas trajetórias lado a lado.")
+            return
+        print("Preparando a primeira comparação. Durante a coleta, aparece um terreno por vez.", flush=True)
     if args.status or args.stop:
         check_simulator(args.host, args.port)
         from coppeliasim_zmqremoteapi_client import RemoteAPIClient

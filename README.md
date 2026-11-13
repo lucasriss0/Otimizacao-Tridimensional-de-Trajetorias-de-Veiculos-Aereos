@@ -110,7 +110,10 @@ parada. No PowerShell, execute na raiz do projeto:
 .\apresentar.cmd
 ```
 
-Esse é o comando da comparação padrão. Ele prepara
+Esse é o comando da comparação padrão. Se já houver um replay completo
+do cenário atual, ele abre a cena salva diretamente. Para coletar novos
+voos, rode `.\apresentar.cmd --novo`. Na primeira coleta, o CoppeliaSim
+mostra um terreno por vez até gerar o replay. O comando prepara
 terreno, árvore e drone e executa dois voos: referência geométrica de
 faixas paralelas sem A* e proposta A* com penalização de subida e escolha da orientação.
 Ambos saem e retornam à mesma origem, com a mesma velocidade, altura e
