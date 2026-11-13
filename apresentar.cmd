@@ -6,13 +6,11 @@ if not exist ".venv\Scripts\python.exe" (
     pause
     exit /b 1
 )
-echo Abra o CoppeliaSim e deixe a simulacao parada antes de continuar.
-echo A cena aberta sera copiada para output/runs antes da preparacao.
-pause
-".venv\Scripts\python.exe" -X utf8 -m src.benchmark --scenario configs/demo_coverage.yaml
+echo Comparacao padrao: A* a esquerda e faixas convencionais a direita.
+echo Mantenha o CoppeliaSim aberto e parado antes de executar.
+".venv\Scripts\python.exe" -X utf8 -m src.benchmark --scenario configs/demo_coverage.yaml --disable-rendering
 if errorlevel 1 (
-    echo A demonstracao encontrou um erro. Consulte a mensagem acima.
-    pause
+    echo A comparacao encontrou um erro. Consulte a mensagem acima.
     exit /b 1
 )
-pause
+exit /b 0

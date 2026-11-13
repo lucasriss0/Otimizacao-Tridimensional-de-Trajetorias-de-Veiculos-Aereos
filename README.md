@@ -35,6 +35,28 @@ Métricas, CSV e imagens
 
 ## Início rápido: comparação sem vento
 
+### Comparar o recorte original com a Serra da Mantiqueira
+
+O cenário principal usa um mapa de 3 × 3 km com grade de 100 × 100
+células e janela central de missão de 600 × 600 m. O manifesto
+`configs/terrain_comparison.json` compara a referência geométrica e o A*
+no recorte original e em Itatiaia, com a mesma geometria de missão e o mesmo
+peso de subida (0,304). O GeoTIFF de Itatiaia é um recorte da folha
+[22S45 de altimetria do TOPODATA/INPE](https://www.dsr.inpe.br/topodata/data/geotiff/22S45_ZN.zip),
+com elevações originais e coordenadas WGS 84.
+
+```powershell
+python -m src.benchmark --manifest configs/terrain_comparison.json --dry-run
+```
+
+Para coletar os quatro voos, execute o mesmo comando sem `--dry-run`
+com o CoppeliaSim aberto e parado. Durante a coleta, a cena exibe o terreno
+do voo em execução. Para cada local com os dois voos completos, o benchmark
+salva uma cena de replay com referência e A* lado a lado. Os caminhos
+aparecem no terminal e em `scenes_by_location` no `session.json`. Para
+alternar entre os locais, pare a simulação e abra a cena correspondente
+no CoppeliaSim.
+
 O [benchmark corrigido de 29/10/2026](docs/RESULTADOS_CONVENCIONAL_20261029.md)
 usa referência geométrica de faixas paralelas **sem A***. Foram executados
 18 voos, com 100% de cobertura e nove pares elegíveis. A proposta A* gastou
@@ -82,14 +104,21 @@ o novo comparativo com a referência convencional.
 ### Apresentar no Windows
 
 Com o ambiente `.venv` instalado, abra o CoppeliaSim e deixe a simulação
-parada. Execute **`apresentar.cmd`** na raiz deste repositório. Ele prepara
+parada. No PowerShell, execute na raiz do projeto:
+
+```powershell
+.\apresentar.cmd
+```
+
+Esse é o comando da comparação padrão. Ele prepara
 terreno, árvore e drone e executa dois voos: referência geométrica de
 faixas paralelas sem A* e proposta A* com penalização de subida e escolha da orientação.
 Ambos saem e retornam à mesma origem, com a mesma velocidade, altura e
 controlador. Vento, deriva artificial e replanejamento ficam desativados.
 A cena aberta é copiada antes da preparação para a pasta da comparação.
-Ao terminar, o programa gera um relatório HTML e abre uma cena com dois terrenos
-lado a lado. Aperte **Play** para reproduzir as trajetórias registradas, com
+Ao terminar, o programa gera um relatório HTML e abre a cena lado a lado,
+com o A* à esquerda e as faixas convencionais à direita. Aperte **Play**
+para reproduzir as trajetórias registradas, com
 relógio comum e Wh estimados acumulados. Essa cena é um replay; os voos que
 alimentam o benchmark são executados separadamente com o mesmo controlador.
 
@@ -174,7 +203,7 @@ usa uma cena já preparada e compatível com o cenário.
    Para reabri-la depois, use o menu **File** e abra
    `presentation/comparacao_lado_a_lado.ttt` da pasta do benchmark.
 2. Clique em **Play** na barra do simulador. O terreno à esquerda mostra a
-   referência em azul; o da direita mostra a proposta em laranja. A trilha
+   proposta em laranja. O da direita mostra a referência em azul. A trilha
    branca acompanha as posições registradas. O painel informa que é um replay.
 3. Compare os Wh estimados acumulados e a cobertura final. Os relógios usam
    segundos originais; o drone que termina antes fica parado com o Wh final.

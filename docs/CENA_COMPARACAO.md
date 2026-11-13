@@ -1,8 +1,11 @@
 # Cena de comparação lado a lado
 
 A comparação visual usa **telemetrias de missões já executadas no CoppeliaSim**.
-Dois recortes iguais do terreno aparecem na mesma cena: referência à esquerda,
-proposta à direita. Os drones desta cena são ícones geométricos sem dinâmica.
+Dois recortes iguais do terreno aparecem na mesma cena, com a proposta à
+esquerda e a referência à direita. A referência usa faixas paralelas
+alternadas (lawnmower), um padrão comum na pulverização agrícola.
+Os drones desta cena são ícones geométricos sem dinâmica.
+[Estudo de cobertura com drone agrícola](https://link.springer.com/article/10.1007/s11119-023-09999-3)
 O replay ilustra os dados do benchmark e não realiza uma segunda medição.
 
 Os iniciadores `apresentar.cmd` e `benchmark.cmd` montam essa cena ao concluir

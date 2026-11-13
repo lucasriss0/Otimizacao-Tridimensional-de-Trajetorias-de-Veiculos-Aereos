@@ -256,6 +256,8 @@ def test_creates_two_visual_copies_and_backs_up_original_scene(recorded_pair, tm
     assert "ReplayDrone0" in sim.aliases and "ReplayDrone1" in sim.aliases
     assert "ReplayTerrain0" in sim.aliases and "ReplayTerrain1" in sim.aliases
     manifest = json.loads((output / "replay_manifest.json").read_text(encoding="utf-8"))
+    assert manifest["flights"][0]["visual_offset_scene_units"] > 0
+    assert manifest["flights"][1]["visual_offset_scene_units"] < 0
     assert manifest["flights"][0]["duration_s"] == pytest.approx(4.)
     assert manifest["realtime"] is realtime
     assert manifest["flights"][1]["duration_s"] == pytest.approx(2.)

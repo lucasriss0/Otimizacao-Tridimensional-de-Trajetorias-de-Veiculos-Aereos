@@ -1,0 +1,21 @@
+{
+  "base_scenario": "demo_coverage.yaml",
+  "energy_model": "energy_reference.json",
+  "scope": "Comparação exploratória entre o recorte original e a Serra da Mantiqueira, ambos com relevo natural TOPODATA e o mesmo protocolo de missão.",
+  "repetitions": 1,
+  "ablation": false,
+  "replay_per_location": true,
+  "baseline_planner": "parallel_geometric_v1",
+  "method_order": "balanced_rotation",
+  "minimum_executed_coverage_percent": 100.0,
+  "maximum_telemetry_gap_s": 1.0,
+  "locations": [
+    {"id": "centro", "center_lat": -22.48196, "center_lon": -47.26397},
+    {
+      "id": "mantiqueira_itatiaia",
+      "center_lat": -22.405,
+      "center_lon": -44.658,
+      "topodata": "../data/raw/itatiaia_ZN.tif"
+    }
+  ]
+}

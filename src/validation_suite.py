@@ -49,7 +49,8 @@ def run_validation_suite(manifest_path, output, dry_run=False,
     for index, location in enumerate(locations):
         raw = yaml.safe_load(base_path.read_text(encoding="utf-8"))
         raw["id"] = str(location["id"])
-        raw["terrain"]["topodata"] = str(base.terrain.topodata.resolve())
+        topodata = resolve(location["topodata"]) if "topodata" in location else base.terrain.topodata.resolve()
+        raw["terrain"]["topodata"] = str(topodata)
         raw["terrain"]["center_lat"] = location["center_lat"]
         raw["terrain"]["center_lon"] = location["center_lon"]
         if "height_scale" in location:

@@ -333,15 +333,15 @@ function sysCall_init()
       <label id="3" text="Relevo" />
       <label id="1" text="Tempo original das missões" />
       <group layout="hbox" flat="true">
-        <group layout="vbox" style="background-color: #dcecff; padding: 6px;">
-          <label id="13" text="ESQUERDA: referência" style="font-weight: bold;" />
-          <label id="11" text="0 Wh estimados" />
-          <label id="12" text="Cobertura executada" />
-        </group>
         <group layout="vbox" style="background-color: #fff0d8; padding: 6px;">
-          <label id="23" text="DIREITA: proposta" style="font-weight: bold;" />
+          <label id="23" text="ESQUERDA: proposta" style="font-weight: bold;" />
           <label id="21" text="0 Wh estimados" />
           <label id="22" text="Cobertura executada" />
+        </group>
+        <group layout="vbox" style="background-color: #dcecff; padding: 6px;">
+          <label id="13" text="DIREITA: referência" style="font-weight: bold;" />
+          <label id="11" text="0 Wh estimados" />
+          <label id="12" text="Cobertura executada" />
         </group>
       </group>
       <label text="Rotas coloridas: planos | trilha branca: execução registrada | relógios não normalizados" />
@@ -349,8 +349,8 @@ function sysCall_init()
       <label text="Os drones são ícones sem física. A comparação numérica vem das missões registradas." />
     </ui>]])
     simUI.setLabelText(ui,3,terrainDescription)
-    simUI.setLabelText(ui,13,'ESQUERDA: '..flights[1].label)
-    simUI.setLabelText(ui,23,'DIREITA: '..flights[2].label)
+    simUI.setLabelText(ui,23,'ESQUERDA: '..flights[2].label)
+    simUI.setLabelText(ui,13,'DIREITA: '..flights[1].label)
     for i,flight in ipairs(flights) do
         local status=flight.eligible and 'elegível para comparação' or 'INELEGÍVEL para comparação'
         local coverage=flight.coverage and string.format('%.2f%%',flight.coverage) or 'indisponível'
@@ -444,7 +444,7 @@ def create_comparison_scene(source: Path, output: Path,
                    window.col_start:window.col_end + 1]
     width = max(crop.shape[1] * cell * scale, 1.)
     separation = width + .8
-    offsets = [-separation / 2, separation / 2]
+    offsets = [separation / 2, -separation / 2]
     # Centragem do recorte no referencial do grid completo, sem mover trajetórias.
     crop_x = ((window.col_start + window.col_end) / 2 - (terrain.shape[1] - 1) / 2) * cell * scale
     crop_y = ((terrain.shape[0] - 1) / 2 - (window.row_start + window.row_end) / 2) * cell * scale

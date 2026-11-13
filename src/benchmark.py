@@ -89,6 +89,7 @@ def run_benchmark(output: Path, manifest: Path | None = Path("configs/validation
     if not dry_run and prepare_scene:
         # Seleção visual por ordem de coleta e disponibilidade, nunca por economia.
         pair = flights
+        location_pairs = {}
         if not scenario:
             import csv
             attempts = json.loads((flights / "attempts.json").read_text(encoding="utf-8"))
@@ -106,16 +107,34 @@ def run_benchmark(output: Path, manifest: Path | None = Path("configs/validation
                         rows = {row["method"]: row for row in csv.DictReader(stream)}
                     if all(rows.get(method, {}).get("mission_completed") == "True"
                            for method in ("referencia_2d", proposed)):
-                        pair = candidate
-                        break
+                        if not location_pairs:
+                            pair = candidate
+                        location_pairs.setdefault(attempt["case"], candidate)
+                        if not manifest_definition.get("replay_per_location"):
+                            break
         session["presentation_source"] = str(pair)
         session["presentation_selection_rule"] = "Primeiro par em ordem de coleta com ambas missões completas; sem consultar ganho energético."
         if relief_study:
             session["presentation_selection_rule"] = "Maior fator de relevo com duas missões completas, desempate pela ordem do manifesto; sem consultar ganho energético."
         try:
+            if manifest_definition.get("replay_per_location"):
+                scenes = session["scenes_by_location"] = {}
+                for location, candidate in location_pairs.items():
+                    if candidate == pair:
+                        continue
+                    try:
+                        scenes[location] = str(create_comparison_scene(
+                            candidate, output / f"presentation_{candidate.name}",
+                            proposed_method=proposed, host=host, port=port,
+                        ))
+                    except Exception as error:
+                        session.setdefault("presentation_errors_by_location", {})[location] = str(error)
+                        print(f"Replay de {location} indisponível: {error}", flush=True)
             path = create_comparison_scene(pair, output / "presentation", proposed_method=proposed,
                                            host=host, port=port)
             session["scene"] = str(path)
+            if manifest_definition.get("replay_per_location") and location_pairs:
+                scenes[next(iter(location_pairs))] = str(path)
         except Exception as error:
             session["presentation_error"] = str(error)
             print(f"Voos preservados; preparação visual falhou: {error}", flush=True)
@@ -160,7 +179,10 @@ def main():
         if session.get("report"):
             print(f"Relatório: {session['report']}")
         if session.get("scene"):
+            print(f"Cena: {session['scene']}")
             print("Aperte Play na cena de comparação do CoppeliaSim para reproduzir os dois voos.")
+        for location, scene in session.get("scenes_by_location", {}).items():
+            print(f"Cena de {location}: {scene}")
         for key in ("report_error", "presentation_error"):
             if session.get(key):
                 print(f"Pendência preservada em session.json: {session[key]}")

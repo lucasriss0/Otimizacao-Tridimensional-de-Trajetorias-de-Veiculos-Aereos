@@ -4,10 +4,10 @@ terrain:
   topodata: data/raw/22S48_ZN.tif
   center_lat: -22.48196
   center_lon: -47.26397
-  area_m: 1500
-  size: 50
+  area_m: 3000
+  size: 100
 coverage:
-  window: [20, 20, 29, 29]
+  window: [40, 40, 59, 59]
   swath_m: 120
   stripe_spacing_m: 90
   clearance_m: 60

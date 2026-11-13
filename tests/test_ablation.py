@@ -14,8 +14,8 @@ def test_five_methods_isolate_planning_weights_and_preserve_mission():
     case = synthetic_cases()[0]
     plans = select_ablation_plans(case)
     assert tuple(p.method for p in plans) == METHODS
-    assert [p.planning_climb_weight for p in plans] == [0, 0, 10, 0, 10]
-    assert all(p.evaluation_climb_weight == 10 for p in plans)
+    assert [p.planning_climb_weight for p in plans] == [0, 0, 0.304, 0, 0.304]
+    assert all(p.evaluation_climb_weight == 0.304 for p in plans)
     assert all(p.path[0] == p.path[-1] == case.launch for p in plans)
     assert all(p.eligible and p.coverage_percent == 100 for p in plans)
     assert all(p.normalized_cost == pytest.approx(plans[0].normalized_cost) for p in plans)
