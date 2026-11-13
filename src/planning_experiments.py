@@ -16,7 +16,7 @@ from time import perf_counter
 
 import numpy as np
 
-from src.astar import DistanceMode, Position
+from src.astar import DEFAULT_CLIMB_WEIGHT, DistanceMode, Position
 from src.coverage import (
     CoverageWindow, calculate_coverage_percent,
     generate_boustrophedon_targets, plan_targets,
@@ -123,8 +123,8 @@ def _trial(
 
 
 def compare_planners(
-    case: PlanningCase, weights: tuple[float, ...] = (0, 3, 10, 20),
-    evaluation_weight: float = 10, minimum_coverage: float = 100,
+    case: PlanningCase, weights: tuple[float, ...] = (0, DEFAULT_CLIMB_WEIGHT, 3, 10, 20),
+    evaluation_weight: float = DEFAULT_CLIMB_WEIGHT, minimum_coverage: float = 100,
 ) -> list[PlanningTrial]:
     """Retorna candidatos e escolhas. Empates favorecem faixas horizontais.
 
@@ -331,8 +331,8 @@ def _plot_results(trials: list[PlanningTrial], cases: list[PlanningCase], destin
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--scenario", type=Path, help="Acrescenta um cenário TOPODATA à suíte sintética.")
-    parser.add_argument("--weights", type=float, nargs="+", default=[0, 3, 10, 20])
-    parser.add_argument("--evaluation-weight", type=float, default=10)
+    parser.add_argument("--weights", type=float, nargs="+", default=[0, DEFAULT_CLIMB_WEIGHT, 3, 10, 20])
+    parser.add_argument("--evaluation-weight", type=float, default=DEFAULT_CLIMB_WEIGHT)
     parser.add_argument("--minimum-coverage", type=float, default=100)
     parser.add_argument("--output", type=Path, required=True, help="Pasta nova para os resultados.")
     args = parser.parse_args()

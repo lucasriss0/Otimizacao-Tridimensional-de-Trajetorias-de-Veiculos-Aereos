@@ -10,6 +10,7 @@ import subprocess
 
 import numpy as np
 
+from src.astar import DEFAULT_CLIMB_WEIGHT
 from src.energy import estimate_energy, load_energy_model, model_manifest
 from src.planning_experiments import case_from_scenario, compare_planners, synthetic_cases
 from src.waypoints import grid_path_to_waypoints_3d
@@ -21,7 +22,7 @@ METHODS = (
 )
 
 
-def select_ablation_plans(case, climb_weight=10.):
+def select_ablation_plans(case, climb_weight=DEFAULT_CLIMB_WEIGHT):
     if not isfinite(climb_weight) or climb_weight <= 0:
         raise ValueError("Peso de subida deve ser finito e positivo para isolar seu efeito.")
     trials = compare_planners(case, (0., climb_weight), evaluation_weight=climb_weight)
@@ -58,7 +59,7 @@ def ideal_samples(case, path, speed_mps):
     return samples
 
 
-def run_ablation(output, scenario_path=None, climb_weight=10., speed_mps=8.,
+def run_ablation(output, scenario_path=None, climb_weight=DEFAULT_CLIMB_WEIGHT, speed_mps=8.,
                  energy_model_path=Path("configs/energy_reference.json")):
     if output.exists():
         raise FileExistsError(f"Escolha uma pasta nova: {output}")
@@ -142,7 +143,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--scenario", type=Path)
-    parser.add_argument("--climb-weight", type=float, default=10.)
+    parser.add_argument("--climb-weight", type=float, default=DEFAULT_CLIMB_WEIGHT)
     parser.add_argument("--speed", type=float, default=8.)
     parser.add_argument("--energy-model", type=Path, default=Path("configs/energy_reference.json"))
     args = parser.parse_args()

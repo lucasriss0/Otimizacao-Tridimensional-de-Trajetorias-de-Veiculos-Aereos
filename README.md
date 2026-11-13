@@ -377,7 +377,7 @@ colisões e violações. O campo antigo `success` foi preservado.
 Para resumir uma telemetria antiga sem conectar ao simulador:
 
 ```powershell
-python -m src.telemetry_metrics output/runs/PASTA_DA_MISSAO/telemetry.csv --climb-weight 10
+python -m src.telemetry_metrics output/runs/PASTA_DA_MISSAO/telemetry.csv --climb-weight 0.304
 ```
 
 O resumo considera apenas o intervalo da primeira à última amostra, incluindo
@@ -469,7 +469,7 @@ python -m src.main `
   --center-lon -47.26397 `
   --area-m 1500 `
   --size 50 `
-  --climb-weight 10 `
+  --climb-weight 0.304 `
   --start-row 5 `
   --start-col 5 `
   --goal-row 44 `
@@ -487,7 +487,7 @@ python -m src.main `
   --center-lon -47.26397 `
   --area-m 1500 `
   --size 50 `
-  --climb-weight 10 `
+  --climb-weight 0.304 `
   --coverage `
   --swath-m 120 `
   --clearance-m 60
@@ -497,7 +497,7 @@ Parâmetros importantes:
 
 - `--area-m`: lado da área quadrada recortada;
 - `--size`: quantidade de linhas e colunas do grid;
-- `--climb-weight`: peso aplicado ao ganho de altitude;
+- `--climb-weight`: peso aplicado ao ganho de altitude, com padrão `0.304`;
 - `--swath-m`: largura de aplicação ou pulverização;
 - `--clearance-m`: altura do target acima do terreno.
 
@@ -595,7 +595,7 @@ python -m src.main `
   --center-lon -47.26397 `
   --area-m 1500 `
   --size 50 `
-  --climb-weight 10 `
+  --climb-weight 0.304 `
   --coverage `
   --swath-m 120 `
   --clearance-m 60 `
@@ -654,7 +654,7 @@ python -m src.main `
   --center-lon -47.26397 `
   --area-m 1500 `
   --size 50 `
-  --climb-weight 10 `
+  --climb-weight 0.304 `
   --coverage `
   --swath-m 120 `
   --clearance-m 60 `
@@ -718,7 +718,7 @@ python -m src.main `
   --topodata "data\raw\22S48_ZN.tif" `
   --center-lat -22.48196 `
   --center-lon -47.26397 `
-  --area-m 1500 --size 50 --climb-weight 10 `
+  --area-m 1500 --size 50 --climb-weight 0.304 `
   --coverage --swath-m 120 --clearance-m 60 `
   --obstacles-file "output\obstacles_coppelia.json"
 

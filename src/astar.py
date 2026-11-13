@@ -9,6 +9,8 @@ import numpy as np
 from src.wind import WindCostParameters, WindVector, calculate_wind_penalty
 
 
+DEFAULT_CLIMB_WEIGHT = 0.304
+
 Position = tuple[int, int]
 DistanceMode = Literal["horizontal", "3d"]
 
@@ -133,7 +135,7 @@ def astar(
     terrain: np.ndarray,
     start: Position,
     goal: Position,
-    climb_weight: float = 3.0,
+    climb_weight: float = DEFAULT_CLIMB_WEIGHT,
     cell_size_x_m: float = 1.0,
     cell_size_y_m: float = 1.0,
     obstacle_mask: np.ndarray | None = None,

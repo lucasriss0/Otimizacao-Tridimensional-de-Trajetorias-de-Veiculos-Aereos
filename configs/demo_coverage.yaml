@@ -11,7 +11,7 @@ coverage:
   swath_m: 120
   stripe_spacing_m: 90
   clearance_m: 60
-  climb_weight: 10
+  climb_weight: 0.304
 obstacles:
   - name: ObstacleTreeCenter
     x_m: 0

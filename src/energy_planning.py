@@ -9,6 +9,7 @@ from math import ceil, hypot
 from time import perf_counter
 
 from src.ablation import ideal_samples
+from src.astar import DEFAULT_CLIMB_WEIGHT
 from src.conventional import GeometricConnections, plan_conventional
 from src.coverage import generate_boustrophedon_targets
 from src.energy import estimate_energy
@@ -111,7 +112,7 @@ def _sampled_clearance(case, path, clearance):
     return minimum
 
 
-def select_energy_plan(case, model, speed_mps, climb_weight=10., physical_window=None,
+def select_energy_plan(case, model, speed_mps, climb_weight=DEFAULT_CLIMB_WEIGHT, physical_window=None,
                        clearance_m=100., minimum_clearance_m=55.):
     """Avalia o conjunto fixo de candidatos; empates preservam a referência."""
     started = perf_counter()

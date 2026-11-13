@@ -7,6 +7,7 @@ from typing import Any
 
 import yaml
 
+from src.astar import DEFAULT_CLIMB_WEIGHT
 from src.coverage import CoverageWindow
 from src.obstacles import StaticObstacle
 from src.wind import WindCostParameters, WindEvent, WindScenario, WindVector
@@ -26,7 +27,7 @@ class TerrainScenario:
 class CoverageScenario:
     swath_m: float = 120.0
     clearance_m: float = 60.0
-    climb_weight: float = 10.0
+    climb_weight: float = DEFAULT_CLIMB_WEIGHT
     window: CoverageWindow | None = None
     stripe_spacing_m: float | None = None
 
@@ -129,7 +130,7 @@ def load_scenario(path: str | Path) -> MissionScenario:
         coverage=CoverageScenario(
             swath_m=float(coverage_raw.get("swath_m", 120)),
             clearance_m=float(coverage_raw.get("clearance_m", 60)),
-            climb_weight=float(coverage_raw.get("climb_weight", 10)),
+            climb_weight=float(coverage_raw.get("climb_weight", DEFAULT_CLIMB_WEIGHT)),
             window=window,
             stripe_spacing_m=(float(coverage_raw["stripe_spacing_m"])
                               if coverage_raw.get("stripe_spacing_m") is not None else None),

@@ -2,7 +2,7 @@ import argparse
 from pathlib import Path
 from time import perf_counter
 
-from src.astar import PathResult, astar
+from src.astar import DEFAULT_CLIMB_WEIGHT, PathResult, astar
 from src.coverage import plan_boustrophedon_coverage
 from src.metrics import (
     PathMetrics,
@@ -79,7 +79,7 @@ def parse_args() -> argparse.Namespace:
         help="Quantidade de linhas e colunas do grid reduzido (padrão: 50).",
     )
     parser.add_argument(
-        "--climb-weight", type=float, default=3.0,
+        "--climb-weight", type=float, default=DEFAULT_CLIMB_WEIGHT,
         help="Peso aplicado ao ganho de altitude (padrão: 3).",
     )
     parser.add_argument("--center-lat", type=float, help="Latitude central da fazenda.")

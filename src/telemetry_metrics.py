@@ -7,6 +7,8 @@ from math import dist, isfinite, sqrt
 from pathlib import Path
 from typing import Iterable, Mapping
 
+from src.astar import DEFAULT_CLIMB_WEIGHT
+
 
 def _flag(value: object) -> bool:
     if value in (True, 1, "True", "true", "1"):
@@ -17,7 +19,7 @@ def _flag(value: object) -> bool:
 
 
 def summarize_telemetry(
-    samples: Iterable[Mapping], climb_weight: float = 10,
+    samples: Iterable[Mapping], climb_weight: float = DEFAULT_CLIMB_WEIGHT,
 ) -> dict:
     """Mede apenas o intervalo entre primeira e última amostra.
 
@@ -75,7 +77,7 @@ def summarize_telemetry(
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("telemetry", type=Path)
-    parser.add_argument("--climb-weight", type=float, default=10)
+    parser.add_argument("--climb-weight", type=float, default=DEFAULT_CLIMB_WEIGHT)
     args = parser.parse_args()
     with args.telemetry.open(encoding="utf-8-sig", newline="") as stream:
         summary = summarize_telemetry(csv.DictReader(stream), args.climb_weight)
