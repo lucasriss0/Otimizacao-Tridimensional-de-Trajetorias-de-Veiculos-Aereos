@@ -1,5 +1,62 @@
 # Planejamento inteligente de trajetórias para drone agrícola em relevo 3D
 
+## Rodar no Windows
+
+Use Python 3.13 e CoppeliaSim Edu com o add-on **ZeroMQ Remote API**.
+Abra o PowerShell na raiz do repositório. Na primeira execução, prepare o ambiente:
+
+```powershell
+python --version
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install --upgrade pip
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+```
+
+Abra o CoppeliaSim e deixe a simulação parada com **Stop (■)**. Uma cena
+vazia basta. O projeto prepara o terreno, o drone e os obstáculos.
+
+```powershell
+# Verificar a conexão local. simulation_state igual a 0 indica simulação parada.
+.\.venv\Scripts\python.exe -m src.benchmark --status
+
+# Abrir a comparação padrão no mapa principal
+.\apresentar.cmd
+```
+
+O atalho abre um replay completo compatível com o cenário, quando disponível
+em `output/experiments`. Caso contrário, coleta dois voos para montar a cena.
+Durante a coleta, aparece um terreno por vez. Aguarde o terminal informar
+o caminho da cena e então aperte **Play**. O A* aparece à esquerda, em
+laranja, e a referência de faixas paralelas à direita, em azul. As duas
+trajetórias gravadas avançam no mesmo relógio.
+
+| O que executar | Comando no PowerShell |
+| --- | --- |
+| Coletar dois voos novos no mapa principal | `.\apresentar.cmd --novo` |
+| Gerar os quatro planos do mapa principal e de Itatiaia sem abrir o simulador | `.\.venv\Scripts\python.exe -X utf8 -m src.benchmark --manifest configs/terrain_comparison.json --dry-run` |
+| Executar os quatro voos do mapa principal e de Itatiaia | `.\.venv\Scripts\python.exe -X utf8 -m src.benchmark --manifest configs/terrain_comparison.json --disable-rendering` |
+| Executar o benchmark de três recortes e cinco variantes, com 30 voos | `.\benchmark.cmd` |
+| Rodar a suíte automatizada sem abrir o simulador | `.\.venv\Scripts\python.exe -m pytest tests -q` |
+
+### Onde encontrar os resultados
+
+Cada nova coleta cria uma pasta em `output/experiments`. Caminhos de relatórios
+e cenas também aparecem no terminal e em `session.json`.
+
+- `report/index.html` reúne os resultados, falhas e critérios de comparação.
+- `flights/comparison.csv` contém o par de voos no cenário individual.
+  Em um lote, cada par tem seu próprio CSV em `flights/case_*/`.
+- `presentation/comparacao_lado_a_lado.ttt` contém a cena principal. Para
+  a comparação dos dois mapas, consulte `scenes_by_location` em
+  `session.json` e abra a cena do local desejado em **File → Open**.
+- `flights/` guarda protocolos, waypoints planejados e, em cada execução,
+  telemetria e métricas. Essas saídas são geradas localmente.
+
+Se só aparecer um terreno após o comando retornar, confira `session.json`
+e o relatório. Uma coleta interrompida pode deixar os resultados do par
+incompletos, e uma falha ao montar a cena aparece em `presentation_error`.
+Com o simulador parado, rode `.\apresentar.cmd --novo` para repetir a coleta.
+
 ## Visão geral
 
 O projeto utiliza dados de elevação TOPODATA/INPE para representar uma fazenda como um grid. Uma cobertura boustrophedon gera faixas de aplicação alternadas, e o algoritmo A* conecta os pontos da missão considerando distância tridimensional, ganho de altitude e regiões bloqueadas. A rota resultante é convertida em waypoints `(x, y, z)` e executada no CoppeliaSim pela ZeroMQ Remote API.
@@ -33,7 +90,7 @@ Métricas, CSV e imagens
 > O drone executa uma trajetória 3D, mas o algoritmo ainda não escolhe camadas
 > verticais independentes.
 
-## Início rápido: comparação sem vento
+## Comparação sem vento
 
 ### Comparar o recorte original com a Serra da Mantiqueira
 
@@ -56,6 +113,38 @@ salva uma cena de replay com referência e A* lado a lado. Os caminhos
 aparecem no terminal e em `scenes_by_location` no `session.json`. Para
 alternar entre os locais, pare a simulação e abra a cena correspondente
 no CoppeliaSim.
+
+### Resultados da configuração atual
+
+| Comparação a 8 m/s | Referência | A* com peso 0,304 | Diferença |
+| --- | ---: | ---: | ---: |
+| Mapa principal, voos registrados no CoppeliaSim | 289,25 Wh | 293,48 Wh | +1,46% |
+| Mapa principal, trajetória ideal | 279,22 Wh | 283,58 Wh | +1,56% |
+| Itatiaia, trajetória ideal | 287,20 Wh | 292,52 Wh | +1,85% |
+
+Os dois voos registrados concluíram com 100% de cobertura geométrica. O A*
+acumulou 18,87 m a menos de subida, percorreu 105,58 m a mais e levou
+12,25 s a mais. Em Itatiaia, os valores da tabela são estimativas em
+trajetória ideal, com coleta no CoppeliaSim ainda pendente.
+
+O custo padrão do A* soma a distância 3D e o ganho positivo de altitude
+multiplicado por `0.304`. A comparação padrão escolhe a rota pelo custo
+heurístico. O protótipo `--energy-planning` avalia candidatos diretamente
+em Wh estimados. A conversão energética que motivou o peso de subida
+corresponde a 4 m/s. A 8 m/s, o modelo do projeto dá cerca de 0,680 pela
+mesma aproximação. Nos dois recortes atuais, os pesos 0, 0,304, 0,680 e 10
+produziram a mesma rota A* selecionada em cada recorte. Os Wh são
+estimativas teóricas e a cobertura mede a faixa geométrica percorrida.
+
+Para testar o protótipo por energia em Itatiaia ou em outro cenário,
+use o YAML efetivo exportado pelo planejamento em `flights/scenario_*.yaml`
+ou informe um cenário do projeto. Exemplo de planejamento no mapa principal:
+
+```powershell
+.\.venv\Scripts\python.exe -X utf8 -m src.coverage_comparison --scenario configs/demo_coverage.yaml --energy-planning --dry-run
+```
+
+### Resultados históricos
 
 O [benchmark corrigido de 29/10/2026](docs/RESULTADOS_CONVENCIONAL_20261029.md)
 usa referência geométrica de faixas paralelas **sem A***. Foram executados
@@ -347,41 +436,11 @@ Projeto/
 └── README.md
 ```
 
-## Instalação no Windows
-
-Abra o PowerShell na pasta do projeto:
-
-```powershell
-cd ...\Projeto
-```
-
-Crie o ambiente virtual:
-
-```powershell
-python -m venv .venv
-```
-
-Ative o ambiente:
-
-```powershell
-.\.venv\Scripts\Activate.ps1
-```
-
-Instale as dependências:
-
-```powershell
-python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
-```
-
-Se o PowerShell impedir a ativação, execute uma vez na janela atual:
-
-```powershell
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-.\.venv\Scripts\Activate.ps1
-```
-
 ## Executar os testes
+
+Os exemplos abaixo que usam `python` pressupõem o ambiente virtual ativo.
+No PowerShell, também é possível substituir `python` por
+`.\.venv\Scripts\python.exe`.
 
 ### Experimento de planejamento para o artigo
 
@@ -765,6 +824,9 @@ python -m src.coppeliasim `
 Se a cena não possuir objetos com prefixo `Obstacle`, pule a etapa 2 e remova `--obstacles-file` da etapa 3.
 
 ## Arquivos gerados
+
+O planejador gera os CSVs de métricas e os gráficos abaixo durante a
+execução. Essas saídas locais são ignoradas pelo Git.
 
 ```text
 output\topodata_cobertura_boustrophedon.png
