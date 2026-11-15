@@ -5,3 +5,8 @@ __pycache__/
 output/runs/
 output/experiments/
 output/test*/
+/output/metricas_cobertura.csv
+/output/metricas_rotas.csv
+/output/*_cobertura_boustrophedon.png
+/output/*_menor_distancia.png
+/output/*_subida_penalizada.png

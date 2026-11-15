@@ -26,7 +26,7 @@ from src.waypoints import (
     local_xy_to_grid,
     nearest_traversable_grid_position,
 )
-from src.wind import WindEvent, WindVector
+from src.wind import WindVector
 
 
 Position3D = tuple[float, float, float]

@@ -104,7 +104,6 @@ def compare_coverage_flights(
         raise RuntimeError("Ambas as rotas precisam atender à cobertura planejada de 100%.")
     if any(t.path[0] != case.launch or t.path[-1] != case.launch for t in plans):
         raise RuntimeError("As duas rotas precisam começar e terminar na mesma origem.")
-    physical_window = case.window.expanded(scenario.simulation.terrain_padding_cells, case.terrain.shape)
     if any(not (physical_window.row_start <= r <= physical_window.row_end
                 and physical_window.col_start <= c <= physical_window.col_end)
            for plan in plans for r, c in plan.path):
