@@ -11,8 +11,6 @@ import socket
 from src.benchmark_report import generate_benchmark_report
 from src.comparison_scene import create_comparison_scene
 from src.coverage_comparison import compare_coverage_flights
-from src.validation_suite import run_validation_suite
-from src.energy_sensitivity import analyze_energy_sensitivity
 
 
 def check_simulator(host="127.0.0.1", port=23000):
@@ -56,8 +54,7 @@ def find_saved_replay(root: Path, scenario: Path) -> Path | None:
     return None
 
 
-def run_benchmark(output: Path, manifest: Path | None = Path("configs/validation_suite.json"),
-                  scenario: Path | None = None, dry_run=False,
+def run_benchmark(output: Path, scenario: Path = Path("configs/demo_coverage.yaml"), dry_run=False,
                   host="127.0.0.1", port=23000, prepare_scene=True,
                   executor="lua", disable_rendering=False):
     """Mantém os voos originais; visualização é replay, sem gerar outra medição."""
@@ -87,20 +84,10 @@ def run_benchmark(output: Path, manifest: Path | None = Path("configs/validation
 
     save()
     flights = output / "flights"
-    paired = bool(scenario)
-    manifest_definition = {}
-    if not scenario:
-        manifest_definition = json.loads(Path(manifest).read_text(encoding="utf-8"))
-        paired = not manifest_definition.get("ablation", True)
-    relief_study = any("height_scale" in entry for entry in manifest_definition.get("locations", []))
-    proposed = "proposta_subida_orientacao" if paired else "proposta_completa"
+    proposed = "proposta_subida_orientacao"
     try:
-        if scenario:
-            compare_coverage_flights(scenario, flights, host=host, port=port, dry_run=dry_run,
-                                     executor=executor, disable_rendering=disable_rendering)
-        else:
-            run_validation_suite(Path(manifest), flights, dry_run=dry_run, host=host, port=port,
-                                  executor=executor, disable_rendering=disable_rendering)
+        compare_coverage_flights(scenario, flights, host=host, port=port, dry_run=dry_run,
+                                 executor=executor, disable_rendering=disable_rendering)
         session["status"] = "planned" if dry_run else "flights_finished"
     except Exception as error:
         session.update(status="failed", error=str(error))
@@ -111,63 +98,15 @@ def run_benchmark(output: Path, manifest: Path | None = Path("configs/validation
             try:
                 generate_benchmark_report(flights, output / "report", proposed_method=proposed)
                 session["report"] = str(output / "report/index.html")
-                analyze_energy_sensitivity(output / "report", output / "sensitivity")
-                session["sensitivity"] = str(output / "sensitivity/sensitivity_summary.json")
-                if relief_study:
-                    from src.relief_report import generate_relief_report
-                    generate_relief_report(output, output / "relief_report")
-                    session["relief_report"] = str(output / "relief_report/index.html")
             except Exception as error:
                 session["report_error"] = str(error)
         save()
     if not dry_run and prepare_scene:
-        # Seleção visual por ordem de coleta e disponibilidade, nunca por economia.
-        pair = flights
-        location_pairs = {}
-        if not scenario:
-            attempts = json.loads((flights / "attempts.json").read_text(encoding="utf-8"))
-            if relief_study:
-                factors = {entry["id"]: float(entry.get("height_scale", 1.))
-                           for entry in manifest_definition["locations"]}
-                # Relevo maior é um critério visual declarado, sem consultar energia.
-                attempts = sorted(attempts, key=lambda entry: -factors[entry["case"]])
-            pair = flights / "case_00_repeat_01"
-            for attempt in attempts:
-                candidate = Path(attempt["output"])
-                comparison = candidate / "comparison.csv"
-                if comparison.is_file():
-                    with comparison.open(encoding="utf-8-sig") as stream:
-                        rows = {row["method"]: row for row in csv.DictReader(stream)}
-                    if all(rows.get(method, {}).get("mission_completed") == "True"
-                           for method in ("referencia_2d", proposed)):
-                        if not location_pairs:
-                            pair = candidate
-                        location_pairs.setdefault(attempt["case"], candidate)
-                        if not manifest_definition.get("replay_per_location"):
-                            break
-        session["presentation_source"] = str(pair)
-        session["presentation_selection_rule"] = "Primeiro par em ordem de coleta com ambas missões completas; sem consultar ganho energético."
-        if relief_study:
-            session["presentation_selection_rule"] = "Maior fator de relevo com duas missões completas, desempate pela ordem do manifesto; sem consultar ganho energético."
+        session["presentation_source"] = str(flights)
         try:
-            if manifest_definition.get("replay_per_location"):
-                scenes = session["scenes_by_location"] = {}
-                for location, candidate in location_pairs.items():
-                    if candidate == pair:
-                        continue
-                    try:
-                        scenes[location] = str(create_comparison_scene(
-                            candidate, output / f"presentation_{candidate.name}",
-                            proposed_method=proposed, host=host, port=port,
-                        ))
-                    except Exception as error:
-                        session.setdefault("presentation_errors_by_location", {})[location] = str(error)
-                        print(f"Replay de {location} indisponível: {error}", flush=True)
-            path = create_comparison_scene(pair, output / "presentation", proposed_method=proposed,
-                                           host=host, port=port)
+            path = create_comparison_scene(flights, output / "presentation",
+                                           proposed_method=proposed, host=host, port=port)
             session["scene"] = str(path)
-            if manifest_definition.get("replay_per_location") and location_pairs:
-                scenes[next(iter(location_pairs))] = str(path)
         except Exception as error:
             session["presentation_error"] = str(error)
             print(f"Voos preservados; preparação visual falhou: {error}", flush=True)
@@ -178,9 +117,7 @@ def run_benchmark(output: Path, manifest: Path | None = Path("configs/validation
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    source = parser.add_mutually_exclusive_group()
-    source.add_argument("--manifest", type=Path, default=Path("configs/validation_suite.json"))
-    source.add_argument("--scenario", type=Path, help="Somente um par, para demonstração rápida.")
+    parser.add_argument("--scenario", type=Path, default=Path("configs/demo_coverage.yaml"))
     parser.add_argument("--output", type=Path)
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=23000)
@@ -220,7 +157,7 @@ def main():
                           "time_step_s": sim.getSimulationTimeStep()}, ensure_ascii=False))
         return
     output = args.output or Path("output/experiments") / datetime.now().strftime("benchmark_%Y%m%d_%H%M%S_%f")
-    result = run_benchmark(output, args.manifest, args.scenario, args.dry_run,
+    result = run_benchmark(output, args.scenario, args.dry_run,
                            args.host, args.port, not args.no_scene,
                            args.executor, args.disable_rendering)
     print(f"Resultado: {result}")
@@ -231,8 +168,6 @@ def main():
         if session.get("scene"):
             print(f"Cena: {session['scene']}")
             print("Aperte Play na cena de comparação do CoppeliaSim para reproduzir os dois voos.")
-        for location, scene in session.get("scenes_by_location", {}).items():
-            print(f"Cena de {location}: {scene}")
         for key in ("report_error", "presentation_error"):
             if session.get(key):
                 print(f"Pendência preservada em session.json: {session[key]}")

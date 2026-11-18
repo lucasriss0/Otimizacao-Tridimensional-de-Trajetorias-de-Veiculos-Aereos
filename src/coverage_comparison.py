@@ -21,7 +21,6 @@ from src.planning_experiments import case_from_scenario, compare_planners
 from src.scenario import load_scenario
 from src.waypoints import export_waypoints_csv, grid_path_to_waypoints_3d
 from src.wind import WindEvent, WindScenario, WindVector
-from src.ablation import select_ablation_plans
 from src.conventional import plan_conventional, BASELINE_DESCRIPTION, BASELINE_VERSION
 from src.executed_coverage import (
     analyze_executed_coverage, assess_flight, export_energy_contrasts,
@@ -42,14 +41,13 @@ def compare_coverage_flights(
     host: str = "127.0.0.1", port: int = 23000,
     dry_run: bool = False, client_factory=None,
     energy_model_path: Path = Path("configs/energy_reference.json"),
-    ablation: bool = False,
     minimum_executed_coverage: float = 100.,
     maximum_telemetry_gap_s: float = 1.,
     method_order: list[str] | None = None,
     executor: str = "python",
     disable_rendering: bool = False,
     time_step_s: float | None = None,
-    energy_planning: bool = False,
+    proposed_only: bool = False,
 ) -> Path:
     """A proposta usa subida e seleção horizontal/vertical; não mede bateria.
 
@@ -58,8 +56,6 @@ def compare_coverage_flights(
     """
     if output.exists():
         raise FileExistsError(f"Escolha uma pasta nova: {output}")
-    if energy_planning and ablation:
-        raise ValueError("Seleção energética e ablação histórica são experimentos separados.")
     if executor not in ("python", "lua"):
         raise ValueError("Executor deve ser python ou lua.")
     if time_step_s is not None and (not isfinite(time_step_s) or not 0 < time_step_s <= .2):
@@ -83,20 +79,12 @@ def compare_coverage_flights(
     measure_executed_coverage([], case, maximum_telemetry_gap_s)
     trials = compare_planners(case, (scenario.coverage.climb_weight,),
                               evaluation_weight=scenario.coverage.climb_weight)
-    plans = [plan_conventional(case, scenario.coverage.climb_weight),
-             next(t for t in trials if t.method == "climb_orientation")]
-    if ablation:
-        plans = select_ablation_plans(case, scenario.coverage.climb_weight)
-    labels = [p.method for p in plans] if ablation else ["referencia_2d", "proposta_subida_orientacao"]
+    proposed = next(t for t in trials if t.method == "climb_orientation")
+    plans = [proposed] if proposed_only else [
+        plan_conventional(case, scenario.coverage.climb_weight), proposed]
+    labels = ["proposta_subida_orientacao"] if proposed_only else [
+        "referencia_2d", "proposta_subida_orientacao"]
     physical_window = case.window.expanded(scenario.simulation.terrain_padding_cells, case.terrain.shape)
-    energy_selection = None
-    if energy_planning:
-        from src.energy_planning import select_energy_plan
-        energy_selection = select_energy_plan(case, energy_model,
-            scenario.simulation.speed_mps, scenario.coverage.climb_weight, physical_window,
-            scenario.coverage.clearance_m, scenario.simulation.minimum_clearance_m)
-        plans.append(energy_selection.plan)
-        labels.append("proposta_energia")
     if method_order is not None and (len(method_order) != len(labels) or set(method_order) != set(labels)):
         raise ValueError("A ordem dos métodos deve ser uma permutação exata dos métodos comparados.")
     execution_order = list(method_order or labels)
@@ -132,9 +120,11 @@ def compare_coverage_flights(
         "requested_time_step_s": time_step_s,
         "baseline_planner": BASELINE_VERSION,
         "baseline_description": BASELINE_DESCRIPTION,
-        "energy_planning": energy_selection.manifest() if energy_selection else None,
+        "proposed_only": proposed_only,
         "method_plan_mapping": dict(zip(labels,[p.method for p in plans])),
-        "comparison_scope": "Referência operacional geométrica sem A* versus proposta A*. Não reproduz o algoritmo interno de um fabricante.",
+        "comparison_scope": ("Apresentação individual do nosso A* com distância, subida e seleção da orientação."
+                             if proposed_only else
+                             "Referência operacional geométrica sem A* versus proposta A*. Não reproduz o algoritmo interno de um fabricante."),
         "collision_monitoring": "Obrigatório, coleção de todas as shapes do drone contra terreno e obstáculos; falha de leitura invalida o voo.",
         "git_revision": subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip(),
         "source_sha256": {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in Path(__file__).parent.glob("*.py")},
@@ -264,11 +254,12 @@ def compare_coverage_flights(
             writer.writeheader()
             writer.writerows(rows)
         canonical_rows = sorted(rows, key=lambda row: labels.index(row["method"]))
-        if canonical_rows[0]["method"] == labels[0]:
+        if not proposed_only and canonical_rows[0]["method"] == labels[0]:
             export_energy_contrasts(canonical_rows, output / "energy_contrasts.csv")
         print(f"Concluído: {log.success}; logs: {log.output_directory}", flush=True)
     _wait_stopped(sim)
-    print("Comparação concluída. O custo normalizado não representa consumo de bateria.")
+    print("Apresentação do A* concluída." if proposed_only else
+          "Comparação concluída. O custo normalizado não representa consumo de bateria.")
     return output
 
 
@@ -280,8 +271,7 @@ def main() -> None:
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=23000)
     parser.add_argument("--dry-run", action="store_true")
-    parser.add_argument("--ablation", action="store_true", help="Compara as cinco variantes para isolar contribuições.")
-    parser.add_argument("--energy-planning", action="store_true", help="Acrescenta seleção por Wh previstos e conexões refinadas; teste de desenvolvimento.")
+    parser.add_argument("--proposed-only", action="store_true", help="Prepara a cena e executa somente nosso A*.")
     parser.add_argument("--minimum-executed-coverage", type=float, default=100.)
     parser.add_argument("--maximum-telemetry-gap", type=float, default=1.)
     parser.add_argument("--energy-model", type=Path, default=Path("configs/energy_reference.json"))
@@ -292,8 +282,7 @@ def main() -> None:
     output = args.output or Path("output/experiments") / datetime.now().strftime("coverage_%Y%m%d_%H%M%S_%f")
     result = compare_coverage_flights(args.scenario, output, args.scene, args.host,
                                      args.port, args.dry_run, energy_model_path=args.energy_model,
-                                     ablation=args.ablation,
-                                     energy_planning=args.energy_planning,
+                                     proposed_only=args.proposed_only,
                                      minimum_executed_coverage=args.minimum_executed_coverage,
                                      maximum_telemetry_gap_s=args.maximum_telemetry_gap,
                                      executor=args.executor, disable_rendering=args.disable_rendering,

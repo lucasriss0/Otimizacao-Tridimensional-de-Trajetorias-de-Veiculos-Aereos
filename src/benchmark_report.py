@@ -229,9 +229,8 @@ def _format(value, digits=3):
 
 def _method_comparisons(rows, expected, protocol, reference_method):
     """As variantes também usam pares completos; não mistura terrenos entre métodos."""
-    from src.ablation import METHODS
     comparisons = []
-    for method in METHODS[1:]:
+    for method in dict.fromkeys(row["method"] for row in rows):
         if method != reference_method and any(row["method"] == method for row in rows):
             pairs = _pairs(rows, expected, protocol, reference_method, method)
             summary, cases = _summarize(pairs)

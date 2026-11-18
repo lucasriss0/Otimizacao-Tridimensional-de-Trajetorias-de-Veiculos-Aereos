@@ -11,14 +11,14 @@ def test_dry_benchmark_records_protocol_and_implementation_without_simulator(tmp
     def suite(manifest, output, **kwargs):
         assert kwargs["dry_run"] is True
         output.mkdir()
-        (output / "manifest.json").write_text('{}')
-    monkeypatch.setattr(benchmark, "run_validation_suite", suite)
+        (output / "protocol.json").write_text('{}')
+    monkeypatch.setattr(benchmark, "compare_coverage_flights", suite)
     result = benchmark.run_benchmark(tmp_path / "benchmark", dry_run=True)
     session = json.loads((result / "session.json").read_text(encoding="utf-8"))
     assert session["status"] == "planned"
     assert session["real_battery_saving_proven"] is False
     assert (result / "implementation/src/coppeliasim.py").is_file()
-    assert session["source_sha256"]["configs/validation_suite.json"]
+    assert session["source_sha256"]["configs/demo_coverage.yaml"]
     assert not (result / "report").exists()
 
 
@@ -26,12 +26,11 @@ def test_partial_benchmark_gets_report_and_keeps_failure(tmp_path, monkeypatch):
     monkeypatch.setattr(benchmark, "check_simulator", lambda *args: None)
     def suite(manifest, output, **kwargs):
         output.mkdir()
-        (output / "manifest.json").write_text('{}')
+        (output / "protocol.json").write_text('{}')
         raise RuntimeError("voo interrompido")
-    monkeypatch.setattr(benchmark, "run_validation_suite", suite)
+    monkeypatch.setattr(benchmark, "compare_coverage_flights", suite)
     calls = []
     monkeypatch.setattr(benchmark, "generate_benchmark_report", lambda *args, **kwargs: calls.append(args))
-    monkeypatch.setattr(benchmark, "analyze_energy_sensitivity", lambda *args: None)
     output = tmp_path / "benchmark"
     with pytest.raises(RuntimeError, match="interrompido"):
         benchmark.run_benchmark(output)
@@ -48,7 +47,6 @@ def test_pair_benchmark_prepares_replay_of_prespecified_pair(tmp_path, monkeypat
         (output / "protocol.json").write_text('{}')
     monkeypatch.setattr(benchmark, "compare_coverage_flights", compare)
     monkeypatch.setattr(benchmark, "generate_benchmark_report", lambda *args, **kwargs: calls.append(("report", args, kwargs)))
-    monkeypatch.setattr(benchmark, "analyze_energy_sensitivity", lambda *args: None)
     monkeypatch.setattr(benchmark, "create_comparison_scene", lambda *args, **kwargs: calls.append(("scene", args, kwargs)) or Path("scene.ttt"))
     result = benchmark.run_benchmark(tmp_path / "benchmark", scenario=Path("scenario.yaml"))
     session = json.loads((result / "session.json").read_text(encoding="utf-8"))
