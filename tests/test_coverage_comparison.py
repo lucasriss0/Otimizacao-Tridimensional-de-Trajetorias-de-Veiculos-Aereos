@@ -35,6 +35,24 @@ def test_dry_run_exports_comparable_closed_routes_without_connecting(tmp_path):
         comparison.compare_coverage_flights(Path("configs/demo_coverage.yaml"), output, dry_run=True)
 
 
+def test_obstacle_presentation_plans_both_methods_around_shared_exclusions(tmp_path):
+    from src.conventional import GeometricConnections
+    case = comparison.case_from_scenario(Path("configs/demo_obstacles.yaml"))
+    output = comparison.compare_coverage_flights(
+        Path("configs/demo_obstacles.yaml"), tmp_path / "obstacles", dry_run=True,
+        client_factory=lambda **kwargs: pytest.fail("Não conectar"),
+    )
+    protocol = json.loads((output / "protocol.json").read_text(encoding="utf-8"))
+    assert len(protocol["effective_scenario"]["obstacles"]) == 12
+    assert protocol["method_order"] == ["referencia_2d", "proposta_subida_orientacao"]
+    connector = GeometricConnections(case.obstacle_mask, case.cell_x_m, case.cell_y_m)
+    for plan in protocol["plans"]:
+        assert plan["coverage_percent"] == 100
+        assert plan["path"][0] == plan["path"][-1] == list(case.launch)
+        assert plan["normalized_cost"] > 0
+        assert all(connector.visible(a, b) for a, b in zip(plan["path"], plan["path"][1:]))
+
+
 def test_live_pair_executes_exact_plans_and_keeps_controller_equal(tmp_path, monkeypatch):
     scene = tmp_path / "scene.ttt"
     scene.touch()

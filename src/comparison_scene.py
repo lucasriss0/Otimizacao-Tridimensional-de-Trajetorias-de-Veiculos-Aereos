@@ -38,6 +38,8 @@ class ReplayFlight:
     eligible: bool
     energy_available: bool
     exclusion_reasons: tuple[str, ...] = ()
+    planned_cost: float | None = None
+    executed_cost: float | None = None
 
     @property
     def duration_s(self) -> float:
@@ -116,6 +118,8 @@ def _load_flight(source: Path, row: dict, plan: dict, terrain: np.ndarray,
     return ReplayFlight(
         row["method"], label, folder, np.column_stack([samples, energy]), planned,
         coverage, not exclusion_reasons, energy_available, tuple(exclusion_reasons),
+        plan.get("normalized_cost"),
+        float(row["executed_normalized_cost"]) if row.get("executed_normalized_cost") not in (None, "") else None,
     )
 
 
@@ -252,6 +256,9 @@ def replay_script(flights, offsets, scale, rate=1., loop=False,
                              for row in frames)
         tables.append("{alias=" + _lua_string(f"/ReplayDrone{index}")
                       + ",label=" + _lua_string(flight.label)
+                      + ",cost=" + _lua_string(
+                          "Custo planejado: " + (f"{flight.planned_cost:.2f}" if flight.planned_cost is not None else "indisponível")
+                          + " | executado: " + (f"{flight.executed_cost:.2f}" if flight.executed_cost is not None else "indisponível"))
                       + f",available={'true' if flight.energy_available else 'false'}"
                       + f",eligible={'true' if flight.eligible else 'false'}"
                       + ",coverage=" + (f"{flight.coverage_percent:.10g}"
@@ -337,14 +344,17 @@ function sysCall_init()
           <label id="23" text="ESQUERDA: proposta" style="font-weight: bold;" />
           <label id="21" text="0 Wh estimados" />
           <label id="22" text="Cobertura executada" />
+          <label id="24" text="Custo normalizado" />
         </group>
         <group layout="vbox" style="background-color: #dcecff; padding: 6px;">
           <label id="13" text="DIREITA: referência" style="font-weight: bold;" />
           <label id="11" text="0 Wh estimados" />
           <label id="12" text="Cobertura executada" />
+          <label id="14" text="Custo normalizado" />
         </group>
       </group>
       <label text="Rotas coloridas: planos | trilha branca: execução registrada | relógios não normalizados" />
+      <label text="Custo normalizado = distância 3D + peso × subida | energia estimada em Wh" />
       <label id="2" text="Aguardando término das missões" />
       <label text="Os drones são ícones sem física. A comparação numérica vem das missões registradas." />
     </ui>]])
@@ -355,6 +365,7 @@ function sysCall_init()
         local status=flight.eligible and 'elegível para comparação' or 'INELEGÍVEL para comparação'
         local coverage=flight.coverage and string.format('%.2f%%',flight.coverage) or 'indisponível'
         simUI.setLabelText(ui,10*i+2,'Cobertura geométrica: '..coverage..' | '..status)
+        simUI.setLabelText(ui,10*i+4,flight.cost)
     end
     clearTrails()
     update(0)

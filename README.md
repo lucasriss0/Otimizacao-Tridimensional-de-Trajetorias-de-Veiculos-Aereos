@@ -42,6 +42,31 @@ novamente o segundo comando.
 
 ## O que explicar durante a apresentação
 
+### Comparação com vários obstáculos
+
+Com o CoppeliaSim aberto e parado, execute:
+
+~~~powershell
+.\apresentar.cmd --objetos
+~~~
+
+Esse cenário coloca 12 árvores ao longo das passadas, com raio de segurança
+de 35 m, e usa os mesmos obstáculos para ambos os métodos. Os parâmetros estão
+em configs/demo_obstacles.yaml. A primeira execução coleta os dois voos em
+sequência e abre o replay lado a lado. Aperte Play para reproduzir os registros.
+As execuções seguintes abrem uma comparação completa salva desse cenário.
+
+O painel mostra custo normalizado planejado e executado, cobertura e Wh
+estimados. O relatório HTML e os CSVs ficam na pasta informada pelo terminal.
+O custo normalizado soma distância 3D e peso vezes subida. Os Wh dependem da
+trajetória registrada no simulador.
+
+No planejamento inicial desse cenário, ambos atingiram 100% de cobertura.
+O custo foi 5.678,44 na referência e 6.301,51 no A*. Esses números descrevem
+as rotas planejadas. A energia e a segurança executadas serão avaliadas na coleta.
+
+### Como os métodos funcionam
+
 A referência usa faixas alternadas na direção do maior lado. Conecta pontos por
 geometria e Dijkstra em XY quando há exclusões. Nosso A* conecta os alvos numa
 grade de oito movimentos e escolhe entre as orientações horizontal e vertical.
