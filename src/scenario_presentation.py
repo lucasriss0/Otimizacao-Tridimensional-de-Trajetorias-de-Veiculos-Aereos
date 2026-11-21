@@ -1,0 +1,195 @@
+"""Apresenta todos os cenários e suas rotas planejadas na mesma cena."""
+
+import argparse
+from datetime import datetime
+from pathlib import Path
+
+import numpy as np
+
+from src.comparison_scene import _create_drone, _frame_camera, _lua_string, _route_ribbon
+from src.coppelia_scene import (
+    _create_crop_visualization, _create_terrain_visualization, _create_tree_obstacle,
+    _remove_if_present, _set_scene_appearance,
+)
+from src.coverage import CoverageWindow
+from src.coverage_comparison import plan_coverage_routes
+from src.planning_experiments import case_from_scenario
+from src.scenario import load_scenario
+from src.waypoints import grid_path_to_waypoints_3d
+
+
+SCENARIOS = (
+    ("demo_coverage", "Cenário original"),
+    ("demo_obstacles", "Cenário com 12 árvores"),
+    ("serra_do_cipo", "Serra do Cipó"),
+    ("monte_verde", "Monte Verde"),
+)
+
+
+def create_presentation(output: Path, port: int = 23000) -> Path:
+    from coppeliasim_zmqremoteapi_client import RemoteAPIClient
+
+    output = output.resolve()
+    settings = []
+    for scenario_id, name in SCENARIOS:
+        path = Path("configs") / f"{scenario_id}.yaml"
+        scenario = load_scenario(path)
+        case = case_from_scenario(path)
+        plans, window = plan_coverage_routes(case, scenario)
+        settings.append((name, scenario, case, plans, window))
+
+    from src.benchmark import check_simulator
+
+    check_simulator(port=port)
+    sim = RemoteAPIClient(port=port).require("sim")
+    if sim.getSimulationState() != sim.simulation_stopped:
+        raise RuntimeError("Clique em Stop no CoppeliaSim antes de abrir a apresentação.")
+
+    output.mkdir(parents=True, exist_ok=False)
+    backup = (output / "scene_before.ttt").as_posix()
+    sim.saveScene(backup)
+    app = Path(sim.getStringParam(sim.stringparam_application_path))
+    try:
+        sim.loadScene((app / "system/dfltscn.ttt").as_posix())
+        _remove_if_present(sim, "/Floor")
+        _set_scene_appearance(sim)
+        _populate_scene(sim, app, settings)
+        scene_path = output / "todos_os_cenarios.ttt"
+        sim.saveScene(scene_path.as_posix())
+    except Exception:
+        sim.loadScene(backup)
+        raise
+    return scene_path
+
+
+def _populate_scene(sim, app, settings):
+    tile_size = max(max(window.row_end - window.row_start + 1,
+                        window.col_end - window.col_start + 1)
+                    * case.cell_x_m * scenario.simulation.scale
+                    for _, scenario, case, _, window in settings)
+    spacing = tile_size + 1.6
+    flight_tables = []
+    for column, (name, scenario, case, plans, window) in enumerate(settings):
+        scale = scenario.simulation.scale
+        cell = case.cell_x_m
+        terrain = case.terrain
+        mission = case.window
+        crop = terrain[window.row_start:window.row_end + 1, window.col_start:window.col_end + 1]
+        application_window = CoverageWindow(
+            mission.row_start - window.row_start, mission.col_start - window.col_start,
+            mission.row_end - window.row_start, mission.col_end - window.col_start,
+        )
+        crop_origin = np.array([
+            ((window.col_start + window.col_end) / 2 - (terrain.shape[1] - 1) / 2) * cell * scale,
+            ((terrain.shape[0] - 1) / 2 - (window.row_start + window.row_end) / 2) * cell * scale,
+            (float(np.min(crop)) - float(np.min(terrain))) * scale,
+        ])
+        for row, (plan, method, color) in enumerate(zip(
+            plans, ("Convencional", "A*"), ([.12, .45, .93], [1., .53, .07]),
+        )):
+            alias = f"Painel{column}_{row}"
+            center = np.array([(column - (len(settings) - 1) / 2) * spacing,
+                               (row - .5) * spacing, 0.])
+            offset = center - crop_origin
+            tile = _create_terrain_visualization(sim, crop, cell, scale)
+            crop_handle = _create_crop_visualization(sim, crop, application_window, cell, scale)
+            for handle, kind in ((tile, "Terreno"), (crop_handle, "Cultivo")):
+                sim.setObjectAlias(handle, f"{kind}{alias}")
+                sim.setObjectPosition(handle, center.tolist(), sim.handle_world)
+            for number, obstacle in enumerate(scenario.obstacles):
+                tree = _create_tree_obstacle(sim, app / "models/nature/Tree.ttm",
+                                             f"Arvore{alias}_{number}", obstacle.x_m, obstacle.y_m,
+                                             terrain, cell, scale)
+                position = np.array(sim.getObjectPosition(tree, sim.handle_world)) + offset
+                sim.setObjectPosition(tree, position.tolist(), sim.handle_world)
+
+            waypoints = grid_path_to_waypoints_3d(
+                terrain, plan.path, cell, case.cell_y_m, scenario.coverage.clearance_m,
+            )
+            positions = np.array([[item.x_m, item.y_m, item.z_m] for item in waypoints])
+            durations = np.linalg.norm(np.diff(positions, axis=0), axis=1) / scenario.simulation.speed_mps
+            keep = np.r_[True, durations > 0]
+            timestamps = np.r_[0., np.cumsum(durations)][keep]
+            positions = positions[keep] * scale + offset
+            _route_ribbon(sim, positions, f"Rota{alias}", color, width=.04)
+            drone_alias = f"Drone{alias}"
+            _create_drone(sim, drone_alias, color, positions[0].tolist())
+            title = f"{name} | {method}"
+            label_position = center + [0., -tile_size / 2 - .24, .15]
+            frames = ",\n".join("{" + ",".join(f"{value:.10g}" for value in frame) + "}"
+                                for frame in np.column_stack([timestamps, positions]))
+            label_coords = ",".join(f"{value:.10g}" for value in label_position)
+            flight_tables.append(
+                f"{{alias={_lua_string('/' + drone_alias)}, title={_lua_string(title)}, "
+                f"label={{{label_coords},0,0,0}}, frames={{\n{frames}\n}}}}"
+            )
+
+    code = _LUA.replace("__ROUTES__", ",\n".join(flight_tables))
+    script = sim.createScript(sim.scripttype_customization, code, 0, "lua")
+    sim.setObjectAlias(script, "AnimacaoRotasPlanejadas")
+    sim.setObjectSelection([])
+    if not sim.getBoolParam(sim.boolparam_headless):
+        sim.setBoolParam(sim.boolparam_infotext_visible, False)
+        _frame_camera(sim, len(settings) * spacing, 1.)
+    sim.setBoolParam(sim.boolparam_realtime_simulation, True)
+
+
+_LUA = '''sim = require 'sim'
+local routes = {__ROUTES__}
+local playbackRate = 8
+local duration = 0
+
+function sysCall_init()
+    for _,route in ipairs(routes) do
+        route.handle = sim.getObject(route.alias)
+        route.banner = sim.addBanner(route.title, 15,
+            sim.banner_keepsamesize + sim.banner_fullyfacingcamera + sim.banner_overlay,
+            route.label)
+        duration = math.max(duration, route.frames[#route.frames][1])
+    end
+end
+
+function sysCall_beforeSimulation()
+    for _,route in ipairs(routes) do route.index = 1 end
+end
+
+function sysCall_sensing()
+    local t = sim.getSimulationTime() * playbackRate
+    for _,route in ipairs(routes) do
+        local frames = route.frames
+        while route.index < #frames and frames[route.index + 1][1] <= t do
+            route.index = route.index + 1
+        end
+        local a = frames[route.index]
+        local b = frames[math.min(route.index + 1, #frames)]
+        local fraction = 0
+        if b[1] > a[1] then fraction = (t - a[1]) / (b[1] - a[1]) end
+        sim.setObjectPosition(route.handle, {
+            a[2] + (b[2] - a[2]) * fraction,
+            a[3] + (b[3] - a[3]) * fraction,
+            a[4] + (b[4] - a[4]) * fraction,
+        }, sim.handle_world)
+    end
+    if t >= duration then sim.pauseSimulation() end
+end
+
+function sysCall_cleanup()
+    for _,route in ipairs(routes) do
+        if route.banner then sim.removeBanner(route.banner) end
+    end
+end
+'''
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--port", type=int, default=23000)
+    args = parser.parse_args()
+    stamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+    scene = create_presentation(Path("output/experiments") / f"apresentacao_todos_{stamp}", args.port)
+    print(f"Cena com {len(SCENARIOS)} cenários: {scene}")
+    print(f"Aperte Play para animar as {2 * len(SCENARIOS)} rotas planejadas.")
+
+
+if __name__ == "__main__":
+    main()

@@ -14,7 +14,7 @@ python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 ~~~
 
-## Os dois comandos da apresentação
+## Comandos da apresentação
 
 Abra o CoppeliaSim e clique em **Stop (■)** antes de executar um comando.
 
@@ -39,6 +39,19 @@ quadricóptero e registra o percurso. A cena aberta é copiada na pasta da execu
 Mantenha o terminal aberto durante o voo. Aguarde o término antes de iniciar outro
 comando. Para repetir a apresentação individual, pare a simulação e execute
 novamente o segundo comando.
+
+Para abrir o cenário original, o cenário com 12 árvores, a Serra do Cipó e
+Monte Verde na mesma cena, com o CoppeliaSim aberto e parado, execute o
+comando abaixo.
+
+~~~powershell
+.\apresentar.cmd todos
+~~~
+
+Cada painel identifica o terreno e o método. As rotas A* aparecem em laranja
+e as faixas convencionais em azul. Aperte **Play** para animar as oito rotas
+planejadas no mesmo relógio, a 8×. A cena usa os planos dos cenários e fica
+disponível sem coleta de telemetria.
 
 ## O que explicar durante a apresentação
 
@@ -79,9 +92,36 @@ a altitude do terreno mais uma margem de segurança.
 A comparação visual reproduz os dois voos previamente registrados com o
 mesmo relógio. A coleta executa cada método separadamente.
 
-## Cenário e resultados
+## Cenários e resultados
 
-Os parâmetros da apresentação ficam em configs/demo_coverage.yaml.
+### Cenários montanhosos de Minas Gerais
+
+| Cenário | Centro do recorte (lat., lon.) | Altitude do recorte | Folha TOPODATA/INPE |
+| --- | --- | ---: | --- |
+| Serra do Cipó, no Espinhaço | -19.365, -43.565 | 830–1.418 m | [19S45_ZN](https://www.dsr.inpe.br/topodata/data/geotiff/19S45_ZN.zip) |
+| Monte Verde, em Camanducaia, na Mantiqueira | -22.850, -46.006 | 1.448–1.825 m | [22S465ZN](https://www.dsr.inpe.br/topodata/data/geotiff/22S465ZN.zip) |
+
+Os GeoTIFFs em `data/raw/` preservam os valores de altitude das folhas e usam
+o sistema de referência EPSG:4326. [Especificação do TOPODATA](https://data.inpe.br/dados/topodata/)
+
+Cada cenário recorta 3 × 3 km, com uma janela de missão de 600 × 600 m e três
+árvores simuladas com raios de exclusão de 45 a 60 m.
+
+~~~powershell
+.\apresentar.cmd serra_do_cipo
+.\apresentar.cmd monte_verde
+~~~
+
+Para voar apenas o A*, passe `--novo` antes do nome do cenário.
+
+~~~powershell
+.\apresentar.cmd --novo serra_do_cipo
+.\apresentar.cmd --novo monte_verde
+~~~
+
+### Cenário principal
+
+Os parâmetros da apresentação principal ficam em `configs/demo_coverage.yaml`.
 
 | Parâmetro | Valor |
 | --- | --- |

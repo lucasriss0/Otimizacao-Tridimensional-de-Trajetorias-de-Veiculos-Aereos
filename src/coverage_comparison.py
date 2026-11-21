@@ -36,6 +36,24 @@ def _wait_stopped(sim) -> None:
         sleep(.1)
 
 
+def plan_coverage_routes(case, scenario, proposed_only=False):
+    """Planeja e valida as rotas usadas na apresentação e nos voos."""
+    weight = scenario.coverage.climb_weight
+    trials = compare_planners(case, (weight,), evaluation_weight=weight)
+    proposed = next(t for t in trials if t.method == "climb_orientation")
+    plans = [proposed] if proposed_only else [plan_conventional(case, weight), proposed]
+    physical_window = case.window.expanded(scenario.simulation.terrain_padding_cells, case.terrain.shape)
+    if not all(t.eligible for t in plans):
+        raise RuntimeError("Ambas as rotas precisam atender à cobertura planejada de 100%.")
+    if any(t.path[0] != case.launch or t.path[-1] != case.launch for t in plans):
+        raise RuntimeError("As duas rotas precisam começar e terminar na mesma origem.")
+    if any(not (physical_window.row_start <= r <= physical_window.row_end
+                and physical_window.col_start <= c <= physical_window.col_end)
+           for plan in plans for r, c in plan.path):
+        raise RuntimeError("A rota sai do terreno físico. Aumente terrain_padding_cells antes da coleta.")
+    return plans, physical_window
+
+
 def compare_coverage_flights(
     scenario_path: Path, output: Path, scene_path: Path | None = None,
     host: str = "127.0.0.1", port: int = 23000,
@@ -77,25 +95,12 @@ def compare_coverage_flights(
     case = case_from_scenario(scenario_path)
     assess_flight({}, {}, {}, minimum_executed_coverage)
     measure_executed_coverage([], case, maximum_telemetry_gap_s)
-    trials = compare_planners(case, (scenario.coverage.climb_weight,),
-                              evaluation_weight=scenario.coverage.climb_weight)
-    proposed = next(t for t in trials if t.method == "climb_orientation")
-    plans = [proposed] if proposed_only else [
-        plan_conventional(case, scenario.coverage.climb_weight), proposed]
+    plans, physical_window = plan_coverage_routes(case, scenario, proposed_only)
     labels = ["proposta_subida_orientacao"] if proposed_only else [
         "referencia_2d", "proposta_subida_orientacao"]
-    physical_window = case.window.expanded(scenario.simulation.terrain_padding_cells, case.terrain.shape)
     if method_order is not None and (len(method_order) != len(labels) or set(method_order) != set(labels)):
         raise ValueError("A ordem dos métodos deve ser uma permutação exata dos métodos comparados.")
     execution_order = list(method_order or labels)
-    if not all(t.eligible for t in plans):
-        raise RuntimeError("Ambas as rotas precisam atender à cobertura planejada de 100%.")
-    if any(t.path[0] != case.launch or t.path[-1] != case.launch for t in plans):
-        raise RuntimeError("As duas rotas precisam começar e terminar na mesma origem.")
-    if any(not (physical_window.row_start <= r <= physical_window.row_end
-                and physical_window.col_start <= c <= physical_window.col_end)
-           for plan in plans for r, c in plan.path):
-        raise RuntimeError("A rota sai do terreno físico. Aumente terrain_padding_cells antes da coleta.")
     output.mkdir(parents=True, exist_ok=False)
     effective_path = output / "scenario_no_wind.json"
     effective_path.write_text(json.dumps(asdict(scenario), default=str,

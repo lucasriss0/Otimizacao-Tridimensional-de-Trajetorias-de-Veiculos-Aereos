@@ -1,0 +1,51 @@
+id: monte_verde
+output_root: output/runs
+terrain:
+  topodata: data/raw/monte_verde_ZN.tif
+  center_lat: -22.85
+  center_lon: -46.006
+  area_m: 3000
+  size: 100
+coverage:
+  window: [40, 40, 59, 59]
+  swath_m: 120
+  stripe_spacing_m: 90
+  clearance_m: 60
+  climb_weight: 0.304
+obstacles:
+  - name: ObstacleTree1
+    x_m: -135
+    y_m: -105
+    safety_radius_m: 60
+  - name: ObstacleTree2
+    x_m: 15
+    y_m: 75
+    safety_radius_m: 60
+  - name: ObstacleTree3
+    x_m: 165
+    y_m: -45
+    safety_radius_m: 45
+simulation:
+  terrain_padding_cells: 4
+  scale: 0.01
+  speed_mps: 8
+  warmup_s: 5
+  tolerance_m: 8
+  minimum_clearance_m: 55
+  waypoint_timeout_s: 90
+  global_timeout_s: 1200
+  target: auto
+  drone: /Drone
+  body: auto
+  apply_visual_force: false
+wind:
+  visual:
+    acceleration_gain: 0
+    maximum_acceleration: 0
+    replan_delay_s: 0
+    maximum_drift_m: 0
+  events:
+    - name: sem_vento
+      at_s: 0
+      east_mps: 0
+      north_mps: 0
