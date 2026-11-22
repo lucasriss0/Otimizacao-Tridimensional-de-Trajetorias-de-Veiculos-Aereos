@@ -271,7 +271,6 @@ def replay_script(flights, offsets, scale, rate=1., loop=False,
 
 _LUA = r'''-- Replay de telemetrias já coletadas. Energia estimada; não é bateria medida.
 sim = require 'sim'
-simUI = require 'simUI'
 local flights = {__DATA__}
 local rate = __RATE__
 local loop = __LOOP__
@@ -311,10 +310,14 @@ local function update(t)
             sim.addDrawingObjectItem(trails[i],{q[2],q[3],q[4],p[2],p[3],p[4]})
         end
         previous[i]=p
-        local wh=flight.available and string.format('%.4f Wh estimados',p[5]) or 'Energia indisponível'
-        local done=t>=flight.frames[#flight.frames][1]
-        simUI.setLabelText(ui,10*i+1,wh..(done and ' | missão encerrada' or ''))
+        if ui then
+            local wh=flight.available and string.format('%.4f Wh estimados',p[5]) or 'Energia indisponível'
+            local done=t>=flight.frames[#flight.frames][1]
+            simUI.setLabelText(ui,10*i+1,wh..(done and ' | missão encerrada' or ''))
+        end
     end
+    lastTime=t
+    if not ui then return end
     if t>=duration then
         local a,b=flights[1],flights[2]
         if a.available and b.available and a.eligible and b.eligible and a.frames[#a.frames][5]>0 then
@@ -326,7 +329,6 @@ local function update(t)
     else
         simUI.setLabelText(ui,2,'A redução final só é exibida após o término das duas missões elegíveis.')
     end
-    lastTime=t
     simUI.setLabelText(ui,1,string.format('Replay do tempo original: %.1f / %.1f s | reprodução %.1fx',t,duration,rate))
 end
 
@@ -335,11 +337,8 @@ function toggleDetails()
     if simUI.isVisible(ui) then simUI.hide(ui) else simUI.show(ui) end
 end
 
-function sysCall_init()
-    for i,flight in ipairs(flights) do
-        handles[i]=sim.getObject(flight.alias)
-        duration=math.max(duration,flight.frames[#flight.frames][1])
-    end
+local function createPanels()
+    simUI = require 'simUI'
     menu=simUI.create([[<ui title="Replay" closeable="false" activate="false" placement="relative" position="-20,85">
       <button text="Métricas dos voos" on-click="toggleDetails" />
     </ui>]])
@@ -376,6 +375,14 @@ function sysCall_init()
         simUI.setLabelText(ui,10*i+2,'Cobertura geométrica: '..coverage..' | '..status)
         simUI.setLabelText(ui,10*i+4,flight.cost)
     end
+end
+
+function sysCall_init()
+    for i,flight in ipairs(flights) do
+        handles[i]=sim.getObject(flight.alias)
+        duration=math.max(duration,flight.frames[#flight.frames][1])
+    end
+    if not sim.getBoolParam(sim.boolparam_headless) then createPanels() end
     clearTrails()
     update(0)
 end
@@ -444,8 +451,7 @@ def create_comparison_scene(source: Path, output: Path,
         raise RuntimeError("Pare a simulação antes de preparar o replay lado a lado.")
     output.mkdir(parents=True, exist_ok=False)
     sim.saveScene((output / "scene_before.ttt").as_posix())
-    app = Path(sim.getStringParam(sim.stringparam_application_path))
-    sim.loadScene((app / "system/dfltscn.ttt").as_posix())
+    sim.loadScene("")
     _remove_if_present(sim, "/Floor")
     _set_scene_appearance(sim)
     cell = float(scenario["terrain"]["area_m"]) / terrain.shape[1]
@@ -504,9 +510,10 @@ def create_comparison_scene(source: Path, output: Path,
     script = sim.createScript(sim.scripttype_customization, code, 0, "lua")
     sim.setObjectAlias(script, "ReplayTelemetrias")
     sim.setObjectSelection([])
-    sim.setBoolParam(sim.boolparam_infotext_visible, False)
-    center_z = crop_z + float(np.mean(crop - np.min(crop))) * scale + .25
-    _frame_camera(sim, separation + width + .8, center_z)
+    if not sim.getBoolParam(sim.boolparam_headless):
+        sim.setBoolParam(sim.boolparam_infotext_visible, False)
+        center_z = crop_z + float(np.mean(crop - np.min(crop))) * scale + .25
+        _frame_camera(sim, separation + width + .8, center_z)
     scene_path = output / "comparacao_lado_a_lado.ttt"
     # A cena reaberta deve conservar a mesma cadência da apresentação inicial.
     sim.setBoolParam(sim.boolparam_realtime_simulation, realtime)

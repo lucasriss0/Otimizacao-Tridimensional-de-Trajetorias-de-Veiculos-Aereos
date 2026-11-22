@@ -103,7 +103,7 @@ def run_benchmark(output: Path, scenario: Path = Path("configs/demo_coverage.yam
     return output
 
 
-def main():
+def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--scenario", type=Path, default=Path("configs/demo_coverage.yaml"))
     parser.add_argument("--output", type=Path)
@@ -117,7 +117,7 @@ def main():
     parser.add_argument("--disable-rendering", action="store_true")
     parser.add_argument("--status", action="store_true", help="Consulta o estado atual do simulador sem iniciar voos.")
     parser.add_argument("--stop", action="store_true", help="Interrompe a execução física atual; o coletor preserva os dados como falha.")
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     if args.reuse_replay:
         if not args.scenario or args.dry_run or args.no_scene or args.status or args.stop:
             parser.error("--reuse-replay exige --scenario e uma execução com cena.")
@@ -169,6 +169,8 @@ def main():
         for key in ("report_error", "presentation_error"):
             if session.get(key):
                 print(f"Pendência preservada em session.json: {session[key]}")
+        if session.get("presentation_error"):
+            raise SystemExit(1)
 
 
 if __name__ == "__main__":

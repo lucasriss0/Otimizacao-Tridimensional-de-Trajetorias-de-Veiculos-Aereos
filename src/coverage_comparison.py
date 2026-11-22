@@ -4,6 +4,7 @@ import argparse
 import csv
 import json
 import hashlib
+import shutil
 import socket
 import subprocess
 from dataclasses import asdict, replace
@@ -131,7 +132,8 @@ def compare_coverage_flights(
                              if proposed_only else
                              "Referência operacional geométrica sem A* versus proposta A*. Não reproduz o algoritmo interno de um fabricante."),
         "collision_monitoring": "Obrigatório, coleção de todas as shapes do drone contra terreno e obstáculos; falha de leitura invalida o voo.",
-        "git_revision": subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip(),
+        "git_revision": subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True,
+                                       text=True).stdout.strip() if shutil.which("git") else "",
         "source_sha256": {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in Path(__file__).parent.glob("*.py")},
         "energy_model": model_manifest(energy_model),
         "energy_model_sha256": energy_fingerprint,
@@ -172,7 +174,7 @@ def compare_coverage_flights(
         app = Path(sim.getStringParam(sim.stringparam_application_path))
         # O replay também é uma cena com scripts. Prepara a coleta a partir
         # do template limpo, após preservar a cena que estava aberta.
-        sim.loadScene((app / "system/dfltscn.ttt").as_posix())
+        sim.loadScene("")
         previous_tree_model = scene.DEFAULT_TREE_MODEL
         try:
             scene.DEFAULT_TREE_MODEL = app / "models/nature/Tree.ttm"
@@ -268,7 +270,7 @@ def compare_coverage_flights(
     return output
 
 
-def main() -> None:
+def main(argv=None) -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--scenario", type=Path, default=Path("configs/demo_coverage.yaml"))
     parser.add_argument("--scene", type=Path, help="Cena compatível; se omitida, prepara automaticamente.")
@@ -283,7 +285,7 @@ def main() -> None:
     parser.add_argument("--executor", choices=("python", "lua"), default="python")
     parser.add_argument("--disable-rendering", action="store_true", help="Acelera somente os voos; restaura a exibição ao final.")
     parser.add_argument("--time-step", type=float, help="Passo temporal do simulador; para estudo de resolução numérica.")
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     output = args.output or Path("output/experiments") / datetime.now().strftime("coverage_%Y%m%d_%H%M%S_%f")
     result = compare_coverage_flights(args.scenario, output, args.scene, args.host,
                                      args.port, args.dry_run, energy_model_path=args.energy_model,

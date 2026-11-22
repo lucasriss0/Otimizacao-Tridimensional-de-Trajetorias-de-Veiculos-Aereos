@@ -52,7 +52,7 @@ def create_presentation(output: Path, port: int = 23000) -> Path:
     sim.saveScene(backup)
     app = Path(sim.getStringParam(sim.stringparam_application_path))
     try:
-        sim.loadScene((app / "system/dfltscn.ttt").as_posix())
+        sim.loadScene("")
         _remove_if_present(sim, "/Floor")
         _set_scene_appearance(sim)
         _populate_scene(sim, app, settings, benchmark_labels)
@@ -223,10 +223,10 @@ end
 '''
 
 
-def main():
+def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--port", type=int, default=23000)
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     stamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
     scene = create_presentation(Path("output/experiments") / f"apresentacao_todos_{stamp}", args.port)
     print(f"Cena com {len(SCENARIOS)} cenários: {scene}")

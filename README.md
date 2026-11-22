@@ -7,8 +7,9 @@ CoppeliaSim para executar os voos e analisar as trajetórias.
 
 ## Instalação
 
-Você precisa do Python 3.13 e do CoppeliaSim Edu, com o add-on ZeroMQ Remote API
-habilitado na porta 23000. Abra o PowerShell na pasta do projeto e execute:
+Você precisa do Python 3.13 ou 3.14 e do CoppeliaSim Edu 4.10, com o add-on
+ZeroMQ Remote API habilitado na porta 23000. Em cada computador, abra o
+PowerShell na pasta do projeto e crie o ambiente Python:
 
 ~~~powershell
 python -m venv .venv
@@ -17,7 +18,9 @@ python -m venv .venv
 
 ## Como executar
 
-Abra o CoppeliaSim e deixe a simulação parada com **Stop (■)**.
+Abra o CoppeliaSim e deixe a simulação parada com **Stop (■)**. Aguarde o
+comando terminar antes de rodar outro. Para trocar de modo durante um replay,
+aperte **Stop (■)** primeiro.
 
 | Comando | O que faz |
 | --- | --- |
@@ -28,10 +31,12 @@ Abra o CoppeliaSim e deixe a simulação parada com **Stop (■)**.
 | `.\apresentar.cmd monte_verde` | Compara os métodos em Monte Verde. |
 | `.\apresentar.cmd --novo serra_do_cipo` | Executa somente o A* na Serra do Cipó. |
 | `.\apresentar.cmd --novo monte_verde` | Executa somente o A* em Monte Verde. |
+| `.\apresentar.cmd --novo --objetos` | Executa somente o A* no cenário com 12 árvores. |
 | `.\apresentar.cmd todos` | Mostra os quatro cenários e suas oito rotas planejadas. |
 
 Os comandos de comparação abrem uma cena salva quando ela está disponível.
 Caso contrário, executam os dois voos em sequência e montam a cena ao final.
+Uma cópia nova do projeto começa sem as telemetrias de outras máquinas.
 Durante a coleta aparece um terreno por vez. Aguarde o terminal e aperte
 **Play** quando a comparação lado a lado estiver aberta. O A* fica à esquerda,
 em laranja, e a referência à direita, em azul.

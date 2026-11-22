@@ -198,4 +198,4 @@ def test_preparation_restores_model_setting_and_uses_same_scene_twice(tmp_path, 
                                             tmp_path / "prepare", client_factory=lambda **kw: client)
     assert comparison.scene.DEFAULT_TREE_MODEL == previous
     assert actions[0][0] == "backup"
-    assert actions[1] == ("template", (tmp_path / "system/dfltscn.ttt").as_posix())
+    assert actions[1] == ("template", "")

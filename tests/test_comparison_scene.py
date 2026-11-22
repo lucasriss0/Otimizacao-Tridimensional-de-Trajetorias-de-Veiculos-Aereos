@@ -175,15 +175,16 @@ class FakeSim:
     arrayparam_background_color2 = 9
     arrayparam_ambient_light = 10
     boolparam_realtime_simulation = 11
+    boolparam_headless = 12
 
-    def __init__(self):
+    def __init__(self, headless=False):
         self.counter = 100
         self.saved = []
         self.loaded = []
         self.positions = []
         self.aliases = []
         self.code = None
-        self.bool_params = {}
+        self.bool_params = {self.boolparam_headless: headless}
         self.saved_bool_params = []
 
     def getSimulationState(self):
@@ -195,6 +196,9 @@ class FakeSim:
 
     def setBoolParam(self, key, value):
         self.bool_params[key] = value
+
+    def getBoolParam(self, key):
+        return self.bool_params[key]
 
     def loadScene(self, path):
         self.loaded.append(path)
@@ -238,8 +242,9 @@ class FakeSim:
 
 
 @pytest.mark.parametrize("realtime", [False, True])
-def test_creates_two_visual_copies_and_backs_up_original_scene(recorded_pair, tmp_path, realtime):
-    sim = FakeSim()
+@pytest.mark.parametrize("headless", [False, True])
+def test_creates_two_visual_copies_and_backs_up_original_scene(recorded_pair, tmp_path, realtime, headless):
+    sim = FakeSim(headless)
     class Client:
         def require(self, name):
             assert name == "sim"
@@ -252,7 +257,8 @@ def test_creates_two_visual_copies_and_backs_up_original_scene(recorded_pair, tm
     assert Path(sim.saved[0]).name == "scene_before.ttt"
     assert sim.saved[-1] == scene.as_posix()
     assert sim.saved_bool_params[-1][sim.boolparam_realtime_simulation] is realtime
-    assert sim.loaded == ["C:/sim/system/dfltscn.ttt"]
+    assert sim.loaded == [""]
+    assert (sim.boolparam_infotext_visible in sim.bool_params) is not headless
     assert "ReplayDrone0" in sim.aliases and "ReplayDrone1" in sim.aliases
     assert "ReplayTerrain0" in sim.aliases and "ReplayTerrain1" in sim.aliases
     manifest = json.loads((output / "replay_manifest.json").read_text(encoding="utf-8"))
