@@ -4,6 +4,7 @@ __pycache__/
 .pytest_cache/
 output/runs/
 output/experiments/
+output/backup_apresentacoes/
 output/test*/
 /output/metricas_cobertura.csv
 /output/metricas_rotas.csv

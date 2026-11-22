@@ -277,7 +277,7 @@ local loop = __LOOP__
 local terrainDescription = __TERRAIN_DESCRIPTION__
 local simUI, menu, ui
 local duration, started, finished, lastTime = 0, 0, false, -1
-local trails, terrainHandles, handles, previous = {}, {}, {}, {}
+local trails, handles, previous = {}, {}, {}
 local trailLift = 0.06
 
 local function sample(frames,t)
@@ -386,7 +386,6 @@ end
 function sysCall_init()
     for i,flight in ipairs(flights) do
         handles[i]=sim.getObject(flight.alias)
-        terrainHandles[i]=sim.getObject('/ReplayTerrain'..(i-1))
         duration=math.max(duration,flight.frames[#flight.frames][1])
     end
     update(0)
@@ -413,8 +412,9 @@ function sysCall_beforeSimulation()
     finished=false
     lastTime=-1
     removeTrails()
-    for i,terrain in ipairs(terrainHandles) do
-        trails[i]=sim.addDrawingObject(sim.drawing_lines,3,0,terrain,100000,{1,1,1})
+    -- As amostras já incluem o deslocamento global de cada terreno.
+    for i=1,#flights do
+        trails[i]=sim.addDrawingObject(sim.drawing_lines,3,0,sim.handle_world,100000,{1,1,1})
     end
     update(0)
 end

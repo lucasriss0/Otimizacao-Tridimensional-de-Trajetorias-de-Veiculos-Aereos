@@ -59,13 +59,22 @@ def _remove_if_present(sim: object, path: str) -> None:
 
 
 def _load_empty_terrain_scene(sim: object) -> None:
-    """Carrega as câmeras e luzes da cena padrão e descarta sua geometria."""
+    """Carrega o template e preserva apenas câmeras e iluminação."""
     sim.loadScene("")
-    # O piso pode ser uma shape independente ou parte de um modelo.
-    shapes = sim.getObjectsInTree(sim.handle_scene, sim.sceneobject_shape, 0)
-    if shapes:
-        sim.removeObjects(shapes)
-    _remove_if_present(sim, "/Floor")
+    # Templates locais podem conter replays, scripts e dummies antigos.
+    # Remover só shapes deixa esses objetos e suas interfaces ativos.
+    handles = sim.getObjectsInTree(sim.handle_scene, sim.handle_all, 0)
+    preserved = set()
+    for handle in handles:
+        if sim.getObjectParent(handle) != sim.handle_world:
+            continue
+        if (sim.getObjectAlias(handle, -1) in {"DefaultCamera", "XYZCameraProxy", "DefaultLights"}
+                or sim.getObjectType(handle) in (sim.sceneobject_camera, sim.sceneobject_light)):
+            preserved.update(sim.getObjectsInTree(handle, sim.handle_all, 0))
+    # removeObjects não remove descendentes implicitamente: liste todos.
+    removable = [handle for handle in handles if handle not in preserved]
+    if removable:
+        sim.removeObjects(removable)
 
 
 def _terrain_visual_data(

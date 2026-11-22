@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 
 from src.coppelia_scene import (
+    _load_empty_terrain_scene,
     _create_crop_visualization,
     _terrain_visual_data,
     setup_scene,
@@ -11,6 +12,27 @@ from src.coppelia_scene import (
 )
 from src.coverage import CoverageWindow
 from src.scenario import load_scenario
+
+
+def test_empty_scene_removes_scripts_and_descendants_but_preserves_camera_and_lights():
+    from types import SimpleNamespace
+
+    removed, loaded = [], []
+    parents = {1: -1, 2: -1, 3: 2, 4: -1, 5: 4, 6: -1, 7: -1}
+    sim = SimpleNamespace(
+        handle_scene=-2, handle_all=-3, handle_world=-1,
+        sceneobject_camera=10, sceneobject_light=11,
+        loadScene=loaded.append,
+        getObjectsInTree=lambda root, *_: list(parents) if root == -2 else
+            ({1: [1], 2: [2, 3]}[root]),
+        getObjectParent=parents.__getitem__,
+        getObjectAlias=lambda h, _: {1: "DefaultCamera", 2: "DefaultLights"}.get(h, "Replay"),
+        getObjectType=lambda h: 10 if h == 1 else 12,
+        removeObjects=removed.extend,
+    )
+    _load_empty_terrain_scene(sim)
+    assert loaded == [""]
+    assert removed == [4, 5, 6, 7]
 
 
 def test_converts_wsl_path_for_windows_coppeliasim():

@@ -189,7 +189,7 @@ def test_preparation_restores_model_setting_and_uses_same_scene_twice(tmp_path, 
 
     sim = SimpleNamespace(
         simulation_stopped=0, stringparam_application_path=1,
-        handle_scene=2, sceneobject_shape=3, getObjectsInTree=lambda *args: [],
+        handle_scene=2, handle_all=3, getObjectsInTree=lambda *args: [],
         boolparam_infotext_visible=17, getSimulationState=lambda: 0,
         saveScene=lambda path: actions.append(("backup", path)), getStringParam=lambda param: str(tmp_path),
         loadScene=lambda path: actions.append(("template", path)), adjustView=lambda *args: None,

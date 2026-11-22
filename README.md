@@ -44,6 +44,10 @@ Depois de atualizar o projeto, rode o comando novamente para abrir um replay
 gerado com o código atual. Os arquivos `.ttt` salvos antes da atualização
 mantêm os objetos e a aparência da cena antiga.
 
+Ao montar uma cena nova, o programa limpa os objetos e scripts do template
+do CoppeliaSim, preservando câmeras e iluminação. Isso impede que terrenos e
+painéis de um replay anterior apareçam no voo individual ou nos oito mapas.
+
 O comando `--novo` inicia o voo automaticamente. Mantenha o terminal aberto
 até ele terminar.
 

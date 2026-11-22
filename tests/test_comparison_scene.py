@@ -155,6 +155,8 @@ def test_embedded_script_is_self_contained_and_preserves_data(recorded_pair):
     assert "0,1.9,0.1,0.6,0" in code
     assert "Energia estimada" in code or "Energia estimada" in code.capitalize()
     assert "sim.createScript" not in code
+    assert "sim.addDrawingObject(sim.drawing_lines,3,0,sim.handle_world," in code
+    assert "terrainHandles" not in code
     for original, flight in zip(before, flights):
         np.testing.assert_array_equal(original, flight.samples)
     with pytest.raises(ValueError, match="positiva"):
@@ -178,6 +180,9 @@ class FakeSim:
     boolparam_headless = 12
     handle_scene = 13
     sceneobject_shape = 14
+    handle_all = 15
+    sceneobject_camera = 16
+    sceneobject_light = 17
 
     def __init__(self, headless=False):
         self.counter = 100
@@ -207,8 +212,17 @@ class FakeSim:
         self.loaded.append(path)
 
     def getObjectsInTree(self, tree, object_type, options):
-        assert (tree, object_type, options) == (self.handle_scene, self.sceneobject_shape, 0)
+        assert (tree, object_type, options) == (self.handle_scene, self.handle_all, 0)
         return [20, 21]  # Piso e caixa decorativa presentes na cena padrão.
+
+    def getObjectParent(self, handle):
+        return self.handle_world
+
+    def getObjectAlias(self, handle, options):
+        return "OldReplay"
+
+    def getObjectType(self, handle):
+        return self.sceneobject_shape
 
     def removeObjects(self, handles):
         self.removed_shapes.extend(handles)
