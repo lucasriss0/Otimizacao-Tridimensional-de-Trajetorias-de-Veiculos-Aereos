@@ -58,6 +58,16 @@ def _remove_if_present(sim: object, path: str) -> None:
         sim.removeObject(handle)
 
 
+def _load_empty_terrain_scene(sim: object) -> None:
+    """Carrega as câmeras e luzes da cena padrão e descarta sua geometria."""
+    sim.loadScene("")
+    # O piso pode ser uma shape independente ou parte de um modelo.
+    shapes = sim.getObjectsInTree(sim.handle_scene, sim.sceneobject_shape, 0)
+    if shapes:
+        sim.removeObjects(shapes)
+    _remove_if_present(sim, "/Floor")
+
+
 def _terrain_visual_data(
     elevation: np.ndarray,
     cell_size_m: float,

@@ -174,7 +174,7 @@ def compare_coverage_flights(
         app = Path(sim.getStringParam(sim.stringparam_application_path))
         # O replay também é uma cena com scripts. Prepara a coleta a partir
         # do template limpo, após preservar a cena que estava aberta.
-        sim.loadScene("")
+        scene._load_empty_terrain_scene(sim)
         previous_tree_model = scene.DEFAULT_TREE_MODEL
         try:
             scene.DEFAULT_TREE_MODEL = app / "models/nature/Tree.ttm"

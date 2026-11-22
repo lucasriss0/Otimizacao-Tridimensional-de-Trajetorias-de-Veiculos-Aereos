@@ -12,7 +12,7 @@ from src.benchmark import check_simulator, find_recorded_pair
 from src.comparison_scene import _create_drone, _frame_camera, _lua_string, _route_ribbon
 from src.coppelia_scene import (
     _create_crop_visualization, _create_terrain_visualization, _create_tree_obstacle,
-    _remove_if_present, _set_scene_appearance,
+    _load_empty_terrain_scene, _set_scene_appearance,
 )
 from src.coverage import CoverageWindow
 from src.coverage_comparison import plan_coverage_routes
@@ -52,8 +52,7 @@ def create_presentation(output: Path, port: int = 23000) -> Path:
     sim.saveScene(backup)
     app = Path(sim.getStringParam(sim.stringparam_application_path))
     try:
-        sim.loadScene("")
-        _remove_if_present(sim, "/Floor")
+        _load_empty_terrain_scene(sim)
         _set_scene_appearance(sim)
         _populate_scene(sim, app, settings, benchmark_labels)
         scene_path = output / "todos_os_cenarios.ttt"

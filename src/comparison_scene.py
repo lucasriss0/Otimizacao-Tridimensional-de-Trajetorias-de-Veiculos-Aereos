@@ -19,7 +19,7 @@ import numpy as np
 
 from src.coppelia_scene import (
     _create_crop_visualization, _create_terrain_visualization,
-    _remove_if_present, _set_scene_appearance,
+    _load_empty_terrain_scene, _set_scene_appearance,
 )
 from src.coverage import CoverageWindow
 from src.waypoints import grid_path_to_waypoints_3d
@@ -180,7 +180,7 @@ def _shape(sim, vertices, indices, alias, color):
     return handle
 
 
-def _route_ribbon(sim, positions: np.ndarray, alias: str, color, width=.018):
+def _route_ribbon(sim, positions: np.ndarray, alias: str, color, width=.045):
     vertices, indices = [], []
     for start, end in zip(positions, positions[1:]):
         delta = end[:2] - start[:2]
@@ -277,6 +277,7 @@ local loop = __LOOP__
 local terrainDescription = __TERRAIN_DESCRIPTION__
 local ui, duration, started, finished, lastTime = nil, 0, 0, false, -1
 local trails, handles, previous = {}, {}, {}
+local trailLift = 0.06
 
 local function sample(frames,t)
     if t<=frames[1][1] then return frames[1] end
@@ -307,7 +308,7 @@ local function update(t)
         sim.setObjectPosition(handles[i],{p[2],p[3],p[4]},sim.handle_world)
         if previous[i] and t>lastTime then
             local q=previous[i]
-            sim.addDrawingObjectItem(trails[i],{q[2],q[3],q[4],p[2],p[3],p[4]})
+            sim.addDrawingObjectItem(trails[i],{q[2],q[3],q[4]+trailLift,p[2],p[3],p[4]+trailLift})
         end
         previous[i]=p
         if ui then
@@ -451,8 +452,7 @@ def create_comparison_scene(source: Path, output: Path,
         raise RuntimeError("Pare a simulação antes de preparar o replay lado a lado.")
     output.mkdir(parents=True, exist_ok=False)
     sim.saveScene((output / "scene_before.ttt").as_posix())
-    sim.loadScene("")
-    _remove_if_present(sim, "/Floor")
+    _load_empty_terrain_scene(sim)
     _set_scene_appearance(sim)
     cell = float(scenario["terrain"]["area_m"]) / terrain.shape[1]
     raw_window = scenario["coverage"].get("window")

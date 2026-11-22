@@ -176,6 +176,8 @@ class FakeSim:
     arrayparam_ambient_light = 10
     boolparam_realtime_simulation = 11
     boolparam_headless = 12
+    handle_scene = 13
+    sceneobject_shape = 14
 
     def __init__(self, headless=False):
         self.counter = 100
@@ -186,6 +188,7 @@ class FakeSim:
         self.code = None
         self.bool_params = {self.boolparam_headless: headless}
         self.saved_bool_params = []
+        self.removed_shapes = []
 
     def getSimulationState(self):
         return 0
@@ -202,6 +205,13 @@ class FakeSim:
 
     def loadScene(self, path):
         self.loaded.append(path)
+
+    def getObjectsInTree(self, tree, object_type, options):
+        assert (tree, object_type, options) == (self.handle_scene, self.sceneobject_shape, 0)
+        return [20, 21]  # Piso e caixa decorativa presentes na cena padrão.
+
+    def removeObjects(self, handles):
+        self.removed_shapes.extend(handles)
 
     def getStringParam(self, _key):
         return "C:/sim"
@@ -258,6 +268,7 @@ def test_creates_two_visual_copies_and_backs_up_original_scene(recorded_pair, tm
     assert sim.saved[-1] == scene.as_posix()
     assert sim.saved_bool_params[-1][sim.boolparam_realtime_simulation] is realtime
     assert sim.loaded == [""]
+    assert sim.removed_shapes == [20, 21]
     assert (sim.boolparam_infotext_visible in sim.bool_params) is not headless
     assert "ReplayDrone0" in sim.aliases and "ReplayDrone1" in sim.aliases
     assert "ReplayTerrain0" in sim.aliases and "ReplayTerrain1" in sim.aliases

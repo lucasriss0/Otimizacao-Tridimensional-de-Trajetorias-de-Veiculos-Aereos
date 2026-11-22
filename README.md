@@ -40,6 +40,9 @@ Uma cópia nova do projeto começa sem as telemetrias de outras máquinas.
 Durante a coleta aparece um terreno por vez. Aguarde o terminal e aperte
 **Play** quando a comparação lado a lado estiver aberta. O A* fica à esquerda,
 em laranja, e a referência à direita, em azul.
+Depois de atualizar o projeto, rode o comando novamente para abrir um replay
+gerado com o código atual. Os arquivos `.ttt` salvos antes da atualização
+mantêm os objetos e a aparência da cena antiga.
 
 O comando `--novo` inicia o voo automaticamente. Mantenha o terminal aberto
 até ele terminar.

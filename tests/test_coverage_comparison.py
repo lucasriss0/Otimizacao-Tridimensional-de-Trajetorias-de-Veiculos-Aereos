@@ -182,12 +182,18 @@ def test_completed_flights_with_measured_coverage_generate_valid_contrast(tmp_pa
 def test_preparation_restores_model_setting_and_uses_same_scene_twice(tmp_path, monkeypatch):
     previous = comparison.scene.DEFAULT_TREE_MODEL
     actions = []
+
+    def get_object(name):
+        assert name == "/Floor"
+        raise RuntimeError("Piso ausente")
+
     sim = SimpleNamespace(
         simulation_stopped=0, stringparam_application_path=1,
+        handle_scene=2, sceneobject_shape=3, getObjectsInTree=lambda *args: [],
         boolparam_infotext_visible=17, getSimulationState=lambda: 0,
         saveScene=lambda path: actions.append(("backup", path)), getStringParam=lambda param: str(tmp_path),
         loadScene=lambda path: actions.append(("template", path)), adjustView=lambda *args: None,
-        getObject=lambda name: 0, setObjectSelection=lambda *args: None,
+        getObject=get_object, setObjectSelection=lambda *args: None,
         setBoolParam=lambda *args: None,
     )
     client = SimpleNamespace(require=lambda name: sim)
