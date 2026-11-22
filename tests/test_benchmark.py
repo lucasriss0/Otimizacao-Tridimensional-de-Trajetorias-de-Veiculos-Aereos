@@ -6,6 +6,23 @@ import pytest
 import src.benchmark as benchmark
 
 
+def test_replay_uses_recorded_scenario_in_nested_batch(tmp_path):
+    scenario = tmp_path / "monte_verde.yaml"
+    scenario.write_text("id: monte_verde\n", encoding="utf-8")
+    run = tmp_path / "batch" / "case_1"
+    flights = run / "flights"
+    flights.mkdir(parents=True)
+    (run / "session.json").write_text('{"status":"finished"}')
+    (flights / "comparison.csv").write_text(
+        "method,mission_completed\nreferencia_2d,True\nproposta_subida_orientacao,True\n"
+    )
+    protocol = flights / "protocol.json"
+    protocol.write_text(json.dumps({"source_scenario_yaml": "id: serra_do_cipo\n"}))
+    assert benchmark.find_recorded_pair(tmp_path, scenario) is None
+    protocol.write_text(json.dumps({"source_scenario_yaml": scenario.read_text()}))
+    assert benchmark.find_recorded_pair(tmp_path, scenario) == flights
+
+
 def test_dry_benchmark_records_protocol_and_implementation_without_simulator(tmp_path, monkeypatch):
     monkeypatch.setattr(benchmark, "check_simulator", lambda *args: pytest.fail("Não conectar"))
     def suite(manifest, output, **kwargs):

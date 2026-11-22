@@ -19,8 +19,8 @@ from src.waypoints import grid_path_to_waypoints_3d
 
 
 SCENARIOS = (
-    ("demo_coverage", "Cenário original"),
-    ("demo_obstacles", "Cenário com 12 árvores"),
+    ("demo_coverage", "Original"),
+    ("demo_obstacles", "12 árvores"),
     ("serra_do_cipo", "Serra do Cipó"),
     ("monte_verde", "Monte Verde"),
 )
@@ -84,8 +84,8 @@ def _populate_scene(sim, app, settings):
             ((terrain.shape[0] - 1) / 2 - (window.row_start + window.row_end) / 2) * cell * scale,
             (float(np.min(crop)) - float(np.min(terrain))) * scale,
         ])
-        for row, (plan, method, color) in enumerate(zip(
-            plans, ("Convencional", "A*"), ([.12, .45, .93], [1., .53, .07]),
+        for row, (plan, color) in enumerate(zip(
+            plans, ([.12, .45, .93], [1., .53, .07]),
         )):
             alias = f"Painel{column}_{row}"
             center = np.array([(column - (len(settings) - 1) / 2) * spacing,
@@ -111,26 +111,24 @@ def _populate_scene(sim, app, settings):
             keep = np.r_[True, durations > 0]
             timestamps = np.r_[0., np.cumsum(durations)][keep]
             positions = positions[keep] * scale + offset
-            _route_ribbon(sim, positions, f"Rota{alias}", color, width=.04)
+            _route_ribbon(sim, positions, f"Rota{alias}", color, width=.065)
             drone_alias = f"Drone{alias}"
-            _create_drone(sim, drone_alias, color, positions[0].tolist())
-            title = f"{name} | {method}"
-            label_position = center + [0., -tile_size / 2 - .24, .15]
+            drone = _create_drone(sim, drone_alias, color, positions[0].tolist())
+            sim.scaleObjects([drone, *sim.getObjectsInTree(drone, sim.handle_all, 1)], 1.6, False)
             frames = ",\n".join("{" + ",".join(f"{value:.10g}" for value in frame) + "}"
                                 for frame in np.column_stack([timestamps, positions]))
-            label_coords = ",".join(f"{value:.10g}" for value in label_position)
             flight_tables.append(
-                f"{{alias={_lua_string('/' + drone_alias)}, title={_lua_string(title)}, "
-                f"label={{{label_coords},0,0,0}}, frames={{\n{frames}\n}}}}"
+                f"{{alias={_lua_string('/' + drone_alias)}, frames={{\n{frames}\n}}}}"
             )
 
     code = _LUA.replace("__ROUTES__", ",\n".join(flight_tables))
+    code = code.replace("__COLUMNS__", _lua_string("   ·   ".join(name for name, *_ in settings)))
     script = sim.createScript(sim.scripttype_customization, code, 0, "lua")
     sim.setObjectAlias(script, "AnimacaoRotasPlanejadas")
     sim.setObjectSelection([])
     if not sim.getBoolParam(sim.boolparam_headless):
         sim.setBoolParam(sim.boolparam_infotext_visible, False)
-        _frame_camera(sim, len(settings) * spacing, 1.)
+        _frame_camera(sim, len(settings) * spacing * .88, 1.)
     sim.setBoolParam(sim.boolparam_realtime_simulation, True)
 
 
@@ -138,13 +136,19 @@ _LUA = '''sim = require 'sim'
 local routes = {__ROUTES__}
 local playbackRate = 8
 local duration = 0
+local ui
 
 function sysCall_init()
+    if not sim.getBoolParam(sim.boolparam_headless) then
+        simUI = require 'simUI'
+        ui = simUI.create([[<ui title="Rotas planejadas" placement="relative" position="-20,110" activate="false" closeable="false" layout="vbox">
+            <label id="1" text="" />
+            <label text="Linha superior: A* (laranja)   |   Linha inferior: convencional (azul)" />
+        </ui>]])
+        simUI.setLabelText(ui, 1, __COLUMNS__)
+    end
     for _,route in ipairs(routes) do
         route.handle = sim.getObject(route.alias)
-        route.banner = sim.addBanner(route.title, 15,
-            sim.banner_keepsamesize + sim.banner_fullyfacingcamera + sim.banner_overlay,
-            route.label)
         duration = math.max(duration, route.frames[#route.frames][1])
     end
 end
@@ -174,9 +178,7 @@ function sysCall_sensing()
 end
 
 function sysCall_cleanup()
-    for _,route in ipairs(routes) do
-        if route.banner then sim.removeBanner(route.banner) end
-    end
+    if ui then simUI.destroy(ui) end
 end
 '''
 

@@ -19,7 +19,7 @@ import numpy as np
 
 from src.coppelia_scene import (
     _create_crop_visualization, _create_terrain_visualization,
-    _set_scene_appearance,
+    _remove_if_present, _set_scene_appearance,
 )
 from src.coverage import CoverageWindow
 from src.waypoints import grid_path_to_waypoints_3d
@@ -330,12 +330,20 @@ local function update(t)
     simUI.setLabelText(ui,1,string.format('Replay do tempo original: %.1f / %.1f s | reprodução %.1fx',t,duration,rate))
 end
 
+local menu
+function toggleDetails()
+    if simUI.isVisible(ui) then simUI.hide(ui) else simUI.show(ui) end
+end
+
 function sysCall_init()
     for i,flight in ipairs(flights) do
         handles[i]=sim.getObject(flight.alias)
         duration=math.max(duration,flight.frames[#flight.frames][1])
     end
-    ui=simUI.create([[<ui title="Comparação lado a lado — replay dos voos registrados" closeable="false" resizable="false" placement="relative" position="20,20" layout="vbox">
+    menu=simUI.create([[<ui title="Replay" closeable="false" activate="false" placement="relative" position="-20,85">
+      <button text="Métricas dos voos" on-click="toggleDetails" />
+    </ui>]])
+    ui=simUI.create([[<ui title="Comparação lado a lado — replay dos voos registrados" closeable="true" on-close="toggleDetails" resizable="false" placement="relative" position="20,130" layout="vbox">
       <label text="REPLAY DE TELEMETRIA | energia estimada, sem medição de bateria" style="font-weight: bold; font-size: 14px;" />
       <label id="3" text="Relevo" />
       <label id="1" text="Tempo original das missões" />
@@ -358,6 +366,7 @@ function sysCall_init()
       <label id="2" text="Aguardando término das missões" />
       <label text="Os drones são ícones sem física. A comparação numérica vem das missões registradas." />
     </ui>]])
+    simUI.hide(ui)
     simUI.setLabelText(ui,3,terrainDescription)
     simUI.setLabelText(ui,23,'ESQUERDA: '..flights[2].label)
     simUI.setLabelText(ui,13,'DIREITA: '..flights[1].label)
@@ -402,6 +411,7 @@ function sysCall_afterSimulation()
 end
 
 function sysCall_cleanup()
+    if menu then simUI.destroy(menu) end
     if ui then simUI.destroy(ui) end
     for _,h in ipairs(trails) do sim.removeDrawingObject(h) end
 end
@@ -436,11 +446,7 @@ def create_comparison_scene(source: Path, output: Path,
     sim.saveScene((output / "scene_before.ttt").as_posix())
     app = Path(sim.getStringParam(sim.stringparam_application_path))
     sim.loadScene((app / "system/dfltscn.ttt").as_posix())
-    try:
-        floor = sim.getObject("/Floor")
-        sim.removeObjects([floor])
-    except Exception:
-        pass
+    _remove_if_present(sim, "/Floor")
     _set_scene_appearance(sim)
     cell = float(scenario["terrain"]["area_m"]) / terrain.shape[1]
     raw_window = scenario["coverage"].get("window")

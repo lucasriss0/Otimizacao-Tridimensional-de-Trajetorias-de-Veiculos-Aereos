@@ -41,6 +41,9 @@ até ele terminar.
 
 No modo `todos`, aperte **Play** para animar as oito rotas a 8×. A animação
 percorre os planos calculados, sem executar o controlador ou coletar telemetria.
+As colunas seguem a ordem da legenda, com o A* em laranja na linha superior
+e o convencional em azul na linha inferior. Nos replays individuais, o botão
+**Métricas dos voos** abre os dados da comparação.
 
 ## Como funciona
 

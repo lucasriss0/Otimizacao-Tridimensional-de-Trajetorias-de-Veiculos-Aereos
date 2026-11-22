@@ -310,6 +310,9 @@ def _create_tree_obstacle(
     # O Tree.ttm oficial usa um script de customização que redimensiona a
     # árvore depois do carregamento. Mantemos só a geometria para que a escala
     # do experimento seja determinística.
+    # O script de Tree.ttm consulta a shape até o modelo ser removido.
+    # Copiar a geometria mantém o modelo íntegro durante as chamadas da API.
+    shapes = list(sim.copyPasteObjects(shapes, 0))
     tree_handle = int(shapes[0])
     sim.setObjectParent(tree_handle, sim.handle_world, True)
     try:
@@ -506,14 +509,10 @@ def setup_scene(
             ],
             sim.handle_world,
         )
-        if scenario.terrain.height_scale != 1.:
-            focus = (float(np.mean(scene_elevation)) - float(np.min(terrain.elevation))) * scenario.simulation.scale
-            extent = max(scene_elevation.shape[1] * cell_size * scenario.simulation.scale,
-                         float(np.ptp(scene_elevation)) * scenario.simulation.scale,
-                         scenario.coverage.clearance_m * scenario.simulation.scale) * 1.3
-            _frame_default_camera(sim, focus + .3, extent)
-        else:
-            _frame_default_camera(sim)
+        focus = (float(np.mean(scene_elevation)) - float(np.min(terrain.elevation))) * scenario.simulation.scale
+        extent = max(max(scene_elevation.shape) * cell_size, float(np.ptp(scene_elevation)),
+                     scenario.coverage.clearance_m) * scenario.simulation.scale * 1.55
+        _frame_default_camera(sim, focus + .3, extent)
 
         destination.parent.mkdir(parents=True, exist_ok=True)
         sim.saveScene(to_coppeliasim_path(destination))

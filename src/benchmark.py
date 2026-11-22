@@ -21,36 +21,24 @@ def check_simulator(host="127.0.0.1", port=23000):
         raise RuntimeError(f"Abra o CoppeliaSim e deixe a simulação parada. API {host}:{port}: {error}") from error
 
 
-def find_saved_replay(root: Path, scenario: Path) -> Path | None:
-    scenario_hash = hashlib.sha256(scenario.read_bytes()).hexdigest()
-    sessions = sorted(root.glob("*/session.json"),
-                      key=lambda path: path.stat().st_mtime, reverse=True)
-    for path in sessions:
+def find_recorded_pair(root: Path, scenario: Path) -> Path | None:
+    source_yaml = scenario.read_text(encoding="utf-8")
+    sessions = [*root.glob("*/session.json"), *root.glob("*/*/session.json")]
+    for path in sorted(sessions, key=lambda path: path.stat().st_mtime, reverse=True):
         session = json.loads(path.read_text(encoding="utf-8"))
-        hashes = session.get("source_sha256", {})
-        if session.get("status") != "finished" or hashes.get(f"configs/{scenario.name}") != scenario_hash:
-            continue
-        if not session.get("scene"):
-            continue
-        scene = Path(session["scene"])
-        if not scene.is_file():
-            continue
-        manifest_path = scene.with_name("replay_manifest.json")
-        if not manifest_path.is_file():
-            continue
-        replay = json.loads(manifest_path.read_text(encoding="utf-8"))
-        pair = Path(replay["source"])
+        pair = path.parent / "flights"
+        protocol_path = pair / "protocol.json"
         comparison = pair / "comparison.csv"
-        if pair != path.parent / "flights" or not comparison.is_file():
+        if session.get("status") != "finished" or not protocol_path.is_file() or not comparison.is_file():
             continue
-        offsets = {flight["method"]: flight["visual_offset_scene_units"] for flight in replay["flights"]}
-        if not offsets.get("proposta_subida_orientacao", 0) < 0 < offsets.get("referencia_2d", 0):
+        protocol = json.loads(protocol_path.read_text(encoding="utf-8"))
+        if protocol.get("source_scenario_yaml") != source_yaml or protocol.get("dry_run"):
             continue
         with comparison.open(encoding="utf-8-sig", newline="") as stream:
             completed = {row["method"] for row in csv.DictReader(stream)
                          if row["mission_completed"] == "True"}
         if {"referencia_2d", "proposta_subida_orientacao"} <= completed:
-            return scene
+            return pair
     return None
 
 
@@ -133,14 +121,24 @@ def main():
     if args.reuse_replay:
         if not args.scenario or args.dry_run or args.no_scene or args.status or args.stop:
             parser.error("--reuse-replay exige --scenario e uma execução com cena.")
-        scene = find_saved_replay(Path("output/experiments").resolve(), args.scenario)
-        if scene is not None:
+        pair = find_recorded_pair(Path("output/experiments").resolve(), args.scenario)
+        if pair is not None:
             check_simulator(args.host, args.port)
             from coppeliasim_zmqremoteapi_client import RemoteAPIClient
             sim = RemoteAPIClient(host=args.host, port=args.port).require("sim")
             if sim.getSimulationState() != sim.simulation_stopped:
                 raise RuntimeError("Clique em Stop no CoppeliaSim antes de abrir a comparação.")
-            sim.loadScene(scene.as_posix())
+            renderer = Path(__file__).with_name("comparison_scene.py")
+            version = hashlib.sha256(renderer.read_bytes()).hexdigest()[:12]
+            prefix = f"presentation_{version}_"
+            saved = sorted(pair.parent.glob(prefix + "*/replay_manifest.json"), reverse=True)
+            scene = next((m.with_name("comparacao_lado_a_lado.ttt") for m in saved
+                          if m.with_name("comparacao_lado_a_lado.ttt").is_file()), None)
+            if scene is None:
+                output = pair.parent / (prefix + datetime.now().strftime("%Y%m%d_%H%M%S_%f"))
+                scene = create_comparison_scene(pair, output, host=args.host, port=args.port)
+            else:
+                sim.loadScene(scene.as_posix())
             print(f"Cena dos voos registrados: {scene}")
             print("Aperte Play para reproduzir as duas trajetórias lado a lado.")
             return
