@@ -1,195 +1,152 @@
 # Planejamento de trajetórias para drone agrícola
 
-O projeto usa relevo do TOPODATA/INPE para comparar nosso A* com uma referência
-de faixas paralelas alternadas. O CoppeliaSim executa os voos e registra as
-trajetórias para calcular cobertura, segurança e energia estimada.
+Este projeto compara duas formas de planejar a cobertura de uma área agrícola:
+nosso A*, que considera distância 3D e subida, e uma referência de faixas
+paralelas com conexões geométricas. Usamos relevo do TOPODATA/INPE e o
+CoppeliaSim para executar os voos e analisar as trajetórias.
 
-## Preparar o computador
+## Instalação
 
-Use Python 3.13 e CoppeliaSim Edu com o add-on ZeroMQ Remote API habilitado.
-Abra o PowerShell na pasta do projeto e instale as dependências uma vez.
+Você precisa do Python 3.13 e do CoppeliaSim Edu, com o add-on ZeroMQ Remote API
+habilitado na porta 23000. Abra o PowerShell na pasta do projeto e execute:
 
 ~~~powershell
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 ~~~
 
-## Comandos da apresentação
+## Como executar
 
-Abra o CoppeliaSim e clique em **Stop (■)** antes de executar um comando.
+Abra o CoppeliaSim e deixe a simulação parada com **Stop (■)**.
 
-~~~powershell
-.\apresentar.cmd
-~~~
-
-Esse comando abre a comparação salva, com nosso A* à esquerda e as faixas
-convencionais à direita. Aperte **Play** para reproduzir os registros juntos.
-Se faltar uma comparação completa compatível com o cenário, o programa coleta
-dois voos em sequência e monta a cena. Durante essa coleta aparece um terreno
-por vez.
-
-~~~powershell
-.\apresentar.cmd --novo
-~~~
-
-Esse comando prepara um terreno e executa **somente nosso A***, com o voo visível.
-O programa inicia a simulação automaticamente, cria terreno, obstáculos fixos e
-quadricóptero e registra o percurso. A cena aberta é copiada na pasta da execução.
-
-Mantenha o terminal aberto durante o voo. Aguarde o término antes de iniciar outro
-comando. Para repetir a apresentação individual, pare a simulação e execute
-novamente o segundo comando.
-
-Para abrir o cenário original, o cenário com 12 árvores, a Serra do Cipó e
-Monte Verde na mesma cena, com o CoppeliaSim aberto e parado, execute o
-comando abaixo.
-
-~~~powershell
-.\apresentar.cmd todos
-~~~
-
-Cada painel identifica o terreno e o método. As rotas A* aparecem em laranja
-e as faixas convencionais em azul. Aperte **Play** para animar as oito rotas
-planejadas no mesmo relógio, a 8×. A cena usa os planos dos cenários e fica
-disponível sem coleta de telemetria.
-
-## O que explicar durante a apresentação
-
-### Comparação com vários obstáculos
-
-Com o CoppeliaSim aberto e parado, execute:
-
-~~~powershell
-.\apresentar.cmd --objetos
-~~~
-
-Esse cenário coloca 12 árvores ao longo das passadas, com raio de segurança
-de 35 m, e usa os mesmos obstáculos para ambos os métodos. Os parâmetros estão
-em configs/demo_obstacles.yaml. A primeira execução coleta os dois voos em
-sequência e abre o replay lado a lado. Aperte Play para reproduzir os registros.
-As execuções seguintes abrem uma comparação completa salva desse cenário.
-
-O painel mostra custo normalizado planejado e executado, cobertura e Wh
-estimados. O relatório HTML e os CSVs ficam na pasta informada pelo terminal.
-O custo normalizado soma distância 3D e peso vezes subida. Os Wh dependem da
-trajetória registrada no simulador.
-
-No planejamento inicial desse cenário, ambos atingiram 100% de cobertura.
-O custo foi 5.678,44 na referência e 6.301,51 no A*. Esses números descrevem
-as rotas planejadas. A energia e a segurança executadas serão avaliadas na coleta.
-
-### Como os métodos funcionam
-
-A referência usa faixas alternadas na direção do maior lado. Conecta pontos por
-geometria e Dijkstra em XY quando há exclusões. Nosso A* conecta os alvos numa
-grade de oito movimentos e escolhe entre as orientações horizontal e vertical.
-Ambos recebem o mesmo terreno, obstáculos, altura, velocidade e controlador.
-
-O custo de busca soma a distância 3D e 0.304 vezes a subida acumulada.
-O planejamento é 2,5D. A busca escolhe células no plano horizontal e deriva
-a altitude do terreno mais uma margem de segurança.
-
-A comparação visual reproduz os dois voos previamente registrados com o
-mesmo relógio. A coleta executa cada método separadamente.
-
-## Cenários e resultados
-
-### Cenários montanhosos de Minas Gerais
-
-| Cenário | Centro do recorte (lat., lon.) | Altitude do recorte | Folha TOPODATA/INPE |
-| --- | --- | ---: | --- |
-| Serra do Cipó, no Espinhaço | -19.365, -43.565 | 830–1.418 m | [19S45_ZN](https://www.dsr.inpe.br/topodata/data/geotiff/19S45_ZN.zip) |
-| Monte Verde, em Camanducaia, na Mantiqueira | -22.850, -46.006 | 1.448–1.825 m | [22S465ZN](https://www.dsr.inpe.br/topodata/data/geotiff/22S465ZN.zip) |
-
-Os GeoTIFFs em `data/raw/` preservam os valores de altitude das folhas e usam
-o sistema de referência EPSG:4326. [Especificação do TOPODATA](https://data.inpe.br/dados/topodata/)
-
-Cada cenário recorta 3 × 3 km, com uma janela de missão de 600 × 600 m e três
-árvores simuladas com raios de exclusão de 45 a 60 m.
-
-~~~powershell
-.\apresentar.cmd serra_do_cipo
-.\apresentar.cmd monte_verde
-~~~
-
-Para voar apenas o A*, passe `--novo` antes do nome do cenário.
-
-~~~powershell
-.\apresentar.cmd --novo serra_do_cipo
-.\apresentar.cmd --novo monte_verde
-~~~
-
-### Cenário principal
-
-Os parâmetros da apresentação principal ficam em `configs/demo_coverage.yaml`.
-
-| Parâmetro | Valor |
+| Comando | O que faz |
 | --- | --- |
-| Mapa e grade | 3 × 3 km, 100 × 100 células |
-| Janela central de missão | 600 × 600 m |
-| Largura e espaçamento das faixas | 120 m e 90 m |
-| Velocidade e altura-alvo | 8 m/s e 60 m sobre o relevo |
-| Margem mínima e peso de subida | 55 m e 0.304 |
-| Vento e obstáculos | Sem vento, obstáculos fixos do YAML |
+| `.\apresentar.cmd` | Abre a comparação do cenário principal. |
+| `.\apresentar.cmd --novo` | Executa somente nosso A* no cenário principal. |
+| `.\apresentar.cmd --objetos` | Compara os métodos em um cenário com 12 árvores. |
+| `.\apresentar.cmd serra_do_cipo` | Compara os métodos na Serra do Cipó. |
+| `.\apresentar.cmd monte_verde` | Compara os métodos em Monte Verde. |
+| `.\apresentar.cmd --novo serra_do_cipo` | Executa somente o A* na Serra do Cipó. |
+| `.\apresentar.cmd --novo monte_verde` | Executa somente o A* em Monte Verde. |
+| `.\apresentar.cmd todos` | Mostra os quatro cenários e suas oito rotas planejadas. |
 
-No par completo registrado no mapa principal, ambos atingiram 100% de cobertura
-geométrica.
+Os comandos de comparação abrem uma cena salva quando ela está disponível.
+Caso contrário, executam os dois voos em sequência e montam a cena ao final.
+Durante a coleta aparece um terreno por vez. Aguarde o terminal e aperte
+**Play** quando a comparação lado a lado estiver aberta. O A* fica à esquerda,
+em laranja, e a referência à direita, em azul.
 
-| Método | Energia estimada | Distância executada | Duração |
+O comando `--novo` inicia o voo automaticamente. Mantenha o terminal aberto
+até ele terminar.
+
+No modo `todos`, aperte **Play** para animar as oito rotas a 8×. A animação
+percorre os planos calculados, sem executar o controlador ou coletar telemetria.
+
+## Como funciona
+
+O programa recorta o mapa de elevação, cria uma grade e marca as células
+ocupadas pelos obstáculos. Depois gera passadas em zigue-zague para cobrir
+a área e calcula as conexões entre os pontos da missão.
+
+Nosso A* busca caminhos em oito direções e escolhe entre passadas horizontais
+e verticais. O custo usado na busca é:
+
+~~~text
+custo = distância 3D + 0,304 × subida acumulada
+~~~
+
+A referência segue o maior lado da área. Usa conexões retas quando estão livres
+e Dijkstra em um grafo de visibilidade para desviar dos obstáculos. Essa é a
+referência geométrica que implementamos para o estudo; os resultados se
+referem a ela.
+
+Os dois métodos acompanham o relevo com uma margem de altura. A busca é 2,5D:
+escolhe as posições horizontais e calcula a altitude a partir do mapa.
+
+## Cenários
+
+Todos usam um mapa de 3 × 3 km, com células de 30 m e uma janela central de
+missão de 600 × 600 m. A velocidade é de 8 m/s e a altura-alvo é de 60 m.
+As configurações ficam em `configs/`.
+
+| Cenário | Arquivo | Obstáculos | Desnível na janela da missão |
+| --- | --- | ---: | ---: |
+| Principal | `demo_coverage.yaml` | 1 árvore | 35,64 m |
+| Vários obstáculos | `demo_obstacles.yaml` | 12 árvores | 35,64 m |
+| Serra do Cipó | `serra_do_cipo.yaml` | 3 árvores | 207,43 m |
+| Monte Verde | `monte_verde.yaml` | 3 árvores | 148,91 m |
+
+Nos cenários montanhosos, uma borda amplia o terreno físico para 840 × 840 m.
+A janela de missão continua com 600 × 600 m.
+
+## Resultados
+
+Nos dois pares completos executados no CoppeliaSim, ambos os métodos atingiram
+100% de cobertura geométrica.
+
+| Cenário | Referência | Nosso A* | Variação da energia estimada |
 | --- | ---: | ---: | ---: |
-| Referência geométrica | 289,25 Wh | 5.432,05 m | 692,85 s |
-| Nosso A* | 293,48 Wh | 5.537,63 m | 705,10 s |
+| Principal | 289,25 Wh | 293,48 Wh | +1,46% |
+| 12 árvores | 304,09 Wh | 334,76 Wh | +10,09% |
 
-O A* subiu 18,87 m a menos, percorreu 105,58 m a mais e apresentou energia
-estimada 1,46% maior. A coleta está em
-output/experiments/custo_vs_convencional_nova_coleta.
+No cenário principal, o A* subiu 18,87 m a menos, mas percorreu 105,58 m a mais.
+O aumento da distância e do tempo de voo superou a economia na subida.
 
-O modelo de energia é teórico e ainda exige calibração elétrica para um veículo
-definido. A cobertura representa a faixa geométrica percorrida no grid. Dose e
-deposição exigem outra avaliação.
+Também calculamos a energia prevista para percorrer os quatro planos a
+velocidade constante, sem o controlador:
 
-O peso 0.304 foi estimado para 4 m/s. A mesma aproximação do modelo a 8 m/s dá
-cerca de 0.680. Nos recortes atuais, os pesos testados produziram a mesma rota
-A* selecionada.
+| Cenário | Referência | Nosso A* | Variação prevista |
+| --- | ---: | ---: | ---: |
+| Principal | 279,22 Wh | 283,58 Wh | +1,56% |
+| 12 árvores | 292,83 Wh | 324,80 Wh | +10,92% |
+| Serra do Cipó | 320,41 Wh | 311,56 Wh | -2,76% |
+| Monte Verde | 303,49 Wh | 318,16 Wh | +4,84% |
 
-## Organização do código
+Na Serra do Cipó, reduzir a subida compensou o percurso mais longo nessa
+previsão. Os dois cenários montanhosos ainda precisam de pares de voo para
+confirmar os valores.
 
-| Arquivo ou grupo | Função |
-| --- | --- |
-| apresentar.cmd | Escolhe comparação ou apresentação individual. |
-| benchmark.py | Coordena coleta, relatório e cena de comparação. |
-| coverage_comparison.py | Planeja e executa o par ou somente nosso A*. |
-| astar.py, coverage.py, conventional.py | Busca A*, passadas e referência geométrica. |
-| scenario.py, terrain.py, obstacles.py, waypoints.py | Cenário, relevo, exclusões e coordenadas. |
-| coppelia_scene.py, coppelia_terrain.py | Preparação do simulador e do terreno. |
-| coppelia_benchmark.py, coppeliasim.py | Execução do controlador e coleta de telemetria. |
-| energy.py, metrics.py, telemetry_metrics.py, executed_coverage.py | Energia estimada, geometria, segurança e cobertura. |
-| comparison_scene.py, benchmark_report.py | Replay lado a lado e relatório. |
-| planning_experiments.py | Estruturas de caso e plano, carregamento do cenário e seleção da orientação A*. |
-| wind.py | Estruturas compartilhadas pelo cenário e pelo custo; a apresentação usa vento zero. |
-| tests/ | Testes dos componentes mantidos. |
+A energia vem de um modelo teórico aplicado à trajetória. A cobertura mede
+a faixa geométrica percorrida. Medições de bateria, dose e deposição ficam
+como etapas futuras.
 
-Os utilitários manuais de importação de árvores, voo por CSV, calibração e
-demonstração secundária foram retirados dos comandos de entrada do projeto.
-Algumas rotinas internas de execução continuam compartilhadas.
-As evidências em docs/ registram experimentos anteriores e podem mencionar
-comandos retirados. As configurações auxiliares também servem como dados dos testes.
+## Código e arquivos
 
-## Saídas e problemas comuns
+- `src/astar.py`, `coverage.py` e `conventional.py` calculam as rotas.
+- `src/coverage_comparison.py` organiza o planejamento e os voos.
+- `src/coppelia_scene.py` e `coppelia_benchmark.py` preparam e executam a cena.
+- `src/energy.py`, `telemetry_metrics.py` e `executed_coverage.py` avaliam os voos.
+- `src/benchmark.py`, `benchmark_report.py` e `comparison_scene.py` geram a comparação.
+- `src/scenario_presentation.py` monta a apresentação dos quatro cenários.
 
-Cada execução nova cria uma pasta em output/experiments. O voo individual grava
-uma pasta coverage_... com protocol.json, comparison.csv e runs/.
-O comparativo informa o caminho do relatório e da cena no terminal.
-O session.json registra os erros de preparação do replay.
+Cada execução cria uma pasta em `output/experiments/`. O terminal informa
+os caminhos das cenas e relatórios. Os principais arquivos são `protocol.json`
+(configuração e planos), `comparison.csv` (resultados), `telemetry.csv`
+(amostras do voo) e `report/index.html` (relatório).
+
+Os estudos anteriores estão em `docs/`. O
+[relatório de estudo atualizado](output/pdf/relatorio_atualizado_c85319f.pdf),
+quando disponível na cópia local, explica o código e os experimentos em mais
+detalhes.
+
+## Testes e problemas comuns
+
+Para rodar os testes:
+
+~~~powershell
+.\.venv\Scripts\python.exe -m pytest tests -q
+~~~
 
 Se a conexão falhar, confira se o CoppeliaSim terminou de abrir, se está parado
-e se o add-on ZeroMQ está ativo na porta 23000. Se aparecer um terreno durante
-uma coleta do par, aguarde os dois voos terminarem. Depois aperte Play na cena
-lado a lado. Após alterar algoritmo, GeoTIFF ou modelo energético, colete um novo
-par pelo módulo benchmark antes de usar os números como resultado atualizado.
+e se o add-on ZeroMQ está ativo. Se a cena final não aparecer, veja a mensagem
+do terminal e o campo `presentation_error` em `session.json`.
 
-Para conferir os componentes mantidos após uma alteração, execute
-.\.venv\Scripts\python.exe -m pytest tests -q.
+As comparações salvas representam os voos que as geraram. Depois de alterar
+o algoritmo, o mapa ou o modelo de energia, gere um novo par para atualizar
+os resultados:
 
-O PDF em output/pdf/, quando presente, descreve a revisão anterior à simplificação.
-Este README registra o fluxo atual de apresentação.
+~~~powershell
+.\.venv\Scripts\python.exe -m src.benchmark --scenario configs/demo_coverage.yaml
+~~~
+
+Dados de elevação fornecidos pelo [TOPODATA/INPE](https://data.inpe.br/dados/topodata/).
