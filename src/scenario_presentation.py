@@ -1,11 +1,14 @@
 """Apresenta todos os cenários e suas rotas planejadas na mesma cena."""
 
 import argparse
+import csv
 from datetime import datetime
+from math import isfinite
 from pathlib import Path
 
 import numpy as np
 
+from src.benchmark import check_simulator, find_recorded_pair
 from src.comparison_scene import _create_drone, _frame_camera, _lua_string, _route_ribbon
 from src.coppelia_scene import (
     _create_crop_visualization, _create_terrain_visualization, _create_tree_obstacle,
@@ -38,8 +41,7 @@ def create_presentation(output: Path, port: int = 23000) -> Path:
         plans, window = plan_coverage_routes(case, scenario)
         settings.append((name, scenario, case, plans, window))
 
-    from src.benchmark import check_simulator
-
+    benchmark_labels = _benchmark_labels(Path("output/experiments").resolve())
     check_simulator(port=port)
     sim = RemoteAPIClient(port=port).require("sim")
     if sim.getSimulationState() != sim.simulation_stopped:
@@ -53,7 +55,7 @@ def create_presentation(output: Path, port: int = 23000) -> Path:
         sim.loadScene((app / "system/dfltscn.ttt").as_posix())
         _remove_if_present(sim, "/Floor")
         _set_scene_appearance(sim)
-        _populate_scene(sim, app, settings)
+        _populate_scene(sim, app, settings, benchmark_labels)
         scene_path = output / "todos_os_cenarios.ttt"
         sim.saveScene(scene_path.as_posix())
     except Exception:
@@ -62,7 +64,40 @@ def create_presentation(output: Path, port: int = 23000) -> Path:
     return scene_path
 
 
-def _populate_scene(sim, app, settings):
+def _benchmark_labels(root: Path) -> list[str]:
+    labels = []
+    has_ineligible = False
+    for scenario_id, name in SCENARIOS:
+        path = Path("configs") / f"{scenario_id}.yaml"
+        pair = find_recorded_pair(root, path)
+        if pair is None:
+            labels.append(f"{name}: sem coleta")
+            continue
+        with (pair / "comparison.csv").open(encoding="utf-8-sig", newline="") as stream:
+            rows = {row["method"]: row for row in csv.DictReader(stream)}
+        results = []
+        for method in ("proposta_subida_orientacao", "referencia_2d"):
+            row = rows[method]
+            coverage = _display_metric(row.get("executed_coverage_percent"), "%")
+            energy = _display_metric(row.get("estimated_energy_wh"), " Wh")
+            marker = "" if row.get("energy_comparison_eligible") == "True" else "*"
+            has_ineligible |= bool(marker)
+            results.append(f"{coverage} · {energy}{marker}")
+        labels.append(f"{name}: {results[0]}  |  {results[1]}")
+    if has_ineligible:
+        labels.append("* Voo inelegível para comparação de energia")
+    return labels
+
+
+def _display_metric(value: str | None, unit: str) -> str:
+    try:
+        number = float(value or "")
+    except ValueError:
+        return "—"
+    return f"{number:.1f}".replace(".", ",") + unit if isfinite(number) else "—"
+
+
+def _populate_scene(sim, app, settings, benchmark_labels):
     tile_size = max(max(window.row_end - window.row_start + 1,
                         window.col_end - window.col_start + 1)
                     * case.cell_x_m * scenario.simulation.scale
@@ -123,6 +158,7 @@ def _populate_scene(sim, app, settings):
 
     code = _LUA.replace("__ROUTES__", ",\n".join(flight_tables))
     code = code.replace("__COLUMNS__", _lua_string("   ·   ".join(name for name, *_ in settings)))
+    code = code.replace("__BENCHMARK__", _lua_string("\n".join(benchmark_labels)))
     script = sim.createScript(sim.scripttype_customization, code, 0, "lua")
     sim.setObjectAlias(script, "AnimacaoRotasPlanejadas")
     sim.setObjectSelection([])
@@ -141,11 +177,15 @@ local ui
 function sysCall_init()
     if not sim.getBoolParam(sim.boolparam_headless) then
         simUI = require 'simUI'
-        ui = simUI.create([[<ui title="Rotas planejadas" placement="relative" position="-20,110" activate="false" closeable="false" layout="vbox">
+        ui = simUI.create([[<ui title="Rotas planejadas" placement="relative" position="12,110" activate="false" closeable="false" layout="vbox">
             <label id="1" text="" />
             <label text="Linha superior: A* (laranja)   |   Linha inferior: convencional (azul)" />
+            <label text="Voos registrados · Cobertura e energia estimada" style="font-weight: bold;" />
+            <label text="A*  |  Convencional" />
+            <label id="2" text="" />
         </ui>]])
         simUI.setLabelText(ui, 1, __COLUMNS__)
+        simUI.setLabelText(ui, 2, __BENCHMARK__)
     end
     for _,route in ipairs(routes) do
         route.handle = sim.getObject(route.alias)
