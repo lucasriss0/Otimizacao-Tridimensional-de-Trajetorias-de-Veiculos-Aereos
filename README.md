@@ -51,8 +51,9 @@ No modo `todos`, aperte **Play** para animar as oito rotas a 8×. A animação
 percorre os planos calculados, sem executar o controlador ou coletar telemetria.
 As colunas seguem a ordem da legenda, com o A* em laranja na linha superior
 e o convencional em azul na linha inferior. O painel resume a cobertura e a
-energia estimada das coletas disponíveis. Nos replays individuais, o botão
-**Métricas dos voos** abre os dados da comparação.
+energia estimada das coletas disponíveis. Nos replays individuais, o painel
+fica fechado ao apertar **Play**. Use **Métricas dos voos** para abrir ou fechar
+os dados da comparação.
 
 ## Como funciona
 

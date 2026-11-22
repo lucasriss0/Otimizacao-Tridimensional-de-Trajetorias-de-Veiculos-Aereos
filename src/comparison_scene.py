@@ -275,8 +275,9 @@ local flights = {__DATA__}
 local rate = __RATE__
 local loop = __LOOP__
 local terrainDescription = __TERRAIN_DESCRIPTION__
-local ui, duration, started, finished, lastTime = nil, 0, 0, false, -1
-local trails, handles, previous = {}, {}, {}
+local simUI, menu, ui
+local duration, started, finished, lastTime = 0, 0, false, -1
+local trails, terrainHandles, handles, previous = {}, {}, {}, {}
 local trailLift = 0.06
 
 local function sample(frames,t)
@@ -293,32 +294,17 @@ local function sample(frames,t)
             a[4]+f*(b[4]-a[4]),a[5]+f*(b[5]-a[5])}
 end
 
-local function clearTrails()
-    for _,h in ipairs(trails) do sim.removeDrawingObject(h) end
+local function removeTrails()
+    for _,h in ipairs(trails) do pcall(sim.removeDrawingObject,h) end
     trails,previous={},{}
-    for i=1,2 do
-        trails[i]=sim.addDrawingObject(sim.drawing_lines,3,0,sim.handle_world,100000,{1,1,1})
-    end
 end
 
-local function update(t)
-    t=math.max(0,math.min(duration,t))
+local function updateMetrics(t)
     for i,flight in ipairs(flights) do
-        local p=sample(flight.frames,t)
-        sim.setObjectPosition(handles[i],{p[2],p[3],p[4]},sim.handle_world)
-        if previous[i] and t>lastTime then
-            local q=previous[i]
-            sim.addDrawingObjectItem(trails[i],{q[2],q[3],q[4]+trailLift,p[2],p[3],p[4]+trailLift})
-        end
-        previous[i]=p
-        if ui then
-            local wh=flight.available and string.format('%.4f Wh estimados',p[5]) or 'Energia indisponível'
-            local done=t>=flight.frames[#flight.frames][1]
-            simUI.setLabelText(ui,10*i+1,wh..(done and ' | missão encerrada' or ''))
-        end
+        local wh=flight.available and string.format('%.4f Wh estimados',previous[i][5]) or 'Energia indisponível'
+        local done=t>=flight.frames[#flight.frames][1]
+        simUI.setLabelText(ui,10*i+1,wh..(done and ' | missão encerrada' or ''))
     end
-    lastTime=t
-    if not ui then return end
     if t>=duration then
         local a,b=flights[1],flights[2]
         if a.available and b.available and a.eligible and b.eligible and a.frames[#a.frames][5]>0 then
@@ -333,17 +319,27 @@ local function update(t)
     simUI.setLabelText(ui,1,string.format('Replay do tempo original: %.1f / %.1f s | reprodução %.1fx',t,duration,rate))
 end
 
-local menu
-function toggleDetails()
-    if simUI.isVisible(ui) then simUI.hide(ui) else simUI.show(ui) end
+local function update(t)
+    t=math.max(0,math.min(duration,t))
+    for i,flight in ipairs(flights) do
+        local p=sample(flight.frames,t)
+        sim.setObjectPosition(handles[i],{p[2],p[3],p[4]},sim.handle_world)
+        if trails[i] and previous[i] and t>lastTime then
+            local q=previous[i]
+            sim.addDrawingObjectItem(trails[i],{q[2],q[3],q[4]+trailLift,p[2],p[3],p[4]+trailLift})
+        end
+        previous[i]=p
+    end
+    lastTime=t
+    if ui and simUI.isVisible(ui) then updateMetrics(t) end
 end
 
-local function createPanels()
-    simUI = require 'simUI'
-    menu=simUI.create([[<ui title="Replay" closeable="false" activate="false" placement="relative" position="-20,85">
-      <button text="Métricas dos voos" on-click="toggleDetails" />
-    </ui>]])
-    ui=simUI.create([[<ui title="Comparação lado a lado — replay dos voos registrados" closeable="true" on-close="toggleDetails" resizable="false" placement="relative" position="20,130" layout="vbox">
+function closeDetails()
+    if ui then simUI.hide(ui) end
+end
+
+local function createDetails()
+    ui=simUI.create([[<ui title="Comparação lado a lado — replay dos voos registrados" closeable="true" on-close="closeDetails" resizable="false" placement="relative" position="20,130" layout="vbox">
       <label text="REPLAY DE TELEMETRIA | energia estimada, sem medição de bateria" style="font-weight: bold; font-size: 14px;" />
       <label id="3" text="Relevo" />
       <label id="1" text="Tempo original das missões" />
@@ -366,7 +362,6 @@ local function createPanels()
       <label id="2" text="Aguardando término das missões" />
       <label text="Os drones são ícones sem física. A comparação numérica vem das missões registradas." />
     </ui>]])
-    simUI.hide(ui)
     simUI.setLabelText(ui,3,terrainDescription)
     simUI.setLabelText(ui,23,'ESQUERDA: '..flights[2].label)
     simUI.setLabelText(ui,13,'DIREITA: '..flights[1].label)
@@ -378,21 +373,49 @@ local function createPanels()
     end
 end
 
+function toggleDetails()
+    if ui and simUI.isVisible(ui) then
+        closeDetails()
+        return
+    end
+    if not ui then createDetails() end
+    updateMetrics(lastTime)
+    simUI.show(ui)
+end
+
 function sysCall_init()
     for i,flight in ipairs(flights) do
         handles[i]=sim.getObject(flight.alias)
+        terrainHandles[i]=sim.getObject('/ReplayTerrain'..(i-1))
         duration=math.max(duration,flight.frames[#flight.frames][1])
     end
-    if not sim.getBoolParam(sim.boolparam_headless) then createPanels() end
-    clearTrails()
     update(0)
+    if not sim.getBoolParam(sim.boolparam_headless) then
+        simUI = require 'simUI'
+        menu=simUI.create([[<ui title="Replay" closeable="false" activate="false" placement="relative" position="-20,85">
+          <button text="Métricas dos voos" on-click="toggleDetails" />
+        </ui>]])
+    end
+end
+
+function sysCall_beforeInstanceSwitch()
+    closeDetails()
+    if menu then simUI.hide(menu) end
+end
+
+function sysCall_afterInstanceSwitch()
+    if menu then simUI.show(menu) end
 end
 
 function sysCall_beforeSimulation()
+    closeDetails()
     started=sim.getSimulationTime()
     finished=false
     lastTime=-1
-    clearTrails()
+    removeTrails()
+    for i,terrain in ipairs(terrainHandles) do
+        trails[i]=sim.addDrawingObject(sim.drawing_lines,3,0,terrain,100000,{1,1,1})
+    end
     update(0)
 end
 
@@ -402,7 +425,8 @@ function sysCall_sensing()
     if t>=duration and loop then
         started=sim.getSimulationTime()
         lastTime=-1
-        clearTrails()
+        for _,h in ipairs(trails) do sim.addDrawingObjectItem(h,nil) end
+        previous={}
         t=0
     end
     update(t)
@@ -414,14 +438,14 @@ end
 
 function sysCall_afterSimulation()
     lastTime=-1
-    clearTrails()
+    removeTrails()
     update(0)
 end
 
 function sysCall_cleanup()
     if menu then simUI.destroy(menu) end
     if ui then simUI.destroy(ui) end
-    for _,h in ipairs(trails) do sim.removeDrawingObject(h) end
+    removeTrails()
 end
 '''
 
